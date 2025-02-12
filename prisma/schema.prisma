@@ -21,19 +21,17 @@ model Supplier {
 
 // Product Model
 model Product {
-  id           String      @id @default(auto()) @map("_id") @db.ObjectId
-  name         String      // Name of the product (e.g., "Bottled Water 1L")
-  supplierId   String      @db.ObjectId // Link to Supplier (one-to-many)
-  supplier     Supplier    @relation(fields: [supplierId], references: [id]) // Explicit relationship
-  price        Float       // Price of the product
-  size         String      // Size of the product (e.g., "1L", "500ml")
-  imageUrl     String      // Image URL for the product
-  outOfStock   Boolean     @default(false) // Stock status
-  promotionIds String[]    @db.ObjectId // Links to Promotions (many-to-many)
-  promotions   Promotion[] @relation(fields: [promotionIds], references: [id]) // Explicit relationship
-  orderItems   OrderItem[] // Orders involving this product
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  price        Float
+  size         String?
+  imageUrl     String?
+  supplierId   String   @db.ObjectId
+  supplier     Supplier @relation(fields: [supplierId], references: [id])
+  published    Boolean  @default(false) // Add this field
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
-
 // Order Model
 model Order {
   id          String      @id @default(auto()) @map("_id") @db.ObjectId
@@ -41,7 +39,7 @@ model Order {
   driverId    String?     @db.ObjectId // Link to Driver (optional)
   status      String      @default("Pending") // Order status (e.g., Pending, Delivered)
   items       OrderItem[] // Relational field for order items
-  driver      Driver?     @relation(fields: [driverId], references: [id]) // Link to Driver
+  // driver      Driver?     @relation(fields: [driverId], references: [id]) // Link to Driver
   customer    User        @relation(fields: [customerId], references: [id]) // Link to Customer
 }
 
@@ -52,7 +50,7 @@ model OrderItem {
   productId  String   @db.ObjectId // Link to Product
   quantity   Int      // Quantity of the product in the order
   order      Order    @relation(fields: [orderId], references: [id]) // Explicit relationship
-  product    Product  @relation(fields: [productId], references: [id]) // Explicit relationship
+  // product    Product  @relation(fields: [productId], references: [id]) // Explicit relationship
 }
 
 // User Model (Customers)
@@ -67,14 +65,11 @@ model User {
 
 // Driver Model
 model Driver {
-  id               String             @id @default(auto()) @map("_id") @db.ObjectId
-  name             String             // Name of the driver
-  email            String             // Email of the driver
-  phone            String             // Phone number of the driver
-  vehicleType      String             // Type of vehicle (e.g., "Truck", "Van")
-  licensePlate     String             // License plate number
-  currentLocation  LocationHistory[]  // Current location history
-  orders           Order[]            // Orders assigned to the driver
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String   // Name of the driver
+  email     String   // Email of the driver
+  phone     String   // Phone number of the driver
+  imageUrl  String?  // URL for the driver's profile picture or vehicle image
 }
 
 // LocationHistory Model
@@ -84,7 +79,6 @@ model LocationHistory {
   latitude   Float                // Latitude of the location
   longitude  Float                // Longitude of the location
   timestamp  DateTime @default(now()) // Timestamp of the location update
-  driver     Driver   @relation(fields: [driverId], references: [id]) // Explicit relationship
 }
 
 // Promotion Model
@@ -97,5 +91,5 @@ model Promotion {
   discount    Float       // Discount percentage (e.g., 20 for 20%)
   active      Boolean     @default(true) // Whether the promotion is active
   productIds  String[]    @db.ObjectId // Links to Products (many-to-many)
-  products    Product[]   @relation(fields: [productIds], references: [id]) // Explicit relationship
+  // products    Product[]   @relation(fields: [productIds], references: [id]) // Explicit relationship
 }

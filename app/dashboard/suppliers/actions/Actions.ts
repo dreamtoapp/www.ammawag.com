@@ -151,7 +151,10 @@ export async function createOrUpdateSupplier(
   // Upload the logo to Cloudinary if a file is provided
   if (logoFile) {
     try {
-      const cloudinaryResponse = await uploadImageToCloudinary(logoFile);
+      const cloudinaryResponse = await uploadImageToCloudinary(
+        logoFile,
+        process.env.CLOUDINARY_UPLOAD_PRESET_SUPPLIER || ""
+      );
       logoUrl = cloudinaryResponse.secure_url; // Save the secure URL
       publicId = cloudinaryResponse.public_id; // Save the public ID directly
     } catch (error: any) {

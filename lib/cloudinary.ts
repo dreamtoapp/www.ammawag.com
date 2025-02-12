@@ -40,18 +40,20 @@ async function ensureFolderExists(folderName: string) {
  * @param file - The image file to upload.
  * @returns An object containing the secure URL and public ID of the uploaded image.
  */
-export async function uploadImageToCloudinary(file: File) {
-  const folderName = process.env.CLOUDINARY_FOLDER || "amwag";
-  const uploadPresetName =
-    process.env.CLOUDINARY_UPLOAD_PRESET || "amwag_preset";
+export async function uploadImageToCloudinary(
+  file: File,
+  presetName: string // Accept preset name as a parameter
+) {
+  const folderName = process.env.CLOUDINARY_FOLDER || "amwag"; // Default folder
+  const uploadPresetName = presetName; // Use the provided preset name
 
-  // Ensure the folder exists
+  // Ensure the folder exists (optional, depending on your setup)
   await ensureFolderExists(folderName);
 
   const formData = new FormData();
   formData.append("file", file);
-  formData.append("upload_preset", uploadPresetName); // Use the manually created preset
-  formData.append("folder", folderName);
+  formData.append("upload_preset", uploadPresetName); // Use the provided preset
+  formData.append("folder", folderName); // Specify the folder
 
   try {
     const response = await fetch(
@@ -73,6 +75,7 @@ export async function uploadImageToCloudinary(file: File) {
     }
 
     const data = await response.json();
+
     if (!data.secure_url || !data.public_id) {
       throw new Error(
         "Failed to retrieve secure URL or public ID from Cloudinary."
@@ -89,6 +92,7 @@ export async function uploadImageToCloudinary(file: File) {
     });
 
     console.log("Cloudinary Upload Response:", data); // Log the full response for debugging
+
     return {
       secure_url: optimizedUrl, // Return the optimized URL
       public_id: data.public_id, // Return the public ID
