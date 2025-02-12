@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// Supplier Model
+model Supplier {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  name        String      // Name of the supplier (e.g., "Water Supplier Co.")
+  logo        String      // Logo URL for branding
+  email       String      // Contact email for the supplier
+  phone       String      // Contact phone number for the supplier
+  address     String      // Physical address of the supplier
+  products    Product[]   // Explicit many-to-many relationship
+}
+
+// Product Model
+model Product {
+  id           String      @id @default(auto()) @map("_id") @db.ObjectId
+  name         String      // Name of the product (e.g., "Bottled Water 1L")
+  supplierId   String      @db.ObjectId // Link to Supplier (one-to-many)
+  supplier     Supplier    @relation(fields: [supplierId], references: [id]) // Explicit relationship
+  price        Float       // Price of the product
+  size         String      // Size of the product (e.g., "1L", "500ml")
+  imageUrl     String      // Image URL for the product
+  outOfStock   Boolean     @default(false) // Stock status
+  promotionIds String[]    @db.ObjectId // Links to Promotions (many-to-many)
+  promotions   Promotion[] @relation(fields: [promotionIds], references: [id]) // Explicit relationship
+}
+
+// Order Model
+model Order {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  customerId  String      @db.ObjectId // Link to User (one-to-many)
+  driverId    String?     @db.ObjectId // Link to Driver (optional)
+  status      String      @default("Pending") // Order status (e.g., Pending, Delivered)
+  items       Json        // Example: [{ productId: "...", quantity: 2 }]
+  driver      Driver?     @relation(fields: [driverId], references: [id]) // Link to Driver
+  customer    User        @relation(fields: [customerId], references: [id]) // Link to Customer
+}
+
+// User Model (Customers)
+model User {
+  id       String      @id @default(auto()) @map("_id") @db.ObjectId
+  name     String      // Name of the customer
+  email    String      @unique // Email of the customer
+  password String      // Password for authentication
+  role     String      @default("customer") // "customer" or "admin"
+  orders   Order[]     // Orders placed by the customer
+}
+
+// Driver Model
+model Driver {
+  id               String             @id @default(auto()) @map("_id") @db.ObjectId
+  name             String             // Name of the driver
+  email            String             // Email of the driver
+  phone            String             // Phone number of the driver
+  vehicleType      String             // Type of vehicle (e.g., "Truck", "Van")
+  licensePlate     String             // License plate number
+  currentLocation  Json               // Current location (e.g., { latitude: 24.7136, longitude: 46.6753 })
+  orders           Order[]            // Orders assigned to the driver
+}
+
+// LocationHistory Model (Optional)
+model LocationHistory {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  driverId   String   @db.ObjectId // Link to Driver
+  latitude   Float                // Latitude of the location
+  longitude  Float                // Longitude of the location
+  timestamp  DateTime @default(now()) // Timestamp of the location update
+}
+
+// Promotion Model
+model Promotion {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  title       String      // Title of the promotion (e.g., "Summer Sale")
+  description String      // Description of the promotion
+  startDate   DateTime    // Start date of the promotion
+  endDate     DateTime    // End date of the promotion
+  discount    Float       // Discount percentage (e.g., 20 for 20%)
+  active      Boolean     @default(true) // Whether the promotion is active
+  productIds  String[]    @db.ObjectId // Links to Products (many-to-many)
+  products    Product[]   @relation(fields: [productIds], references: [id]) // Explicit relationship
+}
