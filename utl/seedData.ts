@@ -4,16 +4,20 @@ import db from "../lib/prisma";
 
 async function main() {
   console.log("Seeding database with fake data...");
-
   try {
     // Clear existing data (optional)
     console.log("Clearing existing data...");
-    await db.supplier.deleteMany();
-    await db.product.deleteMany();
-    await db.order.deleteMany();
-    await db.user.deleteMany();
-    await db.driver.deleteMany();
-    await db.promotion.deleteMany();
+
+    // Delete dependent records first to avoid foreign key constraint errors
+    await db.orderItem.deleteMany(); // Delete OrderItems
+    await db.order.deleteMany(); // Delete Orders
+    await db.locationHistory.deleteMany(); // Delete LocationHistory
+    await db.driver.deleteMany(); // Delete Drivers
+    await db.promotion.deleteMany(); // Delete Promotions
+    await db.product.deleteMany(); // Delete Products
+    await db.supplier.deleteMany(); // Delete Suppliers
+    await db.user.deleteMany(); // Delete Users
+
     console.log("Existing data cleared successfully.");
 
     // Generate fake suppliers
@@ -79,13 +83,18 @@ async function main() {
           phone: faker.phone.number(),
           vehicleType: faker.helpers.arrayElement(["Truck", "Van"]),
           licensePlate: faker.vehicle.vrm(),
-          currentLocation: {
-            latitude: parseFloat(faker.location.latitude().toString()),
-            longitude: parseFloat(faker.location.longitude().toString()),
-          },
         },
       });
       drivers.push({ id: driver.id });
+
+      // Add current location history for the driver
+      await db.locationHistory.create({
+        data: {
+          driverId: driver.id,
+          latitude: parseFloat(faker.location.latitude().toString()),
+          longitude: parseFloat(faker.location.longitude().toString()),
+        },
+      });
     }
     console.log(`Generated ${drivers.length} fake drivers.`);
 
@@ -95,15 +104,8 @@ async function main() {
       const customer = faker.helpers.arrayElement(users);
       const driver = faker.helpers.arrayElement(drivers);
 
-      const items = faker.helpers.multiple(
-        () => ({
-          productId: faker.helpers.arrayElement(products).id.toString(), // Ensure productId is a string
-          quantity: faker.number.int({ min: 1, max: 5 }),
-        }),
-        { count: faker.number.int({ min: 1, max: 3 }) }
-      );
-
-      await db.order.create({
+      // Create the order
+      const order = await db.order.create({
         data: {
           customerId: customer.id,
           driverId: driver.id,
@@ -112,9 +114,27 @@ async function main() {
             "Delivered",
             "In Transit",
           ]),
-          items: items as any, // Ensure this matches your JSON structure
         },
       });
+
+      // Add order items
+      const items = faker.helpers.multiple(
+        () => ({
+          productId: faker.helpers.arrayElement(products).id,
+          quantity: faker.number.int({ min: 1, max: 5 }),
+        }),
+        { count: faker.number.int({ min: 1, max: 3 }) }
+      );
+
+      for (const item of items) {
+        await db.orderItem.create({
+          data: {
+            orderId: order.id,
+            productId: item.productId,
+            quantity: item.quantity,
+          },
+        });
+      }
     }
     console.log("Generated 10 fake orders.");
 
@@ -122,7 +142,7 @@ async function main() {
     console.log("Generating fake promotions...");
     for (let i = 0; i < 3; i++) {
       const productIds = faker.helpers.multiple(
-        () => faker.helpers.arrayElement(products).id.toString(), // Ensure product ID is a string
+        () => faker.helpers.arrayElement(products).id,
         { count: faker.number.int({ min: 1, max: 3 }) }
       );
 
@@ -150,4 +170,5 @@ async function main() {
     await db.$disconnect();
   }
 }
+
 main();
