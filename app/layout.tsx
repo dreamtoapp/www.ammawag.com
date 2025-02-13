@@ -1,4 +1,3 @@
-import { roboto, tajawal, cairo } from "@/lib/importFonts"; // Import the new fonts
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
 import { Toaster } from "@/components/ui/sonner";
@@ -6,7 +5,7 @@ import "./globals.css";
 import NextTopLoader from "nextjs-toploader";
 import { Directions } from "../constant/enums";
 import { ThemeProvider } from "../provider/theme-provider";
-
+import { roboto, tajawal, cairo } from "@/lib/importFonts";
 export default async function RootLayout({
   children,
 }: {
