@@ -14,11 +14,12 @@ export default async function RootLayout({
 }) {
   // const messages = await getMessages();
   // const locale = await getLocale();
-
+  // const locale="ar"
   return (
     <html
       // lang={locale}
       // dir={locale === "en" ? Directions.LTR : Directions.RTL}
+      dir={Directions.RTL}
       suppressHydrationWarning
     >
       <body

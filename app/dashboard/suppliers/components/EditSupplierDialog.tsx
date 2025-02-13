@@ -1,4 +1,3 @@
-// app/dashboard/suppliers/components/EditSupplierDialog.tsx
 "use client";
 import { useState } from "react";
 import {
@@ -8,13 +7,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
-import { createOrUpdateSupplier } from "../actions/Actions";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Pencil } from "lucide-react";
+import { createOrUpdateSupplier } from "../actions/supplierActions";
 import { z } from "zod"; // Import Zod
 import { supplierSchema } from "../logic/validation";
-import { Pencil } from "lucide-react";
+import InputField from "@/components/InputField"; // Reusable InputField
+import ImageUploadField from "@/components/ImageUploadField"; // Reusable ImageUploadField
+import { Loader2 } from "lucide-react"; // Import a loading spinner icon
 
 interface EditSupplierDialogProps {
   supplier: {
@@ -42,18 +43,29 @@ export default function EditSupplierDialog({
     supplier.logo || null
   );
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [imageLoading, setImageLoading] = useState(false); // State for image loading
+  const [submitLoading, setSubmitLoading] = useState(false); // State for form submission
 
+  // Handle changes in input fields
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
     setErrors((prevErrors) => ({ ...prevErrors, [name]: "" })); // Clear errors
   };
 
+  // Handle file upload
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      setImageLoading(true); // Start image loading
       setLogoFile(file);
-      setPreviewUrl(URL.createObjectURL(file)); // Preview the uploaded image
+
+      // Simulate image loading delay (optional, for better UX)
+      setTimeout(() => {
+        setPreviewUrl(URL.createObjectURL(file)); // Preview the uploaded image
+        setImageLoading(false); // Stop image loading
+      }, 500);
+
       setErrors((prevErrors) => ({ ...prevErrors, logo: "" })); // Clear logo error
     } else {
       setLogoFile(undefined);
@@ -61,17 +73,20 @@ export default function EditSupplierDialog({
     }
   };
 
+  // Handle form submission
   const handleSubmit = async () => {
     try {
+      setSubmitLoading(true); // Start loading
       // Validate form data using Zod
       supplierSchema.parse(formData);
 
-      // If no new logo is uploaded, ensure the existing logo is retained
+      // Ensure a logo file is provided
       if (!logoFile && !supplier.logo) {
         setErrors((prevErrors) => ({
           ...prevErrors,
           logo: "Logo is required.",
         }));
+        setSubmitLoading(false); // Stop loading if validation fails
         return;
       }
 
@@ -85,10 +100,14 @@ export default function EditSupplierDialog({
         error.errors.forEach((err: z.ZodIssue) => {
           fieldErrors[err.path[0]] = err.message;
         });
-        setErrors(fieldErrors);
+
+        // Find the first error and display it
+        const firstErrorKey = Object.keys(fieldErrors)[0];
+        setErrors({ [firstErrorKey]: fieldErrors[firstErrorKey] });
       } else {
         console.error("Error updating supplier:", error.message);
       }
+      setSubmitLoading(false); // Stop loading if there's an error
     }
   };
 
@@ -99,91 +118,108 @@ export default function EditSupplierDialog({
           <Pencil />
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[425px] min-h-[500px]">
         <DialogHeader>
           <DialogTitle>Edit Supplier</DialogTitle>
         </DialogHeader>
-        <form className="space-y-4">
-          {/* Name Field */}
-          <div>
-            <Input
-              name="name"
-              placeholder="Supplier Name"
-              value={formData.name}
-              onChange={handleChange}
-            />
-            {errors.name && (
-              <p className="text-sm text-red-500">{errors.name}</p>
-            )}
-          </div>
 
-          {/* Email Field */}
-          <div>
-            <Input
-              name="email"
-              placeholder="Email"
-              value={formData.email}
-              onChange={handleChange}
-            />
-            {errors.email && (
-              <p className="text-sm text-red-500">{errors.email}</p>
-            )}
-          </div>
+        {/* Tabs */}
+        <Tabs defaultValue="details" className="w-full">
+          {/* Fixed Tabs List */}
+          <TabsList className="grid w-full grid-cols-2 sticky top-0 bg-white z-10">
+            <TabsTrigger value="details">Supplier Details</TabsTrigger>
+            <TabsTrigger value="logo">Logo Upload</TabsTrigger>
+          </TabsList>
 
-          {/* Phone Field */}
-          <div>
-            <Input
-              name="phone"
-              placeholder="Phone"
-              value={formData.phone}
-              onChange={handleChange}
-            />
-            {errors.phone && (
-              <p className="text-sm text-red-500">{errors.phone}</p>
-            )}
-          </div>
-
-          {/* Address Field */}
-          <div>
-            <Input
-              name="address"
-              placeholder="Address"
-              value={formData.address}
-              onChange={handleChange}
-            />
-            {errors.address && (
-              <p className="text-sm text-red-500">{errors.address}</p>
-            )}
-          </div>
-
-          {/* Logo Field */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Logo
-            </label>
-            <Input type="file" accept="image/*" onChange={handleFileChange} />
-            {previewUrl && (
-              <div className="mt-2">
-                <p className="text-sm text-gray-500">Preview:</p>
-                <Image
-                  src={previewUrl}
-                  alt="Logo Preview"
-                  width={80}
-                  height={80}
-                  className="rounded-full object-cover"
+          {/* Scrollable Content */}
+          <div className="overflow-y-auto max-h-[350px] mt-4 space-y-4">
+            {/* Supplier Details Tab */}
+            <TabsContent value="details">
+              <div className="space-y-4">
+                <InputField
+                  name="name"
+                  label="Supplier Name"
+                  placeholder="Enter supplier name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  tooltip="The name of the supplier or company."
+                  error={errors.name}
+                />
+                <InputField
+                  name="email"
+                  label="Email"
+                  placeholder="Enter email address"
+                  value={formData.email}
+                  onChange={handleChange}
+                  tooltip="The contact email for the supplier."
+                  error={errors.email}
+                />
+                <InputField
+                  name="phone"
+                  label="Phone"
+                  placeholder="Enter phone number"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  tooltip="The contact phone number for the supplier."
+                  error={errors.phone}
+                />
+                <InputField
+                  name="address"
+                  label="Address"
+                  placeholder="Enter physical address"
+                  value={formData.address}
+                  onChange={handleChange}
+                  tooltip="The physical address of the supplier."
+                  error={errors.address}
                 />
               </div>
-            )}
-            {errors.logo && (
-              <p className="text-sm text-red-500">{errors.logo}</p>
-            )}
+            </TabsContent>
+
+            {/* Logo Upload Tab */}
+            <TabsContent value="logo">
+              <div className="flex flex-col h-full">
+                <ImageUploadField
+                  label="Logo"
+                  previewUrl={previewUrl}
+                  onChange={handleFileChange}
+                  error={errors.logo}
+                />
+                {imageLoading && (
+                  <div className="flex justify-center items-center mt-4">
+                    <Loader2 className="animate-spin h-5 w-5 text-gray-500" />
+                  </div>
+                )}
+              </div>
+            </TabsContent>
           </div>
 
-          {/* Submit Button */}
-          <Button type="button" onClick={handleSubmit}>
-            Save Changes
-          </Button>
-        </form>
+          {/* Single Error Message */}
+          <div className="mt-4">
+            {Object.entries(errors).map(([field, message]) => (
+              <p key={field} className="text-sm text-red-500">
+                {message}
+              </p>
+            ))}
+          </div>
+
+          {/* Fixed Submit Button */}
+          <div className="absolute bottom-0 bg-white py-4 border-t border-gray-200">
+            <Button
+              type="button"
+              onClick={handleSubmit}
+              disabled={submitLoading} // Disable button while loading
+              className="w-full bg-blue-600 hover:bg-blue-700"
+            >
+              {submitLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
+                </>
+              ) : (
+                "Save Changes"
+              )}
+            </Button>
+          </div>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );

@@ -1,20 +1,20 @@
 // app/dashboard/suppliers/actions/supplierActions.ts
 "use server";
-
-import db from "../../../../lib/prisma";
-import { uploadImageToCloudinary } from "../../../../lib/cloudinary";
+import db from "@/lib/prisma";
+import { uploadImageToCloudinary } from "@/lib/cloudinary";
+import { revalidatePath } from "next/cache";
 
 // Create or Update Supplier
-
 export async function updateSupplier(id: string, data: any) {
   await db.supplier.update({
     where: { id },
     data,
   });
 }
-
+// ***********************************
+// Fetch the supplier and check if it has related products
+// ***********************************
 export async function getSupplierDetails(id: string) {
-  // Fetch the supplier and check if it has related products
   const supplier = await db.supplier.findUnique({
     where: { id },
     include: {
@@ -31,7 +31,6 @@ export async function getSupplierDetails(id: string) {
     hasProducts: supplier.products.length > 0,
   };
 }
-// Delete Supplier
 
 export async function deleteSupplier(
   id: string
@@ -88,53 +87,6 @@ export async function getSuppliers() {
 }
 
 /**
- * Product Actions
- */
-
-// Fetch All Products
-export async function getProducts(supplierId?: string) {
-  return await db.product.findMany({
-    where: supplierId ? { supplierId } : undefined,
-  });
-}
-
-// Fetch a Single Product by ID
-export async function getProductById(id: string) {
-  return await db.product.findUnique({ where: { id } });
-}
-
-// Create or Update a Product
-export async function createOrUpdateProduct(id: string | null, data: any) {
-  if (id) {
-    await db.product.update({ where: { id }, data });
-  } else {
-    await db.product.create({ data });
-  }
-}
-
-// Delete a Product
-export async function deleteProduct(id: string) {
-  // Check if the product is associated with any orders
-  const orderCount = await db.order.count({
-    where: {
-      items: {
-        some: {
-          productId: id,
-        },
-      },
-    },
-  });
-
-  if (orderCount > 0) {
-    throw new Error(
-      "Cannot delete this product because it is linked to one or more orders."
-    );
-  }
-
-  await db.product.delete({ where: { id } });
-}
-
-/**
  * Creates or updates a supplier.
  * @param id - The ID of the supplier (null for new suppliers).
  * @param data - The supplier data (name, email, phone, address).
@@ -183,6 +135,7 @@ export async function createOrUpdateSupplier(
         data: supplierData,
       });
     }
+    revalidatePath("/dashboard/suppliers");
   } catch (error: any) {
     console.error("Error creating/updating supplier:", error);
     throw new Error("Failed to save supplier data.");

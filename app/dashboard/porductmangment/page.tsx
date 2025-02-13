@@ -4,39 +4,54 @@ import {
   getAllProductsWithSupplier,
   getAllSuppliers,
 } from "../orders/actions/Actions";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import FilterBySupplier from "./components/FliterBySupplier";
 
 interface PageProps {
-  searchParams: { supplierId?: string }; // Define the type for searchParams
+  searchParams: Promise<{ supplierId?: string }>;
 }
 
 async function Page({ searchParams }: PageProps) {
-  // Fetch all suppliers
+  // انتظار استخراج searchParams
+  const params = await searchParams;
+
+  // جلب جميع الموردين
   const suppliers = await getAllSuppliers();
 
-  // Extract supplierId from searchParams
-  const supplierId = searchParams.supplierId || undefined;
+  // استخراج supplierId من searchParams
+  const supplierId = params.supplierId;
 
-  // Fetch products based on the supplierId
+  // جلب المنتجات بناءً على supplierId
   const products = await getAllProductsWithSupplier(supplierId);
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Supplier Filter */}
-      <div className="flex items-center justify-between">
-        <FilterBySupplier suppliers={suppliers} />
-        <p>Items: {products.length}</p>
-      </div>
+    <div className="p-6 space-y-6 max-w-7xl mx-auto">
+      {/* قسم فلترة الموردين */}
+      <Card>
+        <CardContent className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <FilterBySupplier suppliers={suppliers} />
+          <Badge variant="outline" className="px-4 py-2 text-lg">
+            عدد المنتجات: {products.length}
+          </Badge>
+        </CardContent>
+      </Card>
 
-      {/* Product List */}
+      {/* قائمة المنتجات */}
       {products.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
       ) : (
-        <p className="text-gray-600">No products found for this supplier.</p>
+        <Alert variant="destructive" className="mt-4">
+          <AlertTitle>لا توجد منتجات متاحة</AlertTitle>
+          <AlertDescription>
+            لم يتم العثور على منتجات لهذا المورد. يرجى اختيار مورد آخر.
+          </AlertDescription>
+        </Alert>
       )}
     </div>
   );

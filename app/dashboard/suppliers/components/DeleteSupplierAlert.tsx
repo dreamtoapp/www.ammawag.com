@@ -12,7 +12,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { deleteSupplier, getSupplierDetails } from "../actions/Actions";
+import { deleteSupplier, getSupplierDetails } from "../actions/supplierActions";
 import { Trash } from "lucide-react";
 
 interface DeleteSupplierAlertProps {
