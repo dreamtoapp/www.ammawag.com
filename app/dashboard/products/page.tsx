@@ -1,4 +1,3 @@
-// app/dashboard/products/page.tsx
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import ProductCard from "./components/ProductCard";
@@ -17,11 +16,36 @@ export default async function ProductsPage({
   const supplierId = params.supplierId;
 
   if (!supplierId) {
-    notFound();
+    notFound(); // Redirect to 404 if no supplierId is provided
   }
 
   // Fetch supplier and products based on supplierId
-  const supplier = await getProductsBySupplier(supplierId);
+  const supplierResponse = await getProductsBySupplier(supplierId);
+
+  // Handle cases where the supplier is not found or an error occurs
+  if (!supplierResponse.success) {
+    return (
+      <div className="p-6 space-y-6">
+        <h1 className="text-3xl font-bold text-gray-800">Manage Products</h1>
+        <div className="bg-white shadow-md rounded-lg p-6 text-center">
+          <p className="text-red-500">{supplierResponse.message}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Ensure supplier data is defined
+  const supplier = supplierResponse.data;
+  if (!supplier) {
+    return (
+      <div className="p-6 space-y-6">
+        <h1 className="text-3xl font-bold text-gray-800">Manage Products</h1>
+        <div className="bg-white shadow-md rounded-lg p-6 text-center">
+          <p className="text-red-500">Supplier data is missing.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -61,8 +85,9 @@ export default async function ProductsPage({
       </div>
 
       {/* Add New Item Button */}
-      <div className="flex justify-end">
+      <div className="flex items-center justify-between">
         <AddProductDialog supplierId={supplier.id} />
+        <p>Items :{supplier.products.length}</p>
       </div>
 
       {/* Product List */}

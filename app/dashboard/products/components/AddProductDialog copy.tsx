@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { z } from "zod"; // Import Zod
-import { createProduct } from "../actions/Actions";
+import { createOrUpdateProduct } from "../actions/Actions";
 import { productSchema } from "../logic/validation"; // Import Zod schema for product
 import { Loader2 } from "lucide-react"; // Import a loading spinner icon
 import InputField from "@/components/InputField"; // Reusable InputField
@@ -75,7 +75,11 @@ export default function AddProductDialog({
       // Validate form data using Zod
       productSchema.parse(parsedFormData);
       // Call the createOrUpdateProduct function
-      await createProduct({ ...parsedFormData, supplierId }, imageFile);
+      await createOrUpdateProduct(
+        null,
+        { ...parsedFormData, supplierId },
+        imageFile
+      );
       window.location.reload(); // Refresh the page after adding
     } catch (error: any) {
       if (error instanceof z.ZodError) {

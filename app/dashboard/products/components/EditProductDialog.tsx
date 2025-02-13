@@ -9,26 +9,32 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { z } from "zod"; // Import Zod
-import { createProduct } from "../actions/Actions";
 import { productSchema } from "../logic/validation"; // Import Zod schema for product
 import { Loader2 } from "lucide-react"; // Import a loading spinner icon
 import InputField from "@/components/InputField"; // Reusable InputField
 import ImageUploadField from "@/components/ImageUploadField"; // Reusable ImageUploadField
+import { UpdateProduct } from "../actions/Actions copy";
 
-interface AddProductDialogProps {
-  supplierId: string; // Explicitly define supplierId as a prop
+interface EditProductDialogProps {
+  product: {
+    id: string;
+    name: string;
+    price: number;
+    size?: string | null; // Allow size to be optional or null
+    imageUrl?: string | null; // Allow imageUrl to be optional or null
+  };
 }
 
-export default function AddProductDialog({
-  supplierId,
-}: AddProductDialogProps) {
+export default function EditProductDialog({ product }: EditProductDialogProps) {
   const [formData, setFormData] = useState({
-    name: "",
-    price: 0,
-    size: "",
+    name: product.name,
+    price: product.price,
+    size: product.size || "", // Default to empty string if size is null or undefined
   });
-  const [imageFile, setImageFile] = useState<File | undefined>(undefined); // File selected by the user
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null); // Preview URL for the uploaded image
+  const [imageFile, setImageFile] = useState<File | undefined>(undefined); // New image file (if uploaded)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(
+    product.imageUrl || "/default-product.jpg" // Default to placeholder image if no imageUrl is provided
+  );
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState(false); // Loading state for form submission
 
@@ -46,11 +52,11 @@ export default function AddProductDialog({
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setImageFile(file);
-      setPreviewUrl(URL.createObjectURL(file)); // Preview the uploaded image
+      setPreviewUrl(URL.createObjectURL(file)); // Update preview with the new image
       setErrors((prevErrors) => ({ ...prevErrors, imageUrl: "" })); // Clear image error
     } else {
       setImageFile(undefined);
-      setPreviewUrl(null);
+      setPreviewUrl(product.imageUrl || "/default-product.jpg"); // Revert to the existing image or placeholder
     }
   };
 
@@ -63,20 +69,15 @@ export default function AddProductDialog({
         ...formData,
         price: parseFloat(formData.price.toString()) || 0,
       };
-      // Ensure an image file is provided
-      if (!imageFile) {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          imageUrl: "Product image is required.",
-        }));
-        setLoading(false); // Stop loading if validation fails
-        return;
-      }
       // Validate form data using Zod
       productSchema.parse(parsedFormData);
-      // Call the createOrUpdateProduct function
-      await createProduct({ ...parsedFormData, supplierId }, imageFile);
-      window.location.reload(); // Refresh the page after adding
+      // Call the updateProduct function
+      await UpdateProduct(
+        product.id, // Pass the product ID for updating
+        parsedFormData, // Pass the updated form data
+        imageFile // Pass the new image file (if any)
+      );
+      window.location.reload(); // Refresh the page after updating
     } catch (error: any) {
       if (error instanceof z.ZodError) {
         // Map Zod errors to a key-value object
@@ -86,7 +87,7 @@ export default function AddProductDialog({
         });
         setErrors(fieldErrors);
       } else {
-        console.error("Error adding product:", error.message);
+        console.error("Error updating product:", error.message);
       }
       setLoading(false); // Stop loading if there's an error
     }
@@ -95,11 +96,11 @@ export default function AddProductDialog({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">Add New Item</Button>
+        <Button variant="outline">Edit Product</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add New Product</DialogTitle>
+          <DialogTitle>Edit Product</DialogTitle>
         </DialogHeader>
         <form className="space-y-4">
           {/* Name Field */}
@@ -111,7 +112,6 @@ export default function AddProductDialog({
             onChange={handleChange}
             error={errors.name}
           />
-
           {/* Price Field */}
           <InputField
             name="price"
@@ -122,7 +122,6 @@ export default function AddProductDialog({
             onChange={handleChange}
             error={errors.price}
           />
-
           {/* Size Field */}
           <InputField
             name="size"
@@ -132,7 +131,6 @@ export default function AddProductDialog({
             onChange={handleChange}
             error={errors.size}
           />
-
           {/* Image Upload Field */}
           <ImageUploadField
             label="Product Image"
@@ -140,7 +138,6 @@ export default function AddProductDialog({
             onChange={handleFileChange}
             error={errors.imageUrl}
           />
-
           {/* Submit Button with Loader */}
           <Button
             type="button"
@@ -153,7 +150,7 @@ export default function AddProductDialog({
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
               </>
             ) : (
-              "Add Product"
+              "Update Product"
             )}
           </Button>
         </form>

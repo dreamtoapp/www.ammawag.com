@@ -1,6 +1,4 @@
-// app/dashboard/products/components/ProductCard.tsx
 "use client"; // Mark as a Client Component
-
 import {
   Card,
   CardHeader,
@@ -8,8 +6,9 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import CardImage from "../../../../components/CardImage"; // Import the enhanced CardImage component
+import EditProductDialog from "./EditProductDialog";
 
 interface ProductCardProps {
   product: {
@@ -34,23 +33,15 @@ export default function ProductCard({ product }: ProductCardProps) {
       {/* Card Content */}
       <CardContent className="p-4 space-y-4">
         {/* Image */}
-        <div className="w-full h-48 relative rounded-lg overflow-hidden">
-          {product.imageUrl ? (
-            <Image
-              src={product.imageUrl}
-              alt={`${product.name} image`}
-              fill
-              className="object-cover object-center"
-              onError={(e) => {
-                e.currentTarget.src = "/default-product.jpg"; // Fallback image
-              }}
-            />
-          ) : (
-            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-              <span className="text-gray-500">No Image</span>
-            </div>
-          )}
-        </div>
+        <CardImage
+          // src={product.imageUrl}
+
+          imageUrl={product.imageUrl || undefined} // Pass undefined if no image is available
+          altText={`${product.name} image`}
+          aspectRatio="square" // Use a square aspect ratio for product images
+          fallbackSrc="/default-product.jpg" // Default fallback image
+          placeholderText="No Image Available" // Custom placeholder text
+        />
 
         {/* Details */}
         <div className="space-y-2">
@@ -66,17 +57,14 @@ export default function ProductCard({ product }: ProductCardProps) {
       </CardContent>
 
       {/* Card Footer */}
-      <CardFooter className="p-4 bg-gray-50 border-t border-gray-200 flex justify-between">
+      <CardFooter className="p-4 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
         {/* Edit Button */}
-        <Button variant="outline" size="sm">
-          Edit
-        </Button>
+        <EditProductDialog product={product} />
 
         {/* Delete Button */}
         <Button variant="destructive" size="sm">
           Delete
         </Button>
-
         {/* View Transactions Button */}
         <Button variant="secondary" size="sm">
           View Transactions

@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Card,
   CardHeader,
@@ -7,10 +5,10 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import Image from "next/image";
 import Link from "next/link";
 import DeleteSupplierAlert from "./DeleteSupplierAlert";
 import EditSupplierDialog from "./EditSupplierDialog";
+import CardImage from "../../../../components/CardImage"; // Import the enhanced CardImage component
 
 interface SupplierCardProps {
   supplier: {
@@ -19,50 +17,39 @@ interface SupplierCardProps {
     email: string;
     phone: string;
     address: string;
-    logo: string | null;
-    publicId: string | null;
-    productCount: number;
+    logo: string | null; // Logo URL (optional)
+    publicId: string | null; // Public ID (optional)
+    productCount: number; // Number of products associated with the supplier
   };
 }
 
 export default function SupplierCard({ supplier }: SupplierCardProps) {
   return (
     <Card className="shadow-lg hover:shadow-xl transition-shadow rounded-lg overflow-hidden border border-gray-300 flex flex-col h-full rtl">
-      {/* رأس البطاقة */}
+      {/* Card Header */}
       <CardHeader className="p-4 bg-gray-100 border-b border-gray-300 flex justify-between items-center">
         <CardTitle className="text-xl font-bold text-gray-900">
           {supplier.name}
         </CardTitle>
         <div className="flex space-x-2">
-          {/* حوار تعديل المورد */}
+          {/* Edit and Delete Actions */}
           <EditSupplierDialog supplier={supplier} />
-          {/* تنبيه حذف المورد */}
           <DeleteSupplierAlert supplierId={supplier.id} />
         </div>
       </CardHeader>
 
-      {/* محتوى البطاقة */}
+      {/* Card Content */}
       <CardContent className="flex-grow p-4 space-y-4">
-        {/* شعار المورد */}
-        <div className="w-full h-48 sm:h-64 relative">
-          {supplier.logo ? (
-            <Image
-              src={supplier.logo}
-              alt={`شعار ${supplier.name}`}
-              fill
-              className="object-cover object-center rounded-md shadow-sm"
-              onError={(e) => {
-                e.currentTarget.src = "/default-logo.png";
-              }}
-            />
-          ) : (
-            <div className="w-full h-full bg-gray-200 rounded-md flex items-center justify-center">
-              <span className="text-gray-500">لا يوجد شعار</span>
-            </div>
-          )}
-        </div>
+        {/* Supplier Logo */}
+        <CardImage
+          imageUrl={supplier.logo || undefined} // Pass undefined if no logo is available
+          altText={`شعار ${supplier.name}`}
+          aspectRatio="square" // Use a square aspect ratio for the logo
+          fallbackSrc="/default-logo.png" // Default fallback image
+          placeholderText="لا يوجد شعار" // Custom placeholder text
+        />
 
-        {/* تفاصيل المورد */}
+        {/* Supplier Details */}
         <div className="space-y-2">
           <p className="text-sm text-gray-700">
             <strong>البريد الإلكتروني:</strong> {supplier.email}
@@ -76,9 +63,9 @@ export default function SupplierCard({ supplier }: SupplierCardProps) {
         </div>
       </CardContent>
 
-      {/* تذييل البطاقة */}
+      {/* Card Footer */}
       <CardFooter className="p-4 bg-gray-100 border-t border-gray-300 flex justify-between items-center">
-        {/* عدد المنتجات */}
+        {/* Product Count */}
         <div className="text-sm text-gray-700">
           {supplier.productCount > 0 ? (
             <span>{supplier.productCount} منتج</span>
@@ -87,18 +74,20 @@ export default function SupplierCard({ supplier }: SupplierCardProps) {
           )}
         </div>
 
-        {/* زر إدارة/إضافة المنتجات */}
+        {/* Manage/Add Products Button */}
         {supplier.productCount > 0 ? (
-          <Link href={`/dashboard/products?supplierId=${supplier.id}`}>
-            <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium">
-              إدارة المنتجات
-            </button>
+          <Link
+            href={`/dashboard/products?supplierId=${supplier.id}`}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium"
+          >
+            إدارة المنتجات
           </Link>
         ) : (
-          <Link href={`/dashboard/products/add?supplierId=${supplier.id}`}>
-            <button className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors text-sm font-medium">
-              إضافة منتج
-            </button>
+          <Link
+            href={`/dashboard/products?supplierId=${supplier.id}`}
+            className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors text-sm font-medium"
+          >
+            إضافة منتج
           </Link>
         )}
       </CardFooter>

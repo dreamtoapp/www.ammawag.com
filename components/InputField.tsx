@@ -1,50 +1,41 @@
-"use client";
-import { Input } from "@/components/ui/input";
 import React from "react";
 
 interface InputFieldProps {
   name: string;
   label: string;
+  type?: string; // Add an optional 'type' prop
   placeholder: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  tooltip?: string;
-  error?: string; // Optional error message for validation feedback
+  error?: string; // Optional error message
 }
 
 export default function InputField({
   name,
   label,
+  type = "text", // Default to "text" if no type is provided
   placeholder,
   value,
   onChange,
-  tooltip,
   error,
 }: InputFieldProps) {
   return (
-    <div className="space-y-1">
+    <div>
       <label htmlFor={name} className="block text-sm font-medium text-gray-700">
         {label}
-        {tooltip && (
-          <span className="ml-1 text-xs text-gray-500" title={tooltip}>
-            ⓘ
-          </span>
-        )}
       </label>
-      <Input
+      <input
         id={name}
         name={name}
+        type={type} // Use the 'type' prop here
         placeholder={placeholder}
         value={value}
         onChange={onChange}
-        aria-invalid={!!error}
-        aria-describedby={`${name}-error`}
+        className={`mt-1 block w-full px-3 py-2 border ${
+          error ? "border-red-500" : "border-gray-300"
+        } rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm`}
       />
-      {error && (
-        <p id={`${name}-error`} className="text-sm text-red-500">
-          {error}
-        </p>
-      )}
+      {error && <p className="text-sm text-red-500">{error}</p>}
     </div>
   );
 }

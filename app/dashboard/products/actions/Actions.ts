@@ -1,17 +1,52 @@
-// app/dashboard/products/actions/Actions.ts
 "use server";
 import { uploadImageToCloudinary } from "../../../../lib/cloudinary";
 import db from "../../../../lib/prisma";
 
 /**
- * Fetches all products for a specific supplier.
- * @param supplierId - The ID of the supplier.
+ * Helper function to upload an image to Cloudinary.
  */
-// app/dashboard/products/actions/Actions.ts
+async function uploadImage(
+  imageFile: File
+): Promise<{ secure_url: string; public_id: string }> {
+  try {
+    const cloudinaryResponse = await uploadImageToCloudinary(
+      imageFile,
+      process.env.CLOUDINARY_UPLOAD_PRESET_PRODUCTS || ""
+    );
+    return {
+      secure_url: cloudinaryResponse.secure_url,
+      public_id: cloudinaryResponse.public_id,
+    };
+  } catch (error: any) {
+    console.error("Error uploading image to Cloudinary:", error.message);
+    throw new Error("Failed to upload image to Cloudinary.");
+  }
+}
+
+/**
+ * Helper function to prepare product data with optional image handling.
+ */
+async function prepareProductData(data: any, imageFile?: File): Promise<any> {
+  let imageUrl = data.imageUrl; // Existing image URL (if any)
+  let publicId = data.publicId; // Existing public ID (if any)
+
+  // Upload the image to Cloudinary if a file is provided
+  if (imageFile) {
+    const { secure_url, public_id } = await uploadImage(imageFile);
+    imageUrl = secure_url;
+    publicId = public_id;
+  }
+
+  // Return the updated product data
+  return {
+    ...data,
+    imageUrl: imageUrl, // Update the image URL
+    publicId: publicId, // Update the public ID
+  };
+}
 
 /**
  * Fetches all products and supplier details for a specific supplier.
- * @param supplierId - The ID of the supplier.
  */
 export async function getProductsBySupplier(supplierId: string) {
   try {
@@ -36,18 +71,27 @@ export async function getProductsBySupplier(supplierId: string) {
     });
 
     if (!supplier) {
-      throw new Error("Supplier not found.");
+      return {
+        success: false,
+        message: "Supplier not found.",
+      };
     }
 
-    return supplier;
+    return {
+      success: true,
+      data: supplier,
+    };
   } catch (error: any) {
     console.error("Error fetching supplier and products:", error);
-    throw new Error("Failed to fetch supplier and products.");
+    return {
+      success: false,
+      message: "Failed to fetch supplier and products.",
+    };
   }
 }
+
 /**
  * Fetches a single product by its ID.
- * @param productId - The ID of the product.
  */
 export async function getProductById(productId: string) {
   try {
@@ -74,32 +118,11 @@ export async function getProductById(productId: string) {
 
 /**
  * Creates a new product.
- * @param data - The product data (name, price, supplierId).
  */
-// app/dashboard/products/actions/Actions.ts
-
-/**
- * Creates a new product.
- * @param data - The product data (name, price, size, imageUrl, supplierId).
- */
-export async function createProduct(data: {
-  name: string;
-  price: number;
-  size: string; // Required field
-  imageUrl: string; // Required field
-  supplierId: string; // ID of the supplier
-}) {
+export async function createProduct(data: any, imageFile?: File) {
   try {
-    const product = await db.product.create({
-      data: {
-        name: data.name,
-        price: data.price,
-        size: data.size, // Include the size field
-        imageUrl: data.imageUrl,
-        supplierId: data.supplierId,
-      },
-    });
-    return product;
+    const productData = await prepareProductData(data, imageFile);
+    await db.product.create({ data: productData });
   } catch (error: any) {
     console.error("Error creating product:", error);
     throw new Error("Failed to create product.");
@@ -108,22 +131,18 @@ export async function createProduct(data: {
 
 /**
  * Updates an existing product.
- * @param productId - The ID of the product.
- * @param data - The updated product data (name, price).
  */
 export async function updateProduct(
   productId: string,
-  data: { name: string; price: number }
+  data: any,
+  imageFile?: File
 ) {
   try {
-    const product = await db.product.update({
+    const productData = await prepareProductData(data, imageFile);
+    await db.product.update({
       where: { id: productId },
-      data: {
-        name: data.name,
-        price: data.price,
-      },
+      data: productData,
     });
-    return product;
   } catch (error: any) {
     console.error("Error updating product:", error);
     throw new Error("Failed to update product.");
@@ -132,7 +151,6 @@ export async function updateProduct(
 
 /**
  * Deletes a product by its ID.
- * @param productId - The ID of the product.
  */
 export async function deleteProduct(productId: string) {
   try {
@@ -142,58 +160,5 @@ export async function deleteProduct(productId: string) {
   } catch (error: any) {
     console.error("Error deleting product:", error);
     throw new Error("Failed to delete product.");
-  }
-}
-
-// app/dashboard/products/actions/Actions.ts
-
-// app/dashboard/products/actions/Actions.ts
-
-export async function createOrUpdateProduct(
-  id: string | null,
-  data: any,
-  imageFile?: File
-) {
-  let imageUrl = data.imageUrl; // Existing image URL (if any)
-  let publicId = data.publicId; // Existing public ID (if any)
-
-  // Upload the image to Cloudinary if a file is provided
-  if (imageFile) {
-    try {
-      const cloudinaryResponse = await uploadImageToCloudinary(
-        imageFile,
-        process.env.CLOUDINARY_UPLOAD_PRESET_PRODUCTS || ""
-      );
-      imageUrl = cloudinaryResponse.secure_url; // Save the secure URL
-      publicId = cloudinaryResponse.public_id; // Save the public ID
-    } catch (error: any) {
-      console.error("Error uploading image to Cloudinary:", error.message);
-      throw new Error("Failed to upload image to Cloudinary.");
-    }
-  }
-
-  // Prepare the product data
-  const productData = {
-    ...data,
-    imageUrl: imageUrl, // Update the image URL
-    publicId: publicId, // Update the public ID
-  };
-
-  try {
-    if (id) {
-      // Update existing product
-      await db.product.update({
-        where: { id },
-        data: productData,
-      });
-    } else {
-      // Create new product
-      await db.product.create({
-        data: productData,
-      });
-    }
-  } catch (error: any) {
-    console.error("Error creating/updating product:", error);
-    throw new Error("Failed to save product data.");
   }
 }

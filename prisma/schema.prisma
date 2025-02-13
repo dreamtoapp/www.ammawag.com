@@ -28,6 +28,7 @@ model Product {
   price       Float
   size        String?
   imageUrl    String?
+  publicId  String?   // Public ID of the image in Cloudinary (optional)
   supplierId  String   @db.ObjectId
   supplier    Supplier @relation(fields: [supplierId], references: [id])
   published   Boolean  @default(false) // Add this field
