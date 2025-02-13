@@ -27,7 +27,7 @@ export function AppSidebar() {
               Suppliers
             </Button>
           </Link>
-          <Link href="/dashboard/products">
+          <Link href="/dashboard/porductmangment">
             <Button variant="ghost" className="w-full justify-start">
               Products
             </Button>

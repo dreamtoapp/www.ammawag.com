@@ -72,7 +72,7 @@ export default function DashboardPage() {
                 <Button
                   variant="outline"
                   className="mt-4"
-                  onClick={() => handleAssignDriver(order.id)}
+                  // onClick={() => handleAssignDriver(order.id)}
                 >
                   Assign Driver
                 </Button>

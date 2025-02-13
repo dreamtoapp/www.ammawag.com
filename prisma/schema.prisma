@@ -9,29 +9,32 @@ datasource db {
 
 // Supplier Model
 model Supplier {
-  id       String    @id @default(auto()) @map("_id") @db.ObjectId
-  name     String    // Name of the supplier (e.g., "Water Supplier Co.")
-  logo     String?   // Logo URL for branding (optional)
-  publicId String?   // Public ID of the image in Cloudinary (optional)
-  email    String    // Contact email for the supplier
-  phone    String    // Contact phone number for the supplier
-  address  String    // Physical address of the supplier
-  products Product[] // Explicit many-to-many relationship
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  name      String    // Name of the supplier (e.g., "Water Supplier Co.")
+  logo      String?   // Logo URL for branding (optional)
+  publicId  String?   // Public ID of the image in Cloudinary (optional)
+  email     String    // Contact email for the supplier
+  phone     String    // Contact phone number for the supplier
+  address   String    // Physical address of the supplier
+  products  Product[] // Explicit many-to-many relationship
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 // Product Model
 model Product {
-  id           String   @id @default(auto()) @map("_id") @db.ObjectId
-  name         String
-  price        Float
-  size         String?
-  imageUrl     String?
-  supplierId   String   @db.ObjectId
-  supplier     Supplier @relation(fields: [supplierId], references: [id])
-  published    Boolean  @default(false) // Add this field
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  price       Float
+  size        String?
+  imageUrl    String?
+  supplierId  String   @db.ObjectId
+  supplier    Supplier @relation(fields: [supplierId], references: [id])
+  published   Boolean  @default(false) // Add this field
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
+
 // Order Model
 model Order {
   id          String      @id @default(auto()) @map("_id") @db.ObjectId
@@ -39,8 +42,9 @@ model Order {
   driverId    String?     @db.ObjectId // Link to Driver (optional)
   status      String      @default("Pending") // Order status (e.g., Pending, Delivered)
   items       OrderItem[] // Relational field for order items
-  // driver      Driver?     @relation(fields: [driverId], references: [id]) // Link to Driver
   customer    User        @relation(fields: [customerId], references: [id]) // Link to Customer
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 }
 
 // Order Item Model
@@ -50,17 +54,20 @@ model OrderItem {
   productId  String   @db.ObjectId // Link to Product
   quantity   Int      // Quantity of the product in the order
   order      Order    @relation(fields: [orderId], references: [id]) // Explicit relationship
-  // product    Product  @relation(fields: [productId], references: [id]) // Explicit relationship
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 // User Model (Customers)
 model User {
-  id       String      @id @default(auto()) @map("_id") @db.ObjectId
-  name     String      // Name of the customer
-  email    String      @unique // Email of the customer
-  password String      // Password for authentication
-  role     String      @default("customer") // "customer" or "admin"
-  orders   Order[]     // Orders placed by the customer
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  name     String   // Name of the customer
+  email    String   @unique // Email of the customer
+  password String   // Password for authentication
+  role     String   @default("customer") // "customer" or "admin"
+  orders   Order[]  // Orders placed by the customer
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // Driver Model
@@ -70,26 +77,31 @@ model Driver {
   email     String   // Email of the driver
   phone     String   // Phone number of the driver
   imageUrl  String?  // URL for the driver's profile picture or vehicle image
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // LocationHistory Model
 model LocationHistory {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
   driverId   String   @db.ObjectId // Link to Driver
-  latitude   Float                // Latitude of the location
-  longitude  Float                // Longitude of the location
+  latitude   Float    // Latitude of the location
+  longitude  Float    // Longitude of the location
   timestamp  DateTime @default(now()) // Timestamp of the location update
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 // Promotion Model
 model Promotion {
-  id          String      @id @default(auto()) @map("_id") @db.ObjectId
-  title       String      // Title of the promotion (e.g., "Summer Sale")
-  description String      // Description of the promotion
-  startDate   DateTime    // Start date of the promotion
-  endDate     DateTime    // End date of the promotion
-  discount    Float       // Discount percentage (e.g., 20 for 20%)
-  active      Boolean     @default(true) // Whether the promotion is active
-  productIds  String[]    @db.ObjectId // Links to Products (many-to-many)
-  // products    Product[]   @relation(fields: [productIds], references: [id]) // Explicit relationship
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  title       String    // Title of the promotion (e.g., "Summer Sale")
+  description String    // Description of the promotion
+  startDate   DateTime  // Start date of the promotion
+  endDate     DateTime  // End date of the promotion
+  discount    Float     // Discount percentage (e.g., 20 for 20%)
+  active      Boolean   @default(true) // Whether the promotion is active
+  productIds  String[]  @db.ObjectId // Links to Products (many-to-many)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
