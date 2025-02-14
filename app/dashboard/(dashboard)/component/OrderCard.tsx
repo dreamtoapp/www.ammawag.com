@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { CheckCircle, Truck, AlertCircle, XCircle, Info } from "lucide-react";
-import { cn } from "../../lib/utils";
+import { cn } from "../../../../lib/utils";
 
 interface Order {
   id: string;

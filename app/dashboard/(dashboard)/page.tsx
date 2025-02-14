@@ -1,10 +1,7 @@
 // app/dashboard/page.tsx
-import {
-  fetchOrders,
-  fetchAnalytics,
-} from "../../components/dashboard/actions";
-import DashboardHeader from "../../components/dashboard/DashboardHeader";
-import OrderCard from "../../components/dashboard/OrderCard";
+import { fetchOrders, fetchAnalytics } from "./action/actions";
+import DashboardHeader from "./component/DashboardHeader";
+import OrderCard from "./component/OrderCard";
 
 export default async function DashboardPage({
   searchParams, // Define searchParams as a Promise

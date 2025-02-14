@@ -8,16 +8,16 @@ import {
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import Text from "./Text";
+import Text from "@/components/Text";
 
 // Define navigation groups as data
 const NAVIGATION_GROUPS = [
   {
     title: "الرئسية",
     links: [
+      { label: "الطلبيات", href: "/dashboard" },
       { label: "الموردين", href: "/dashboard/suppliers" },
-      { label: "المنتجات", href: "/dashboard/product-management" },
-      { label: "الطلبيات", href: "/dashboard/orders" },
+      { label: "المنتجات", href: "/dashboard/porductmangment" },
     ],
   },
   {
@@ -37,7 +37,12 @@ function NavItem({ href, label }: { href: string; label: string }) {
       href={href}
       className="block w-full py-2 px-3 text-sm rounded-md hover:bg-blue-400 hover:text-white transition-colors"
     >
-      <Text variant="p" locale="ar" className="text-gray-800" cairoFont>
+      <Text
+        variant="p"
+        locale="ar"
+        className="text-gray-800 font-cairo"
+        cairoFont
+      >
         {label}
       </Text>
     </Link>
