@@ -1,6 +1,7 @@
-// seed.ts
+// scripts/seed.ts
 import { faker } from "@faker-js/faker";
 import db from "../lib/prisma";
+import { generateOrderNumber } from "../utils/orderNumber";
 
 // Helper function to parse command-line arguments
 function getArgValue(argName: string, defaultValue: number): number {
@@ -16,7 +17,6 @@ function getArgValue(argName: string, defaultValue: number): number {
 
 async function main() {
   console.log("Seeding database with fake data...");
-
   try {
     // Parse command-line arguments for customizable seed sizes
     const supplierCount = getArgValue("suppliers", 5); // Default: 5 suppliers
@@ -44,9 +44,8 @@ async function main() {
 
     // Generate fake suppliers
     console.log("Generating fake suppliers...");
-    const suppliers: { id: string }[] = [];
     for (let i = 0; i < supplierCount; i++) {
-      const supplier = await db.supplier.create({
+      await db.supplier.create({
         data: {
           name: faker.company.name(),
           logo: faker.image.url(),
@@ -56,16 +55,18 @@ async function main() {
           address: faker.location.streetAddress(),
         },
       });
-      suppliers.push({ id: supplier.id });
     }
-    console.log(`Generated ${suppliers.length} fake suppliers.`);
+    console.log(`Generated ${supplierCount} fake suppliers.`);
 
     // Generate fake products
     console.log("Generating fake products...");
-    const products: { id: string }[] = [];
+    const allSuppliers = await db.supplier.findMany({ select: { id: true } }); // Fetch all supplier IDs
+    if (allSuppliers.length === 0) {
+      throw new Error("No suppliers available to assign to products.");
+    }
     for (let i = 0; i < productCount; i++) {
-      const supplier = faker.helpers.arrayElement(suppliers);
-      const product = await db.product.create({
+      const supplier = faker.helpers.arrayElement(allSuppliers); // Randomly select a supplier
+      await db.product.create({
         data: {
           name: faker.commerce.productName(),
           supplierId: supplier.id,
@@ -75,15 +76,13 @@ async function main() {
           published: faker.datatype.boolean(), // Add published field
         },
       });
-      products.push({ id: product.id });
     }
-    console.log(`Generated ${products.length} fake products.`);
+    console.log(`Generated ${productCount} fake products.`);
 
     // Generate fake users (customers)
     console.log("Generating fake users...");
-    const users: { id: string }[] = [];
     for (let i = 0; i < userCount; i++) {
-      const user = await db.user.create({
+      await db.user.create({
         data: {
           name: faker.person.fullName(),
           email: faker.internet.email(),
@@ -91,13 +90,11 @@ async function main() {
           role: faker.helpers.arrayElement(["customer", "admin"]),
         },
       });
-      users.push({ id: user.id });
     }
-    console.log(`Generated ${users.length} fake users.`);
+    console.log(`Generated ${userCount} fake users.`);
 
     // Generate fake drivers
     console.log("Generating fake drivers...");
-    const drivers: { id: string }[] = [];
     for (let i = 0; i < driverCount; i++) {
       const driver = await db.driver.create({
         data: {
@@ -107,8 +104,6 @@ async function main() {
           imageUrl: faker.image.url(), // Add imageUrl for the driver
         },
       });
-      drivers.push({ id: driver.id });
-
       // Add current location history for the driver
       await db.locationHistory.create({
         data: {
@@ -118,17 +113,48 @@ async function main() {
         },
       });
     }
-    console.log(`Generated ${drivers.length} fake drivers.`);
+    console.log(`Generated ${driverCount} fake drivers.`);
 
     // Generate fake orders
     console.log("Generating fake orders...");
+    const allUsers = await db.user.findMany({ select: { id: true } });
+    const allDrivers = await db.driver.findMany({ select: { id: true } });
+    const allProducts = await db.product.findMany({
+      select: { id: true, price: true }, // Fetch product IDs and prices
+    });
+    if (allUsers.length === 0 || allProducts.length === 0) {
+      throw new Error("Not enough users or products to create orders.");
+    }
     for (let i = 0; i < orderCount; i++) {
-      const customer = faker.helpers.arrayElement(users);
-      const driver = faker.helpers.arrayElement(drivers);
+      const customer = faker.helpers.arrayElement(allUsers);
+      const driver = faker.helpers.arrayElement(allDrivers);
 
-      // Create the order
+      // Generate a unique order number
+      const orderNumber = await generateOrderNumber();
+
+      // Create order items and calculate the total amount
+      const items = faker.helpers.multiple(
+        () => {
+          const product = faker.helpers.arrayElement(allProducts);
+          const quantity = faker.number.int({ min: 1, max: 5 });
+          const price = product.price; // Use the current price of the product
+          return {
+            productId: product.id,
+            quantity,
+            price,
+            subtotal: price * quantity, // Calculate subtotal for this item
+          };
+        },
+        { count: faker.number.int({ min: 1, max: 3 }) }
+      );
+
+      // Calculate the total amount for the order
+      const totalAmount = items.reduce((sum, item) => sum + item.subtotal, 0);
+
+      // Create the order with the total amount
       const order = await db.order.create({
         data: {
+          orderNumber,
           customerId: customer.id,
           driverId: driver.id,
           status: faker.helpers.arrayElement([
@@ -136,34 +162,26 @@ async function main() {
             "Delivered",
             "In Transit",
           ]),
+          amount: totalAmount, // Store the total amount
+          items: {
+            create: items.map((item) => ({
+              productId: item.productId,
+              quantity: item.quantity,
+              price: item.price, // Store the historical price
+            })),
+          },
         },
       });
 
-      // Add order items
-      const items = faker.helpers.multiple(
-        () => ({
-          productId: faker.helpers.arrayElement(products).id,
-          quantity: faker.number.int({ min: 1, max: 5 }),
-        }),
-        { count: faker.number.int({ min: 1, max: 3 }) }
-      );
-      for (const item of items) {
-        await db.orderItem.create({
-          data: {
-            orderId: order.id,
-            productId: item.productId,
-            quantity: item.quantity,
-          },
-        });
-      }
+      console.log(`Generated order: ${order.orderNumber}`);
     }
     console.log(`Generated ${orderCount} fake orders.`);
 
-    // Generate fake promotions
+    // Generate fake promotions...
     console.log("Generating fake promotions...");
     for (let i = 0; i < promotionCount; i++) {
       const productIds = faker.helpers.multiple(
-        () => faker.helpers.arrayElement(products).id,
+        () => faker.helpers.arrayElement(allProducts).id,
         { count: faker.number.int({ min: 1, max: 3 }) }
       );
       await db.promotion.create({

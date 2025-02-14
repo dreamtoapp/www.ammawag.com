@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "seed": "tsx  utl/seedData.ts --suppliers=10 --products=20 --users=5 --drivers=3 --orders=15 --promotions=5"
+    "studio": "prisma studio",
+    "seed": "tsx  utils/seedData.ts --suppliers=10 --products=20 --users=5 --drivers=3 --orders=15 --promotions=5"
   },
   "dependencies": {
     "@faker-js/faker": "^9.4.0",

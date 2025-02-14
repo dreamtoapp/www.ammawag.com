@@ -36,39 +36,36 @@ model Product {
   updatedAt   DateTime @updatedAt
 }
 
-// Order Model
-model Order {
-  id          String      @id @default(auto()) @map("_id") @db.ObjectId
-  customerId  String      @db.ObjectId // Link to User (one-to-many)
-  driverId    String?     @db.ObjectId // Link to Driver (optional)
-  status      String      @default("Pending") // Order status (e.g., Pending, Delivered)
-  items       OrderItem[] // Relational field for order items
-  customer    User        @relation(fields: [customerId], references: [id]) // Link to Customer
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-}
-
-// Order Item Model
-model OrderItem {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  orderId    String   @db.ObjectId // Link to Order
-  productId  String   @db.ObjectId // Link to Product
-  quantity   Int      // Quantity of the product in the order
-  order      Order    @relation(fields: [orderId], references: [id]) // Explicit relationship
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-}
-
-// User Model (Customers)
 model User {
-  id       String   @id @default(auto()) @map("_id") @db.ObjectId
-  name     String   // Name of the customer
-  email    String   @unique // Email of the customer
-  password String   // Password for authentication
-  role     String   @default("customer") // "customer" or "admin"
-  orders   Order[]  // Orders placed by the customer
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId // Explicitly define as ObjectId
+  name     String
+  email    String   @unique
+  password String
+  role     String
+  orders   Order[]  // List of orders associated with the user
+}
+
+model Order {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId // Explicitly define as ObjectId
+  orderNumber String   // Human-readable order number
+  customerId  String   @db.ObjectId // Reference to the user who placed the order
+  customer    User     @relation(fields: [customerId], references: [id]) // Relation to the User model
+  customerName String?
+  driverId    String?
+  status      String
+  amount      Float    // Total amount of the order
+  items       OrderItem[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model OrderItem {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId // Explicitly define as ObjectId
+  orderId    String   @db.ObjectId // Ensure this matches the type of Order.id
+  productId  String   // Product ID
+  quantity   Int      // Quantity of the product
+  price      Float    // Historical price of the product at the time of purchase
+  order      Order    @relation(fields: [orderId], references: [id])
 }
 
 // Driver Model
@@ -105,4 +102,10 @@ model Promotion {
   productIds  String[]  @db.ObjectId // Links to Products (many-to-many)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+}
+
+model Counter {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  key     String @unique // A unique key to identify the counter (e.g., "order_counter")
+  counter Int    @default(0)
 }

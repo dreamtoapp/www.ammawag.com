@@ -1,84 +1,56 @@
 // app/dashboard/page.tsx
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import {
+  fetchOrders,
+  fetchAnalytics,
+} from "../../components/dashboard/actions";
+import DashboardHeader from "../../components/dashboard/DashboardHeader";
+import OrderCard from "../../components/dashboard/OrderCard";
 
-// Mock data for orders (replace this with actual data fetched from the database)
-const mockOrders = [
-  {
-    id: "1",
-    customerId: "C001",
-    customerName: "John Doe",
-    status: "Pending",
-    items: [{ productId: "P001", quantity: 2 }],
-    driverId: null,
-  },
-  {
-    id: "2",
-    customerId: "C002",
-    customerName: "Jane Smith",
-    status: "Delivered",
-    items: [{ productId: "P002", quantity: 1 }],
-    driverId: "D001",
-  },
-  {
-    id: "3",
-    customerId: "C003",
-    customerName: "Alice Johnson",
-    status: "Pending",
-    items: [{ productId: "P003", quantity: 5 }],
-    driverId: null,
-  },
-];
+export default async function DashboardPage({
+  searchParams, // Define searchParams as a Promise
+}: {
+  searchParams: Promise<{ status?: string }>; // searchParams is now a Promise
+}) {
+  // Resolve the searchParams Promise
+  const resolvedSearchParams = await searchParams;
+  const statusFilter = resolvedSearchParams.status;
 
-export default function DashboardPage() {
-  // Function to handle assigning a driver to an order
-  const handleAssignDriver = async (orderId: string) => {
-    console.log(`Assigning driver to order ID: ${orderId}`);
-    // Add logic here to assign a driver (e.g., update the database)
-  };
+  // Fetch filtered orders for display
+  const filteredOrders = await fetchOrders(statusFilter);
+
+  // Fetch analytics data from the entire database
+  const { totalOrders, pendingOrders, deliveredOrders } =
+    await fetchAnalytics();
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Orders</h1>
-
+      {/* Header */}
+      <DashboardHeader
+        initialFilter={statusFilter || "All"}
+        totalOrders={totalOrders}
+        pendingOrders={pendingOrders}
+        deliveredOrders={deliveredOrders}
+      />
       {/* Orders as Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {mockOrders.map((order) => (
-          <Card key={order.id}>
-            <CardHeader>
-              <CardTitle>Order #{order.id}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p>
-                <strong>Customer:</strong> {order.customerName}
-              </p>
-              <p>
-                <strong>Status:</strong> {order.status}
-              </p>
-              <p>
-                <strong>Items:</strong>
-              </p>
-              <ul>
-                {order.items.map((item, index) => (
-                  <li key={index}>
-                    Product: {item.productId}, Quantity: {item.quantity}
-                  </li>
-                ))}
-              </ul>
-              <p>
-                <strong>Driver:</strong> {order.driverId || "Not Assigned"}
-              </p>
-              {!order.driverId && (
-                <Button
-                  variant="outline"
-                  className="mt-4"
-                  // onClick={() => handleAssignDriver(order.id)}
-                >
-                  Assign Driver
-                </Button>
-              )}
-            </CardContent>
-          </Card>
+        {filteredOrders.map((order) => (
+          <OrderCard
+            key={order.id}
+            order={{
+              id: order.id,
+              orderNumber: order.orderNumber,
+              customerId: order.customerId,
+              customerName: order.customerName,
+              driverId: order.driverId,
+              status: order.status,
+              amount: order.amount,
+              items: order.items.map((item) => ({
+                productId: item.productId,
+                quantity: item.quantity,
+                price: item.price,
+              })),
+            }}
+          />
         ))}
       </div>
     </div>
