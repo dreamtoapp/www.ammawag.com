@@ -1,13 +1,10 @@
 import React from "react";
 import ProductCard from "./components/ProductCard";
-import {
-  getAllProductsWithSupplier,
-  getAllSuppliers,
-} from "../orders/actions/Actions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import FilterBySupplier from "./components/FliterBySupplier";
+import { getAllProductsWithSupplier, getAllSuppliers } from "./actions/Actions";
 
 interface PageProps {
   searchParams: Promise<{ supplierId?: string }>;

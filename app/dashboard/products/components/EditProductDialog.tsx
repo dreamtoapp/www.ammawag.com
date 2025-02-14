@@ -13,7 +13,7 @@ import { productSchema } from "../logic/validation"; // Import Zod schema for pr
 import { Loader2 } from "lucide-react"; // Import a loading spinner icon
 import InputField from "@/components/InputField"; // Reusable InputField
 import ImageUploadField from "@/components/ImageUploadField"; // Reusable ImageUploadField
-import { UpdateProduct } from "../actions/Actions copy";
+import { updateProduct } from "../actions/Actions";
 
 interface EditProductDialogProps {
   product: {
@@ -72,7 +72,7 @@ export default function EditProductDialog({ product }: EditProductDialogProps) {
       // Validate form data using Zod
       productSchema.parse(parsedFormData);
       // Call the updateProduct function
-      await UpdateProduct(
+      await updateProduct(
         product.id, // Pass the product ID for updating
         parsedFormData, // Pass the updated form data
         imageFile // Pass the new image file (if any)

@@ -142,7 +142,7 @@ export default function EditSupplierDialog({
                   placeholder="Enter supplier name"
                   value={formData.name}
                   onChange={handleChange}
-                  tooltip="The name of the supplier or company."
+                  // tooltip="The name of the supplier or company."
                   error={errors.name}
                 />
                 <InputField
@@ -151,7 +151,7 @@ export default function EditSupplierDialog({
                   placeholder="Enter email address"
                   value={formData.email}
                   onChange={handleChange}
-                  tooltip="The contact email for the supplier."
+                  // tooltip="The contact email for the supplier."
                   error={errors.email}
                 />
                 <InputField
@@ -160,7 +160,7 @@ export default function EditSupplierDialog({
                   placeholder="Enter phone number"
                   value={formData.phone}
                   onChange={handleChange}
-                  tooltip="The contact phone number for the supplier."
+                  // tooltip="The contact phone number for the supplier."
                   error={errors.phone}
                 />
                 <InputField
@@ -169,7 +169,7 @@ export default function EditSupplierDialog({
                   placeholder="Enter physical address"
                   value={formData.address}
                   onChange={handleChange}
-                  tooltip="The physical address of the supplier."
+                  // tooltip="The physical address of the supplier."
                   error={errors.address}
                 />
               </div>
