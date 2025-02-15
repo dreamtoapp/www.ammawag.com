@@ -69,7 +69,7 @@ export default function OrderCard({ order }: { order: Order }) {
       </CardHeader>
 
       {/* Card Content: Customer Name, Total Amount, Payment Method */}
-      <CardContent>
+      <CardContent className="flex flex-col gap-2">
         <p>
           <strong>العميل:</strong> {order.customerName || "Unknown Customer"}
         </p>
@@ -87,7 +87,7 @@ export default function OrderCard({ order }: { order: Order }) {
       {/* Card Footer: More Details and Ship Order Buttons with Icons */}
       <CardFooter className="flex justify-between">
         <Link
-          href={`/dashboard/orders/${order.id}`}
+          href={`/dashboard/orders/${order.orderNumber}`}
           className={cn(
             buttonVariants({ variant: "outline", size: "sm" }), // Use `buttonVariants` for consistent styling
             "flex items-center gap-2"

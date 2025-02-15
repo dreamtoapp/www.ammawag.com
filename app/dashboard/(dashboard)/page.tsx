@@ -20,7 +20,7 @@ export default async function DashboardPage({
     await fetchAnalytics();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-cairo">
       {/* Header */}
       <DashboardHeader
         initialFilter={statusFilter || "All"}
@@ -42,11 +42,6 @@ export default async function DashboardPage({
               status: order.status,
               amount: order.amount,
               shift: order.shift.name,
-              // items: order.items.map((item) => ({
-              //   productId: item.productId,
-              //   quantity: item.quantity,
-              //   price: item.price,
-              // })),
             }}
           />
         ))}
