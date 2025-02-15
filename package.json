@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "studio": "prisma studio",
-    "seed": "tsx  utils/seedData.ts --suppliers=10 --products=20 --users=5 --drivers=3 --orders=15 --promotions=5"
+    "seed": "tsx  utils/seedData.ts --suppliers=10 --products=20 --users=5 --drivers=3 --orders=15 --promotions=5",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@faker-js/faker": "^9.4.0",
