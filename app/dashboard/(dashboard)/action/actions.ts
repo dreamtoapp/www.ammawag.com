@@ -22,6 +22,7 @@ export async function fetchOrders(status?: string) {
             price: true,
           },
         },
+        shift: { select: { name: true } },
       },
     });
     return orders;

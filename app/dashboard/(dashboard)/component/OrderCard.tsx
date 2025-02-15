@@ -19,7 +19,8 @@ interface Order {
   driverId: string | null;
   status: string;
   amount: number; // Total amount of the order
-  items: { productId: string; quantity: number; price: number }[]; // Include historical price
+  shift: string;
+  // items: { productId: string; quantity: number; price: number }[]; // Include historical price
 }
 
 export default function OrderCard({ order }: { order: Order }) {
@@ -74,6 +75,9 @@ export default function OrderCard({ order }: { order: Order }) {
         </p>
         <p>
           <strong>إجمالي المبلغ:</strong> {order.amount.toFixed(2)} SAR
+        </p>
+        <p>
+          <strong>موعد التسليم:</strong> {order.shift}
         </p>
         <p>
           <strong>طريقة الدفع:</strong> عند التسليم

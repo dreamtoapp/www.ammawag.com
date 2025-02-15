@@ -40,7 +40,52 @@ async function main() {
     await db.product.deleteMany(); // Delete Products
     await db.supplier.deleteMany(); // Delete Suppliers
     await db.user.deleteMany(); // Delete Users
+    await db.company.deleteMany(); // Delete Companies
+    await db.shift.deleteMany(); // Delete Shifts
     console.log("Existing data cleared successfully.");
+
+    // Generate fake shifts
+    console.log("Generating fake shifts...");
+    const dayShift = await db.shift.create({
+      data: {
+        name: "صباح",
+        startTime: "06:00",
+        endTime: "18:00",
+      },
+    });
+
+    const nightShift = await db.shift.create({
+      data: {
+        name: "مساء",
+        startTime: "18:00",
+        endTime: "06:00",
+      },
+    });
+
+    console.log("Generated 2 fake shifts (Day and Night).");
+
+    // Generate fake companies
+    console.log("Generating fake companies...");
+    const company = await db.company.create({
+      data: {
+        fullName: "John Doe & Co.",
+        email: "john.doe@example.com",
+        phoneNumber: faker.phone.number(),
+        profilePicture: faker.image.url(),
+        bio: "We are a software development company.",
+        taxNumber: "1234567890", // Tax number
+        taxQrImage: "https://example.com/tax-qr.png", // Tax QR image
+        twitter: "https://twitter.com/company",
+        linkedin: "https://linkedin.com/company",
+        instagram: "https://instagram.com/company",
+        facebook: "https://facebook.com/company",
+        github: "https://github.com/company",
+        website: "https://example.com",
+        defaultShiftId: dayShift.id, // Link to Day Shift
+      },
+    });
+
+    console.log("Generated 1 fake company.");
 
     // Generate fake suppliers
     console.log("Generating fake suppliers...");
@@ -64,6 +109,7 @@ async function main() {
     if (allSuppliers.length === 0) {
       throw new Error("No suppliers available to assign to products.");
     }
+
     for (let i = 0; i < productCount; i++) {
       const supplier = faker.helpers.arrayElement(allSuppliers); // Randomly select a supplier
       await db.product.create({
@@ -104,6 +150,7 @@ async function main() {
           imageUrl: faker.image.url(), // Add imageUrl for the driver
         },
       });
+
       // Add current location history for the driver
       await db.locationHistory.create({
         data: {
@@ -122,9 +169,11 @@ async function main() {
     const allProducts = await db.product.findMany({
       select: { id: true, price: true }, // Fetch product IDs and prices
     });
+
     if (allUsers.length === 0 || allProducts.length === 0) {
       throw new Error("Not enough users or products to create orders.");
     }
+
     for (let i = 0; i < orderCount; i++) {
       const customer = faker.helpers.arrayElement(allUsers);
       const driver = faker.helpers.arrayElement(allDrivers);
@@ -163,6 +212,7 @@ async function main() {
             "In Transit",
           ]),
           amount: totalAmount, // Store the total amount
+          shiftId: faker.helpers.arrayElement([dayShift.id, nightShift.id]), // Assign a random shift
           items: {
             create: items.map((item) => ({
               productId: item.productId,
@@ -177,13 +227,14 @@ async function main() {
     }
     console.log(`Generated ${orderCount} fake orders.`);
 
-    // Generate fake promotions...
+    // Generate fake promotions
     console.log("Generating fake promotions...");
     for (let i = 0; i < promotionCount; i++) {
       const productIds = faker.helpers.multiple(
         () => faker.helpers.arrayElement(allProducts).id,
         { count: faker.number.int({ min: 1, max: 3 }) }
       );
+
       await db.promotion.create({
         data: {
           title: faker.commerce.productName(),

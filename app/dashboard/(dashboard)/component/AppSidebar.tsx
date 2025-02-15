@@ -20,6 +20,7 @@ import {
   LogOut,
   ListOrdered,
   ShoppingBasket,
+  Timer,
 } from "lucide-react";
 
 // Define navigation groups as data
@@ -58,8 +59,13 @@ const NAVIGATION_GROUPS = [
         icon: <Percent className="h-5 w-5 text-muted-foreground ml-2" />,
       },
       {
+        label: "الوردبات",
+        href: "/dashboard/shifts",
+        icon: <Timer className="h-5 w-5 text-muted-foreground ml-2" />,
+      },
+      {
         label: "الاعدادت",
-        href: "/dashboard/general-info",
+        href: "/dashboard/setting",
         icon: <Settings className="h-5 w-5 text-muted-foreground ml-2" />,
       },
     ],

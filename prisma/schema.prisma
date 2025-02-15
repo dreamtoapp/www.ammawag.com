@@ -55,6 +55,8 @@ model Order {
   status      String
   amount      Float    // Total amount of the order
   items       OrderItem[]
+ shiftId     String   @db.ObjectId // Ensure this matches Shift.id's native type
+  shift       Shift    @relation(fields: [shiftId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -109,3 +111,41 @@ model Counter {
   key     String @unique // A unique key to identify the counter (e.g., "order_counter")
   counter Int    @default(0)
 }
+ 
+
+model Shift {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId // MongoDB ObjectId
+  name        String   // "Day" or "Night"
+  startTime   String   // Start time in 24-hour format (e.g., "06:00")
+  endTime     String   // End time in 24-hour format (e.g., "18:00")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relationships
+  orders      Order[]   // An order belongs to a specific shift
+}
+
+model Company {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId // MongoDB ObjectId
+  fullName      String   @default("")// Full name of the company owner/contact person
+  email         String   @unique // Email address (required and unique)
+  phoneNumber   String  @default("")// Phone number (optional)
+  profilePicture String @default("")// Profile picture URL (optional)
+  bio           String  @default("")// Bio/description (optional)
+  // Tax Information
+  taxNumber     String  @default("")// Tax number (optional)
+  taxQrImage    String  @default("")// URL of the tax QR image (optional)
+  // Social Media Links
+  twitter       String @default("")
+  linkedin      String  @default("")
+  instagram     String @default("")
+  tiktok        String   @default("")
+  facebook      String @default("")
+  snapchat      String @default("")
+  website       String @default("")
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+ 

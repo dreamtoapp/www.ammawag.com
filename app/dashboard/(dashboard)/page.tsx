@@ -41,11 +41,12 @@ export default async function DashboardPage({
               driverId: order.driverId,
               status: order.status,
               amount: order.amount,
-              items: order.items.map((item) => ({
-                productId: item.productId,
-                quantity: item.quantity,
-                price: item.price,
-              })),
+              shift: order.shift.name,
+              // items: order.items.map((item) => ({
+              //   productId: item.productId,
+              //   quantity: item.quantity,
+              //   price: item.price,
+              // })),
             }}
           />
         ))}
