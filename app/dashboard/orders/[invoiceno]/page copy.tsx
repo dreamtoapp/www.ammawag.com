@@ -5,7 +5,6 @@ import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { sendInvoiceEmail } from "@/utils/sendInvoiceEmail";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { QRCodeCanvas } from "qrcode.react";
 import { toast } from "sonner";
 import { generateInvoicePDF } from "../../../../utils/generateInvoicePDF";
 import { getOrderData } from "../actions/Actions";

@@ -79,9 +79,9 @@ async function main() {
         linkedin: "https://linkedin.com/company",
         instagram: "https://instagram.com/company",
         facebook: "https://facebook.com/company",
-        github: "https://github.com/company",
+        // github: "https://github.com/company",
         website: "https://example.com",
-        defaultShiftId: dayShift.id, // Link to Day Shift
+        // defaultShiftId: dayShift.id, // Link to Day Shift
       },
     });
 

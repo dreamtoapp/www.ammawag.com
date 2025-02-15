@@ -4,7 +4,6 @@ import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { sendInvoiceEmail } from "@/utils/sendInvoiceEmail";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { QRCodeCanvas } from "qrcode.react";
 import { toast } from "sonner";
 import { getOrderData } from "../actions/Actions";
 import { Skeleton } from "@/components/ui/skeleton"; // Import Skeleton for loading states

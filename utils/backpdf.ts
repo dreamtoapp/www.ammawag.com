@@ -37,13 +37,13 @@ async function addHeader(doc: jsPDF, pageWidth: number, order: Order) {
 
       // Add the invoice number to the right side
       doc.setFontSize(18);
-      doc.text(`#${order.orderNumber}`, pageWidth - 14, 20, {
+      doc.text(`فاتورة #${order.orderNumber}`, pageWidth - 14, 20, {
         align: "right",
       });
 
       // Add company details below the logo
       doc.setFontSize(12);
-      doc.text("  Amwag Co.", pageWidth - 14, 27, {
+      doc.text("Company Name: Amwag Co.", pageWidth - 14, 27, {
         align: "right",
       });
       doc.text("Email: support@amwag.com", pageWidth - 14, 34, {
@@ -140,9 +140,9 @@ export async function generateInvoicePDF(order: Order): Promise<Blob> {
 
   // Add QR Code
   try {
-    // const qrCodeData = `https://amwag.com/orders/${order.id}`;
-    // const qrCodeImage = await QRCode.toDataURL(qrCodeData);
-    // doc.addImage(qrCodeImage, "PNG", pageWidth - 50, lastContentY, 40, 40);
+    const qrCodeData = `https://amwag.com/orders/${order.id}`;
+    const qrCodeImage = await QRCode.toDataURL(qrCodeData);
+    doc.addImage(qrCodeImage, "PNG", pageWidth - 50, lastContentY, 40, 40);
   } catch (error) {
     console.error("Error generating QR Code:", error);
   }
