@@ -3,6 +3,9 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion"; // Import Framer Motion
+import packageJson from "../package.json"; // Adjust the path as needed
+
+const version = packageJson.version;
 
 export default function ComingSoonPage() {
   return (
@@ -84,6 +87,7 @@ export default function ComingSoonPage() {
           </motion.div>
         </Link>
         <div>v1.0.1</div>
+        <div>package: {version}</div>
       </div>
     </motion.div>
   );

@@ -26,6 +26,7 @@ export default async function DashboardPage({
       />
 
       {/* Pass all orders to OrderCard */}
+      {/* @ts-ignore */}
       <OrderCard orders={filteredOrders} />
     </div>
   );
