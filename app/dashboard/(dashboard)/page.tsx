@@ -1,26 +1,22 @@
 // app/dashboard/page.tsx
+import OrderCard from "./component/OrderCard";
 import { fetchOrders, fetchAnalytics } from "./action/actions";
 import DashboardHeader from "./component/DashboardHeader";
-import OrderCard from "./component/OrderCard";
 
 export default async function DashboardPage({
-  searchParams, // Define searchParams as a Promise
+  searchParams,
 }: {
-  searchParams: Promise<{ status?: string }>; // searchParams is now a Promise
+  searchParams: Promise<{ status?: string }>;
 }) {
-  // Resolve the searchParams Promise
   const resolvedSearchParams = await searchParams;
   const statusFilter = resolvedSearchParams.status;
 
-  // Fetch filtered orders for display
   const filteredOrders = await fetchOrders(statusFilter);
-
-  // Fetch analytics data from the entire database
   const { totalOrders, pendingOrders, deliveredOrders } =
     await fetchAnalytics();
 
   return (
-    <div className="space-y-6 font-cairo">
+    <div className="space-y-6 font-cairo p-4">
       {/* Header */}
       <DashboardHeader
         initialFilter={statusFilter || "All"}
@@ -28,24 +24,9 @@ export default async function DashboardPage({
         pendingOrders={pendingOrders}
         deliveredOrders={deliveredOrders}
       />
-      {/* Orders as Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredOrders.map((order) => (
-          <OrderCard
-            key={order.id}
-            order={{
-              id: order.id,
-              orderNumber: order.orderNumber,
-              customerId: order.customerId,
-              customerName: order.customerName,
-              driverId: order.driverId,
-              status: order.status,
-              amount: order.amount,
-              shift: order.shift.name,
-            }}
-          />
-        ))}
-      </div>
+
+      {/* Pass all orders to OrderCard */}
+      <OrderCard orders={filteredOrders} />
     </div>
   );
 }

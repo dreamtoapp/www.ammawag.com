@@ -32,10 +32,11 @@ export default function OrderFilter({ initialFilter }: OrderFilterProps) {
       <SelectTrigger className="w-[200px]">
         <SelectValue placeholder="اختر نوع الطلب" />
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent className="font-tajawal">
         <SelectItem value="All">الكل</SelectItem>
         <SelectItem value="Pending">قيد الانتظار</SelectItem>
         <SelectItem value="Delivered">تم التسليم</SelectItem>
+        <SelectItem value="Cancelled">ملغي</SelectItem>
       </SelectContent>
     </Select>
   );

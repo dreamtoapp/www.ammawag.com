@@ -1,112 +1,229 @@
-// components/OrderCard.tsx
+"use client";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Card,
   CardHeader,
   CardTitle,
   CardContent,
   CardFooter,
+  CardDescription,
 } from "@/components/ui/card";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { CheckCircle, Truck, AlertCircle, XCircle, Info } from "lucide-react";
-import { cn } from "../../../../lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  CheckCircle,
+  Truck,
+  AlertCircle,
+  XCircle,
+  Info,
+  MapPin,
+  LayoutGrid,
+  List,
+  TruckIcon,
+} from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { FaFileInvoice } from "react-icons/fa";
 
 interface Order {
   id: string;
   orderNumber: string;
-  customerId: string;
   customerName: string | null;
-  driverId: string | null;
-  status: string;
-  amount: number; // Total amount of the order
-  shift: string;
-  // items: { productId: string; quantity: number; price: number }[]; // Include historical price
+  status: "Pending" | "Delivered" | "In Transit" | "Cancelled";
+  amount: number;
+  shift: { name: string };
 }
 
-export default function OrderCard({ order }: { order: Order }) {
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "Pending":
-        return <AlertCircle className="mr-2 text-yellow-500" />;
-      case "Delivered":
-        return <CheckCircle className="mr-2 text-green-500" />;
-      default:
-        return <XCircle className="mr-2 text-red-500" />;
-    }
-  };
+const STATUS_STYLES: Record<Order["status"], string> = {
+  Pending: "text-yellow-700 bg-yellow-100",
+  Delivered: "text-green-700 bg-green-100",
+  "In Transit": "text-blue-700 bg-blue-100",
+  Cancelled: "text-red-700 bg-red-100",
+};
 
-  const getCardStyles = (status: string) => {
-    switch (status) {
-      case "Pending":
-        return "border-dashed border-yellow-500 bg-yellow-50";
-      case "Delivered":
-        return "border-solid border-green-500 bg-green-50";
-      default:
-        return "border-solid border-gray-300 bg-white";
-    }
+const StatusIcon = ({ status }: { status: Order["status"] }) => {
+  const icons: Record<Order["status"], React.ReactNode> = {
+    Pending: <AlertCircle className="text-yellow-500" />,
+    Delivered: <CheckCircle className="text-green-500" />,
+    "In Transit": <Truck className="text-blue-500" />,
+    Cancelled: <XCircle className="text-red-500" />,
   };
+  return icons[status];
+};
 
-  return (
-    <Card className={`relative ${getCardStyles(order.status)}`}>
-      {/* Status Indicator */}
-      <div
-        className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-semibold ${
-          order.status === "Pending"
-            ? "bg-yellow-500 text-white"
-            : order.status === "Delivered"
-            ? "bg-green-500 text-white"
-            : "bg-gray-500 text-white"
+const TableRow = ({ order }: { order: Order }) => (
+  <motion.tr
+    key={order.id}
+    initial={{ opacity: 0, y: 10 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: -10 }}
+    className="border-b border-gray-200 hover:bg-gray-50 transition duration-200"
+  >
+    <td className="py-4 px-6 font-semibold">{order.orderNumber}</td>
+    <td className="py-4 px-6">{order.customerName || "Unknown Customer"}</td>
+    <td className="py-4 px-6 font-semibold">{order.amount.toFixed(2)} SAR</td>
+    <td className="py-4 px-6">
+      <span
+        className={`px-3 py-1 rounded-md flex items-center gap-2 ${
+          STATUS_STYLES[order.status]
         }`}
       >
-        {order.status}
-      </div>
-
-      {/* Card Header: Status and Order Number */}
-      <CardHeader>
-        <CardTitle className="flex items-center justify-end">
-          {getStatusIcon(order.status)} {order.orderNumber}
-        </CardTitle>
-      </CardHeader>
-
-      {/* Card Content: Customer Name, Total Amount, Payment Method */}
-      <CardContent className="flex flex-col gap-2">
-        <p>
-          <strong>العميل:</strong> {order.customerName || "Unknown Customer"}
-        </p>
-        <p>
-          <strong>إجمالي المبلغ:</strong> {order.amount.toFixed(2)} SAR
-        </p>
-        <p>
-          <strong>موعد التسليم:</strong> {order.shift}
-        </p>
-        <p>
-          <strong>طريقة الدفع:</strong> عند التسليم
-        </p>
-      </CardContent>
-
-      {/* Card Footer: More Details and Ship Order Buttons with Icons */}
-      <CardFooter className="flex justify-between">
-        <Link
-          href={`/dashboard/orders/${order.orderNumber}`}
-          className={cn(
-            buttonVariants({ variant: "outline", size: "sm" }), // Use `buttonVariants` for consistent styling
-            "flex items-center gap-2"
-          )}
-        >
-          <Info className="h-4 w-4" /> More Details
+        <StatusIcon status={order.status} /> {order.status}
+      </span>
+    </td>
+    <td className="py-4 px-6 flex gap-2">
+      <Link href={`/dashboard/orders/${order.orderNumber}`}>
+        <Button variant="outline" size="sm">
+          <Info className="h-4 w-4" />
+        </Button>
+      </Link>
+      {order.status === "In Transit" && (
+        <Link href={`/dashboard/orders/${order.orderNumber}/track`}>
+          <Button variant="default" size="sm" className="bg-blue-500">
+            <MapPin className="h-4 w-4" />
+          </Button>
         </Link>
-        {order.status === "Pending" && (
-          <Link
-            href={`/dashboard/orders/${order.id}/ship`}
-            className={cn(
-              buttonVariants({ variant: "default", size: "sm" }), // Use `buttonVariants` for consistent styling
-              "flex items-center gap-2"
-            )}
+      )}
+      {order.status === "Pending" && (
+        <Link href={`/dashboard/orders/${order.orderNumber}/track`}>
+          <Button
+            variant="default"
+            size="sm"
+            className="bg-yellow-400 text-black"
           >
-            <Truck className="h-4 w-4" /> Ship Order
+            <TruckIcon className="h-4 w-4" />
+          </Button>
+        </Link>
+      )}
+      {order.status === "Delivered" && (
+        <Link href={`/dashboard/orders/${order.orderNumber}/track`}>
+          <Button variant="default" size="sm" className="bg-green-500">
+            <FaFileInvoice className="h-4 w-4" />
+          </Button>
+        </Link>
+      )}
+    </td>
+  </motion.tr>
+);
+
+const CardViewItem = ({ order }: { order: Order }) => (
+  <motion.div
+    key={order.id}
+    whileHover={{ scale: 1.05 }}
+    className={`shadow-md rounded-lg p-4 border transition-all duration-300 ${
+      STATUS_STYLES[order.status] ?? ""
+    }`}
+  >
+    <Card>
+      <CardHeader>
+        <CardTitle>{order.orderNumber}</CardTitle>
+        <CardDescription>
+          {order.customerName || "Unknown Customer"}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <p className="text-lg font-semibold">{order.amount.toFixed(2)} SAR</p>
+        {/* Display Status with Icon */}
+        <div className="mt-2 flex items-center gap-2 text-sm">
+          <StatusIcon status={order.status} />
+          <span className={`${STATUS_STYLES[order.status]} px-2 py-1 rounded`}>
+            {order.status}
+          </span>
+        </div>
+      </CardContent>
+      <CardFooter className="flex justify-between">
+        <Link href={`/dashboard/orders/${order.orderNumber}`}>
+          <Button variant="outline" size="sm">
+            <Info className="h-4 w-4" /> تفاصيل
+          </Button>
+        </Link>
+        {order.status === "In Transit" && (
+          <Link href={`/dashboard/orders/${order.orderNumber}/track`}>
+            <Button variant="default" size="sm">
+              <MapPin className="h-4 w-4" /> متابعة
+            </Button>
+          </Link>
+        )}
+
+        {order.status === "Pending" && (
+          <Link href={`/dashboard/orders/${order.orderNumber}/track`}>
+            <Button
+              variant="default"
+              size="sm"
+              className="bg-yellow-400 text-black"
+            >
+              <TruckIcon className="h-4 w-4" /> شحن
+            </Button>
+          </Link>
+        )}
+        {order.status === "Delivered" && (
+          <Link href={`/dashboard/orders/${order.orderNumber}/track`}>
+            <Button variant="default" size="sm" className="bg-green-500">
+              <FaFileInvoice className="h-4 w-4" /> فاتورة
+            </Button>
           </Link>
         )}
       </CardFooter>
     </Card>
+  </motion.div>
+);
+
+export default function OrderCard({ orders }: { orders: Order[] }) {
+  const [viewMode, setViewMode] = useState<"table" | "cards">("cards");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const savedView = localStorage.getItem("viewMode");
+    if (savedView === "table" || savedView === "cards") setViewMode(savedView);
+    setLoading(false);
+  }, []);
+
+  const toggleViewMode = () => {
+    const newView = viewMode === "table" ? "cards" : "table";
+    setViewMode(newView);
+    localStorage.setItem("viewMode", newView);
+  };
+
+  if (loading) return <Skeleton className="h-10 w-full" />;
+
+  return (
+    <div>
+      <div className="flex justify-end mb-4">
+        <Button onClick={toggleViewMode} variant="outline">
+          {viewMode === "table" ? (
+            <LayoutGrid className="h-5 w-5" />
+          ) : (
+            <List className="h-5 w-5" />
+          )}{" "}
+          Switch View
+        </Button>
+      </div>
+      {viewMode === "table" ? (
+        <motion.table className="w-full border-collapse rounded-md overflow-hidden">
+          <thead className="bg-gray-100 text-gray-700">
+            <tr>
+              <th className="py-2 px-6">Order #</th>
+              <th className="py-2 px-6">Customer</th>
+              <th className="py-2 px-6">Total</th>
+              <th className="py-2 px-6">Status</th>
+              <th className="py-2 px-6">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {orders.map((order) => (
+              <TableRow key={order.id} order={order} />
+            ))}
+          </tbody>
+        </motion.table>
+      ) : (
+        <AnimatePresence>
+          <motion.div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {orders.map((order) => (
+              <CardViewItem key={order.id} order={order} />
+            ))}
+          </motion.div>
+        </AnimatePresence>
+      )}
+    </div>
   );
 }
