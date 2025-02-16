@@ -28,7 +28,6 @@ export default function ComingSoonPage() {
             className="mx-auto rounded-lg shadow-lg"
           />
         </motion.div>
-
         {/* Title */}
         <motion.h1
           initial={{ y: -20, opacity: 0 }}
@@ -38,9 +37,7 @@ export default function ComingSoonPage() {
         >
           قريبا!
         </motion.h1>
-
         {/* Description */}
-
         {/* Animated Button with "Snake" Border Effect */}
         <Link href="/dashboard" passHref>
           <motion.div
@@ -86,6 +83,7 @@ export default function ComingSoonPage() {
             <span> لوحة التحكم</span>
           </motion.div>
         </Link>
+        <div>v1.0.1</div>
       </div>
     </motion.div>
   );
