@@ -29,9 +29,10 @@ interface Order {
   id: string;
   orderNumber: string;
   customerName: string | null;
-  status: "Pending" | "Delivered" | "In Transit" | "Cancelled";
+  status: string;
   amount: number;
   shift: { name: string };
+  //  items: { productId: string; quantity: number; price: number }[]; // Include historical price
 }
 
 const STATUS_STYLES: Record<Order["status"], string> = {
