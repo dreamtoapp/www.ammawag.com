@@ -87,7 +87,7 @@ export default function ComingSoonPage() {
           </motion.div>
         </Link>
         <div>v1.0.1</div>
-        <div>package: {version} 1</div>
+        <div>package: {version} </div>
       </div>
     </motion.div>
   );
