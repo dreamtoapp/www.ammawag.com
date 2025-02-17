@@ -1,5 +1,3 @@
-# Navigate to your repository
- 
 
 # Pull the latest changes from remote main
 git fetch origin
