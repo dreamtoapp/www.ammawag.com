@@ -5,7 +5,7 @@ import "./globals.css";
 import NextTopLoader from "nextjs-toploader";
 import { Directions } from "../constant/enums";
 import { ThemeProvider } from "../provider/theme-provider";
-import { roboto, tajawal, cairo } from "@/lib/importFonts";
+
 export default async function RootLayout({
   children,
 }: {
@@ -13,17 +13,14 @@ export default async function RootLayout({
 }) {
   // const messages = await getMessages();
   // const locale = await getLocale();
-  // const locale="ar"
+  // const locale = "ar";
+  const dir = Directions.RTL; // تعيين الاتجاه ديناميكيًا لاحقًا
+
+  const fontClass = dir === Directions.RTL ? "font-cairo" : "font-roboto"; // استخدم Tailwind مباشرةً
+
   return (
-    <html
-      // lang={locale}
-      // dir={locale === "en" ? Directions.LTR : Directions.RTL}
-      dir={Directions.RTL}
-      suppressHydrationWarning
-    >
-      <body
-        className={`min-h-screen bg-background ${roboto.variable} ${tajawal.variable}  ${cairo.variable} antialiased`}
-      >
+    <html dir={dir} suppressHydrationWarning>
+      <body className={`min-h-screen bg-background antialiased ${fontClass}`}>
         {/* <NextIntlClientProvider locale={locale} messages={messages}> */}
         <NextTopLoader />
         <ThemeProvider>{children}</ThemeProvider>

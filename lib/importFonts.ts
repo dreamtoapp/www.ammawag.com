@@ -1,3 +1,4 @@
+// /import fonts/
 import localFont from "next/font/local";
 
 // Roboto Font (Variable Font)
