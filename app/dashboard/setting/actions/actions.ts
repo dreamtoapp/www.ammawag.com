@@ -1,64 +1,80 @@
 "use server";
 import db from "@/lib/prisma";
 
-const collectData = (formData: FormData) => {
-  const data = Object.fromEntries(formData.entries());
-  // Extract and convert form data into a structured object
-  const extractData = {
-    fullName: String(data.fullName || ""), // Default to empty string if not provided
-    bio: String(data.bio || ""), // Default to empty string if not provided
-    email: String(data.email || ""), // Default to empty string if not provided
-    phoneNumber: String(data.phoneNumber || null), // Nullable field
-    twitter: String(data.twitter || null), // Nullable field
-    linkedin: String(data.linkedin || null), // Nullable field
-    instagram: String(data.instagram || null), // Nullable field
-    tiktok: String(data.tiktok || null), // Nullable field
-    facebook: String(data.facebook || null), // Nullable field
-    snapchat: String(data.snapchat || null), // Nullable field
-    taxNumber: String(data.taxNumber || null), // Nullable field
-    taxQrImage: String(data.taxQrImage || ""), // Required field, default to empty string
-  };
-  return extractData;
-};
-
-export const newCompnay = async (formData: FormData): Promise<void> => {
-  try {
-    const companyData = collectData(formData);
-    await db.company.create({
-      data: companyData, // Pass the extracted data directly
-    });
-  } catch (error) {
-    console.error("Error creating company record:", error);
-    throw new Error("Failed to create company record.");
-  }
-};
-
-export const updateCompnay = async (
-  formData: FormData,
-  id: string
-): Promise<void> => {
-  try {
-    const companyData = collectData(formData);
-
-    await db.company.update({
-      where: { id: id },
-      data: companyData, // Pass the extracted data directly
-    });
-
-    // Optionally, you can log success messages here
-    console.log("Company record Update successfully!");
-  } catch (error) {
-    console.error("Error creating company record:", error);
-    throw new Error("Failed to create company record.");
-  }
-};
-
-export async function fetchCompanySettings(): Promise<CompanySettings | null> {
-  try {
-    const company = await db.company.findFirst({});
-    return company;
-  } catch (error) {
-    console.error("Error fetching company settings:", error);
-    throw new Error("Failed to fetch company settings.");
-  }
+// Define the Company type for type safety
+interface Company {
+  id: string;
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  profilePicture: string;
+  bio: string;
+  taxNumber: string;
+  taxQrImage: string;
+  twitter: string;
+  linkedin: string;
+  instagram: string;
+  tiktok: string;
+  facebook: string;
+  snapchat: string;
+  website: string;
+  address: string;
+  latitude: string;
+  longitude: string;
 }
+
+// Helper function to extract and format form data
+const collectData = (formData: FormData): Partial<Company> => {
+  const data = Object.fromEntries(formData.entries());
+  return {
+    fullName: String(data.fullName || ""),
+    email: String(data.email || ""),
+    phoneNumber: String(data.phoneNumber || ""),
+    profilePicture: String(data.profilePicture || ""),
+    bio: String(data.bio || ""),
+    taxNumber: String(data.taxNumber || ""),
+    taxQrImage: String(data.taxQrImage || ""),
+    twitter: String(data.twitter || ""),
+    linkedin: String(data.linkedin || ""),
+    instagram: String(data.instagram || ""),
+    tiktok: String(data.tiktok || ""),
+    facebook: String(data.facebook || ""),
+    snapchat: String(data.snapchat || ""),
+    website: String(data.website || ""),
+    address: String(data.address || ""),
+    latitude: String(data.latitude || ""),
+    longitude: String(data.longitude || ""),
+  };
+};
+
+// Fetch the single company record
+export const fetchCompany = async (): Promise<Company | null> => {
+  try {
+    return await db.company.findFirst();
+  } catch (error) {
+    console.error("Error fetching company:", error);
+    throw new Error("Failed to fetch company.");
+  }
+};
+
+// Create or update the single company record
+export const saveCompany = async (formData: FormData): Promise<void> => {
+  try {
+    const companyData = collectData(formData);
+    const existingCompany = await db.company.findFirst();
+
+    if (existingCompany) {
+      // Update the existing company
+      await db.company.update({
+        where: { id: existingCompany.id },
+        data: companyData,
+      });
+    } else {
+      // Create a new company
+      await db.company.create({ data: companyData });
+    }
+  } catch (error) {
+    console.error("Error saving company:", error);
+    throw new Error("Failed to save company.");
+  }
+};

@@ -21,6 +21,7 @@ import {
   ListOrdered,
   ShoppingBasket,
   Timer,
+  Newspaper,
 } from "lucide-react";
 
 // Define navigation groups as data
@@ -42,6 +43,16 @@ const NAVIGATION_GROUPS = [
         label: "المنتجات",
         href: "/dashboard/porductmangment",
         icon: <Package className="h-5 w-5 text-muted-foreground ml-2" />,
+      },
+      {
+        label: "تواصل العملاء",
+        href: "/dashboard/clientsubmission",
+        icon: <Users className="h-5 w-5 text-muted-foreground ml-2" />,
+      },
+      {
+        label: "النشرة الاخبارية",
+        href: "/dashboard/clientnews",
+        icon: <Newspaper className="h-5 w-5 text-muted-foreground ml-2" />,
       },
     ],
   },

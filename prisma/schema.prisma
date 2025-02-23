@@ -127,25 +127,46 @@ model Shift {
 
 model Company {
   id            String   @id @default(auto()) @map("_id") @db.ObjectId // MongoDB ObjectId
-  fullName      String   @default("")// Full name of the company owner/contact person
-  email         String   @unique // Email address (required and unique)
-  phoneNumber   String  @default("")// Phone number (optional)
-  profilePicture String @default("")// Profile picture URL (optional)
-  bio           String  @default("")// Bio/description (optional)
-  // Tax Information
-  taxNumber     String  @default("")// Tax number (optional)
-  taxQrImage    String  @default("")// URL of the tax QR image (optional)
-  // Social Media Links
-  twitter       String @default("")
-  linkedin      String  @default("")
-  instagram     String @default("")
-  tiktok        String   @default("")
-  facebook      String @default("")
-  snapchat      String @default("")
-  website       String @default("")
-
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  fullName      String   @default("") // Full name of the company owner/contact person
+  email         String   @default("") // Email address
+  phoneNumber   String   @default("") // Phone number
+  profilePicture String  @default("") // Profile picture URL
+  bio           String   @default("") // Bio/description
+  taxNumber     String   @default("") // Tax number
+  taxQrImage    String   @default("") // URL of the tax QR image
+  twitter       String   @default("") // Twitter URL
+  linkedin      String   @default("") // LinkedIn URL
+  instagram     String   @default("") // Instagram URL
+  tiktok        String   @default("") // TikTok URL
+  facebook      String   @default("") // Facebook URL
+  snapchat      String   @default("") // Snapchat URL
+  website       String   @default("") // Website URL
+  address       String   @default("") // Address of the company
+  latitude      String   @default("") // Latitude of the company location
+  longitude     String   @default("") // Longitude of the company location
+  createdAt     DateTime @default(now()) // Timestamp of creation
+  updatedAt     DateTime @updatedAt // Timestamp of last update
 }
 
- 
+ model NewLetter {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
+  createdAt DateTime @default(now())
+ }
+model ContactSubmission {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String
+  subject   String
+  message   String
+  createdAt DateTime @default(now())
+  replies   Reply[] // One-to-many relationship: one submission can have multiple replies
+}
+
+model Reply {
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+  content             String   // The reply message
+  sentAt              DateTime @default(now()) // Timestamp for when the reply was sent
+  contactSubmissionId String   @db.ObjectId // Ensure this matches the native type of ContactSubmission.id
+  contactSubmission   ContactSubmission @relation(fields: [contactSubmissionId], references: [id])
+}

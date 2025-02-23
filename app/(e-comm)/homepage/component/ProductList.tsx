@@ -18,6 +18,46 @@ import { Button } from "@/components/ui/button";
 const PRIMARY_COLOR =
   "bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 shadow-md rounded-full";
 
+// Skeleton Component
+const ProductSkeleton = ({ count }: { count: number }) => (
+  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6">
+    {Array.from({ length: count }).map((_, index) => (
+      <div
+        key={index}
+        className="rounded-2xl shadow-md overflow-hidden relative bg-white border-gray-200 animate-pulse"
+      >
+        {/* Image Placeholder */}
+        <div className="w-full h-40 bg-gray-300 rounded-t-2xl"></div>
+
+        {/* Content Placeholder */}
+        <div className="space-y-2 p-4 text-center">
+          {/* Product Name Placeholder */}
+          <div className="h-4 bg-gray-300 rounded w-3/4 mx-auto"></div>
+
+          {/* Price Placeholder */}
+          <div className="h-4 bg-gray-300 rounded w-1/2 mx-auto mt-2"></div>
+
+          {/* Quantity Buttons Placeholder */}
+          <div className="flex items-center justify-center gap-2 mt-2">
+            <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
+            <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
+          </div>
+
+          {/* Total Price Placeholder */}
+          <div className="mt-2 bg-gray-100 p-2 rounded-lg shadow-sm">
+            <div className="h-4 bg-gray-300 rounded w-1/2 mx-auto"></div>
+          </div>
+        </div>
+
+        {/* Add to Cart Button Placeholder */}
+        <div className="p-4 flex justify-center items-center">
+          <div className="w-24 h-10 bg-gray-300 rounded-full"></div>
+        </div>
+      </div>
+    ))}
+  </div>
+);
+
 export default function ProductList({ products }: { products: Product[] }) {
   const { addItem, removeItem, cart } = useCartStore();
 
@@ -30,6 +70,18 @@ export default function ProductList({ products }: { products: Product[] }) {
   const [notifications, setNotifications] = useState<{
     [key: string]: boolean;
   }>({});
+
+  // State for simulating loading
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Simulate loading for 2 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   // Function to update quantity
   const updateQuantity = (productId: string, delta: number) => {
@@ -55,6 +107,11 @@ export default function ProductList({ products }: { products: Product[] }) {
       setNotifications((prev) => ({ ...prev, [productId]: false }));
     }, 2000);
   };
+
+  // Render skeleton if loading
+  if (isLoading) {
+    return <ProductSkeleton count={products.length} />;
+  }
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6">
