@@ -9,57 +9,64 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.5rem;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+    /* Light Theme */
+    --background: 0 0% 98%; /* Soft white */
+    --foreground: 222.2 84% 12%; /* Dark text */
+    --card: 0 0% 100%; /* Pure white */
+    --card-foreground: 222.2 84% 12%; /* Dark text for cards */
+    --popover: 0 0% 100%; /* Pure white for popovers */
+    --popover-foreground: 222.2 84% 12%; /* Dark text for popovers */
+    --primary: 210 80% 50%; /* Modern blue */
+    --primary-foreground: 210 40% 98%; /* Light text on primary buttons */
+    --secondary: 220 14% 96%; /* Light gray */
+    --secondary-foreground: 222.2 47.4% 11.2%; /* Dark text on secondary elements */
+    --muted: 220 14% 96%; /* Light gray for muted elements */
+    --muted-foreground: 215.4 16.3% 46.9%; /* Gray text for muted elements */
+    --accent: 210 80% 50%; /* Modern blue for accents */
+    --accent-foreground: 210 40% 98%; /* Light text on accents */
+    --destructive: 0 84.2% 60.2%; /* Red for destructive actions */
+    --destructive-foreground: 210 40% 98%; /* Light text on destructive buttons */
+    --border: 220 14% 90%; /* Light gray for borders */
+    --input: 220 14% 90%; /* Light gray for input fields */
+    --ring: 210 80% 50%; /* Modern blue for focus rings */
+    --radius: 0.5rem; /* Rounded corners */
+    --chart-1: 12 76% 61%; /* Coral for charts */
+    --chart-2: 173 58% 39%; /* Teal for charts */
+    --chart-3: 197 37% 24%; /* Dark teal for charts */
+    --chart-4: 43 74% 66%; /* Gold for charts */
+    --chart-5: 27 87% 67%; /* Orange for charts */
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    /* Dark Theme */
+    --background: 222.2 84% 6%; /* Darker background */
+    --foreground: 210 40% 98%; /* Light text */
+    --card: 222.2 84% 8%; /* Slightly lighter dark for cards */
+    --card-foreground: 210 40% 98%; /* Light text for cards */
+    --popover: 222.2 84% 8%; /* Slightly lighter dark for popovers */
+    --popover-foreground: 210 40% 98%; /* Light text for popovers */
+    --primary: 210 80% 50%; /* Modern blue */
+    --primary-foreground: 210 40% 98%; /* Light text on primary buttons */
+    --secondary: 217.2 32.6% 17.5%; /* Dark gray */
+    --secondary-foreground: 210 40% 98%; /* Light text on secondary elements */
+    --muted: 217.2 32.6% 17.5%; /* Dark gray for muted elements */
+    --muted-foreground: 215 20.2% 65.1%; /* Light gray text for muted elements */
+    --accent: 210 80% 50%; /* Modern blue for accents */
+    --accent-foreground: 210 40% 98%; /* Light text on accents */
+    --destructive: 0 62.8% 30.6%; /* Dark red for destructive actions */
+    --destructive-foreground: 210 40% 98%; /* Light text on destructive buttons */
+    --border: 217.2 32.6% 20%; /* Dark gray for borders */
+    --input: 217.2 32.6% 20%; /* Dark gray for input fields */
+    --ring: 210 80% 50%; /* Modern blue for focus rings */
+    --chart-1: 220 70% 50%; /* Blue for charts */
+    --chart-2: 160 60% 45%; /* Teal for charts */
+    --chart-3: 30 80% 55%; /* Orange for charts */
+    --chart-4: 280 65% 60%; /* Purple for charts */
+    --chart-5: 340 75% 55%; /* Pink for charts */
   }
+}
+
+.border-gradient {
+  border-image: linear-gradient(to right, #3b82f6, #9333ea);
+  border-image-slice: 1;
 }

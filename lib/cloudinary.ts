@@ -17,10 +17,10 @@ async function ensureFolderExists(folderName: string) {
   try {
     // Attempt to create the folder
     await cloudinary.v2.api.create_folder(folderName);
-    console.log(`Folder '${folderName}' created successfully.`);
+    // console.log(`Folder '${folderName}' created successfully.`);
   } catch (error: any) {
     if (error.http_code === 409 && error.message.includes("already exists")) {
-      console.log(`Folder '${folderName}' already exists.`);
+      // console.log(`Folder '${folderName}' already exists.`);
     } else {
       console.error(
         `Unexpected error ensuring folder '${folderName}' exists:`,
@@ -91,7 +91,7 @@ export async function uploadImageToCloudinary(
       format: "webp",
     });
 
-    console.log("Cloudinary Upload Response:", data); // Log the full response for debugging
+    // console.log("Cloudinary Upload Response:", data); // Log the full response for debugging
 
     return {
       secure_url: optimizedUrl, // Return the optimized URL

@@ -30,26 +30,29 @@ const DeleteItemDialog = ({
         <Button
           variant="outline"
           size="icon"
-          className=" w-[80%] h-8  text-red-500 border-red-500 hover:bg-red-100 transition-colors font-cairo"
+          className="h-8 w-8 text-red-600 border-red-600 hover:bg-red-50 dark:text-red-500 dark:border-red-500 dark:hover:bg-red-900/20 transition-colors"
           aria-label={`Remove ${productName} from cart`}
         >
           <Trash2 size={16} />
-          ازالة الصنف
         </Button>
       </AlertDialogTrigger>
 
-      <AlertDialogContent>
+      <AlertDialogContent className="rounded-lg">
         <AlertDialogHeader>
-          <AlertDialogTitle>هل أنت متأكد؟</AlertDialogTitle>
-          <AlertDialogDescription>
+          <AlertDialogTitle className="text-lg font-semibold text-foreground">
+            هل أنت متأكد؟
+          </AlertDialogTitle>
+          <AlertDialogDescription className="text-muted-foreground">
             هل تريد حذف المنتج "{productName}" من السلة؟
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>إلغاء</AlertDialogCancel>
+          <AlertDialogCancel className="bg-muted text-muted-foreground hover:bg-muted/80">
+            إلغاء
+          </AlertDialogCancel>
           <AlertDialogAction
             onClick={() => removeItem(productId)}
-            className="bg-red-600 hover:bg-red-700"
+            className="bg-red-600 hover:bg-red-700 text-white"
           >
             حذف
           </AlertDialogAction>

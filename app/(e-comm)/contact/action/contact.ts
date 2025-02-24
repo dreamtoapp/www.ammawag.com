@@ -41,7 +41,6 @@ export async function submitContactForm(
 
     // Revalidate the dashboard path
     revalidatePath("/dashboard/contact");
-    console.log("Dashboard revalidated");
 
     return {
       success: true,

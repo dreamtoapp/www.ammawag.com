@@ -1,16 +1,33 @@
-const Copyright = () => (
-  <div className="text-center text-sm text-muted-foreground mt-6">
-    &copy; {new Date().getFullYear()} Your Company Name. All rights reserved.
-    Developed by
-    <a
-      href="https://your-portfolio-link.com"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="text-primary hover:underline ml-1"
-    >
-      Your Name
-    </a>
-  </div>
-);
+import React from "react";
+import packageJson from "../../../../../package.json"; // Import package.json
+const Copyright = () => {
+  return (
+    <div className="text-center text-sm text-muted-foreground mt-6">
+      {/* Copyright Notice */}
+      <p>
+        &copy; {new Date().getFullYear()} Your Company Name. All rights
+        reserved.
+      </p>
+
+      {/* Developer Credit */}
+      <p>
+        Developed by{" "}
+        <a
+          href="https://your-portfolio-link.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-primary hover:underline"
+        >
+          Your Name
+        </a>
+      </p>
+
+      {/* Version Number */}
+      <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+        Version: {packageJson.version}
+      </p>
+    </div>
+  );
+};
 
 export default Copyright;

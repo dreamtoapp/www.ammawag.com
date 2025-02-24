@@ -1,16 +1,10 @@
 "use client";
-import React, { useMemo } from "react";
+import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import {
-  Pagination,
-  Autoplay,
-  EffectFade,
-  EffectCreative,
-} from "swiper/modules";
+import { Pagination, Autoplay, EffectFade } from "swiper/modules"; // Removed Navigation
 import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/effect-fade";
-import "swiper/css/effect-creative";
 import {
   Card,
   CardHeader,
@@ -19,68 +13,62 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
 
-// Define the Offer type
-interface Offer {
-  id: string;
-  createdAt: Date;
-  updatedAt: Date;
-  imageUrl: string | null;
-  title: string;
-  description: string;
-  active: boolean;
-  productIds: string[];
-  buttonText?: string;
-  link?: string;
-}
+// Dummy offers data with real image URLs
+const dummyOffers = [
+  {
+    id: 1,
+    title: "عرض الصيف",
+    description: "خصم 50% على جميع مجموعات الصيف. عرض لفترة محدودة!",
+    buttonText: "اطلب الآن",
+    link: "#",
+    imageUrl:
+      "https://images.unsplash.com/photo-1587614387466-0a2b74f9f3f8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80", // Real image URL
+  },
+  {
+    id: 2,
+    title: "عودة إلى المدرسة",
+    description: "خصومات خاصة على مستلزمات المدرسة والإكسسوارات.",
+    buttonText: "اطلب الآن",
+    link: "#",
+    imageUrl:
+      "https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80", // Real image URL
+  },
+  {
+    id: 3,
+    title: "عرض فلاش",
+    description: "آخر فرصة للحصول على صفقات رائعة على العناصر المختارة.",
+    buttonText: "اطلب الآن",
+    link: "#",
+    imageUrl:
+      "https://images.unsplash.com/photo-1519681393784-d120267933ba?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80", // Real image URL
+  },
+];
 
-// Define the props for OfferSlider
-interface OfferSliderProps {
-  offers: Offer[];
-}
-
-const OfferSlider: React.FC<OfferSliderProps> = ({ offers }) => {
-  // Memoize the offers array to prevent unnecessary re-renders
-  const memoizedOffers = useMemo(() => offers, [offers]);
-
+const OfferSlider = () => {
   return (
-    <section className="relative">
+    <section className="relative bg-gray-50">
       <div className="relative h-[80vh] min-h-[500px]">
         <Swiper
-          modules={[Pagination, Autoplay, EffectFade, EffectCreative]}
+          modules={[Pagination, Autoplay, EffectFade]} // Removed Navigation
           spaceBetween={0}
           slidesPerView={1}
           pagination={{ clickable: true }}
           autoplay={{ delay: 4000, disableOnInteraction: false }}
-          effect="creative"
-          creativeEffect={{
-            prev: {
-              shadow: true,
-              translate: [0, 0, -400],
-            },
-            next: {
-              translate: ["100%", 0, 0],
-            },
-          }}
+          effect="fade"
           fadeEffect={{ crossFade: true }}
           className="h-full"
         >
-          {memoizedOffers.map((offer) => (
+          {dummyOffers.map((offer) => (
             <SwiperSlide key={offer.id}>
               <div className="h-full flex items-center justify-center relative">
-                {/* Image background using next/image */}
-                {offer.imageUrl && (
-                  <Image
-                    src={offer.imageUrl}
-                    alt={offer.title}
-                    fill
-                    className="object-cover"
-                    quality={75}
-                    priority={true}
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  />
-                )}
+                {/* Image background */}
+                <img
+                  src={offer.imageUrl}
+                  alt={offer.title}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  loading="lazy" // Lazy load images for better performance
+                />
                 {/* Gradient Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent"></div>
                 {/* Content Box */}
@@ -95,10 +83,10 @@ const OfferSlider: React.FC<OfferSliderProps> = ({ offers }) => {
                   </CardHeader>
                   <CardContent>
                     <Button
+                      asChild
                       className="w-full md:w-auto bg-primary hover:bg-primary-dark text-white px-8 py-4 text-lg md:text-xl font-semibold rounded-lg transition duration-300"
-                      aria-label={`Order ${offer.title}`}
                     >
-                      {offer.buttonText || "اطلب الان"}
+                      <a href={offer.link}>{offer.buttonText}</a>
                     </Button>
                   </CardContent>
                 </Card>

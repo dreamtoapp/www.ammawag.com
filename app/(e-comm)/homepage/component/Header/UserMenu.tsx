@@ -1,3 +1,5 @@
+"use client"; // Mark this as a Client Component
+
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -18,13 +20,12 @@ import {
   Moon,
 } from "lucide-react";
 import Link from "next/link";
+import { useTheme } from "next-themes"; // Import useTheme
 
 // Define the UserMenuProps type
 interface UserMenuProps {
   isLoggedIn: boolean;
   user: { name: string; avatar?: string };
-  isDark: boolean;
-  toggleTheme: () => void;
   isArabic: boolean;
   toggleLanguage: () => void;
 }
@@ -32,11 +33,12 @@ interface UserMenuProps {
 export default function UserMenu({
   isLoggedIn,
   user,
-  isDark,
-  toggleTheme,
   isArabic,
   toggleLanguage,
 }: UserMenuProps) {
+  const { theme, setTheme } = useTheme(); // Use the useTheme hook
+  const isDark = theme === "dark"; // Determine if the theme is dark
+
   const handleDisabledClick = () => {
     alert("يجب تسجيل الدخول لاستخدام هذه الميزة.");
   };
@@ -124,7 +126,7 @@ export default function UserMenu({
         {/* تغيير الثيم */}
         <DropdownMenuItem>
           <button
-            onClick={toggleTheme}
+            onClick={() => setTheme(isDark ? "light" : "dark")} // Toggle theme
             className="flex items-center gap-2 w-full"
           >
             {isDark ? (

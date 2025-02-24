@@ -13,19 +13,26 @@ export default async function RootLayout({
 }) {
   // const messages = await getMessages();
   // const locale = await getLocale();
-  // const locale = "ar";
-  const dir = Directions.RTL; // تعيين الاتجاه ديناميكيًا لاحقًا
+  const locale = "ar"; // Hardcoded for now
+  const dir = Directions.RTL; // Set direction dynamically later
 
-  const fontClass = dir === Directions.RTL ? "font-cairo" : "font-roboto"; // استخدم Tailwind مباشرةً
+  const fontClass = dir === Directions.RTL ? "font-cairo" : "font-roboto"; // Use Tailwind directly
 
   return (
-    <html dir={dir} suppressHydrationWarning>
+    <html lang={locale} dir={dir} suppressHydrationWarning>
       <body className={`min-h-screen bg-background antialiased ${fontClass}`}>
         {/* <NextIntlClientProvider locale={locale} messages={messages}> */}
-        <NextTopLoader />
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <NextTopLoader />
+          {children}
+          <Toaster position="top-right" />
+        </ThemeProvider>
         {/* </NextIntlClientProvider> */}
-        <Toaster position="top-right" />
       </body>
     </html>
   );

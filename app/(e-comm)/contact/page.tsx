@@ -1,4 +1,3 @@
-// app/contact/ContactForm.tsx
 "use client";
 import React from "react";
 import { useActionState } from "react";
@@ -26,14 +25,16 @@ const ContactForm: React.FC = () => {
   }, [state]);
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-md">
-      <h1 className="text-3xl font-bold mb-4 text-center">تواصل معنا</h1>
+    <div className="max-w-2xl mx-auto p-6 bg-background shadow-lg rounded-md border dark:border-gray-800">
+      <h1 className="text-3xl font-bold mb-4 text-center text-foreground">
+        تواصل معنا
+      </h1>
       <form action={formAction} className="space-y-4">
         {/* Name Field */}
         <div>
           <label
             htmlFor="name"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-foreground"
           >
             الاسم
           </label>
@@ -42,7 +43,7 @@ const ContactForm: React.FC = () => {
             name="name"
             id="name"
             placeholder="أدخل اسمك"
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500"
+            className="mt-1 block w-full px-3 py-2 bg-background border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary"
             required
           />
         </div>
@@ -51,7 +52,7 @@ const ContactForm: React.FC = () => {
         <div>
           <label
             htmlFor="email"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-foreground"
           >
             البريد الإلكتروني
           </label>
@@ -60,7 +61,7 @@ const ContactForm: React.FC = () => {
             name="email"
             id="email"
             placeholder="أدخل بريدك الإلكتروني"
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500"
+            className="mt-1 block w-full px-3 py-2 bg-background border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary"
             required
           />
         </div>
@@ -69,7 +70,7 @@ const ContactForm: React.FC = () => {
         <div>
           <label
             htmlFor="subject"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-foreground"
           >
             الموضوع
           </label>
@@ -78,7 +79,7 @@ const ContactForm: React.FC = () => {
             name="subject"
             id="subject"
             placeholder="أدخل الموضوع"
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500"
+            className="mt-1 block w-full px-3 py-2 bg-background border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary"
             required
           />
         </div>
@@ -87,7 +88,7 @@ const ContactForm: React.FC = () => {
         <div>
           <label
             htmlFor="message"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-foreground"
           >
             الرسالة
           </label>
@@ -96,7 +97,7 @@ const ContactForm: React.FC = () => {
             id="message"
             rows={5}
             placeholder="أدخل رسالتك"
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-500"
+            className="mt-1 block w-full px-3 py-2 bg-background border border-input rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-primary"
             required
           />
         </div>
@@ -105,7 +106,7 @@ const ContactForm: React.FC = () => {
         <div>
           <button
             type="submit"
-            className="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+            className="w-full py-2 px-4 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition disabled:opacity-50 disabled:pointer-events-none"
             disabled={isPending}
           >
             {isPending ? "جاري الإرسال..." : "إرسال الرسالة"}

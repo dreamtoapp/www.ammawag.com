@@ -7,9 +7,12 @@ import TermsDialog from "./components/TermsDialog";
 import UserForm from "./components/UserForm";
 import MapDisplay from "./components/MapDisplay";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useGeolocated } from "react-geolocated";
 import dynamic from "next/dynamic";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const CartSummary = dynamic(() => import("../cart/component/CartSummary"), {
   ssr: false,
@@ -77,12 +80,14 @@ export default function CheckoutPage() {
   };
 
   return (
-    <div className="flex flex-col justify-center items-center min-h-screen bg-gray-100 p-4">
-      <Card className="w-full max-w-md lg:max-w-3xl shadow-lg rounded-lg border border-gray-200">
-        <CardContent className="p-6 pb-20">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
+    <div className="flex flex-col justify-center items-center min-h-screen bg-background p-4">
+      <Card className="w-full max-w-md lg:max-w-3xl shadow-lg rounded-lg border border-border">
+        <CardHeader>
+          <CardTitle className="text-2xl font-semibold text-center text-foreground">
             تأكيد الطلب
-          </h2>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-6 pb-20">
           {!isLogin && (
             <UserForm
               userName={userName}
@@ -95,9 +100,11 @@ export default function CheckoutPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <CartSummary />
             <div>
-              <p className="font-medium text-gray-700">عنوان التوصيل:</p>
-              <div className="p-4 bg-gray-50 border rounded-lg mb-4">
-                <p className="text-gray-600">
+              <Label className="font-medium text-foreground">
+                عنوان التوصيل:
+              </Label>
+              <div className="p-4 bg-muted border rounded-lg mb-4">
+                <p className="text-muted-foreground">
                   {selectedAddress || "لم يتم تحديد عنوان بعد"}
                 </p>
                 <Button
@@ -113,14 +120,16 @@ export default function CheckoutPage() {
           </div>
           {!isLogin && (
             <div className="mt-4">
-              <label className="flex items-center space-x-2 text-sm text-gray-700">
-                <input
-                  type="checkbox"
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="terms"
                   checked={agreeToTerms}
-                  onChange={(e) => setAgreeToTerms(e.target.checked)}
-                  className="form-checkbox h-4 w-4 text-blue-500"
+                  onCheckedChange={(checked) => setAgreeToTerms(!!checked)}
                 />
-                <span>
+                <Label
+                  htmlFor="terms"
+                  className="text-sm text-muted-foreground"
+                >
                   أوافق على{" "}
                   <a
                     href="#"
@@ -128,18 +137,18 @@ export default function CheckoutPage() {
                       e.preventDefault();
                       setShowTermsDialog(true);
                     }}
-                    className="text-blue-500 underline"
+                    className="text-primary underline"
                   >
                     الشروط والأحكام
                   </a>{" "}
                   وسياسة الخصوصية.
-                </span>
-              </label>
+                </Label>
+              </div>
             </div>
           )}
         </CardContent>
       </Card>
-      <div className="fixed bottom-0 left-0 w-full bg-white p-5 shadow-md flex flex-col items-center border-t border-gray-300">
+      <div className="fixed bottom-0 left-0 w-full bg-background p-5 shadow-md flex flex-col items-center border-t border-border">
         <Button
           onClick={handleCheckout}
           disabled={!isLogin && !agreeToTerms}

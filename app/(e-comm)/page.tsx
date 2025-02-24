@@ -1,26 +1,32 @@
-// app/page.tsx
+// app/(e-comm)/page.tsx
 import {
   fetchProducts,
+  getPromotions,
   getSuppliersWithProducts,
 } from "@/app/(e-comm)/homepage/actions/fetchProducts";
-import ProductList from "./homepage/component/ProductList";
-import OfferSection from "./homepage/component/Offer";
-import ProducCategory from "./homepage/component/ProducCategory";
-import { Suspense } from "react";
+import dynamic from "next/dynamic";
+
+// Lazy load components
+const ProductList = dynamic(() => import("./homepage/component/ProductList"));
+const OfferSection = dynamic(() => import("./homepage/component/Offer"));
+const ProducCategory = dynamic(
+  () => import("./homepage/component/ProducCategory")
+);
 
 // Define types for params and searchParams
-type Params = Promise<{ slug: string }>;
-type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
+type SearchParams = { [key: string]: string | string[] | undefined };
 
-// Generate metadata dynamically (optional)
-export async function generateMetadata(props: {
-  params: Params;
-  searchParams: SearchParams;
+// Simulate a delay for testing
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Generate metadata dynamically
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
 }) {
-  const params = await props.params;
-  const searchParams = await props.searchParams;
-  const slug = params.slug; // Access dynamic route parameters
-  const sid = searchParams.sid; // Access query parameters
+  const resolvedSearchParams = await searchParams;
+  const { sid } = resolvedSearchParams;
 
   return {
     title: `Supplier ${sid} - My E-Commerce Site`,
@@ -29,26 +35,28 @@ export async function generateMetadata(props: {
 }
 
 // Main page component
-export default async function HomePage(props: {
-  params: Params;
-  searchParams: SearchParams;
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
 }) {
-  // Await params and searchParams
-  const params = await props.params;
-  const searchParams = await props.searchParams;
+  const resolvedSearchParams = await searchParams;
+  const { sid } = resolvedSearchParams;
 
-  // Access query parameters
-  const sid = searchParams.sid;
-  console.log("Supplier ID (sid) from query:", sid);
+  // Simulate a 3-second delay for testing
+  // await delay(9000);
 
-  // Fetch data
-  const products = await fetchProducts(sid?.toString());
-  const supplierWithITems = await getSuppliersWithProducts();
+  // Fetch data in parallel
+  const [products, supplierWithItems, promotions] = await Promise.all([
+    fetchProducts(sid?.toString()),
+    getSuppliersWithProducts(),
+    getPromotions(),
+  ]);
 
   return (
-    <div className="container mx-auto">
-      {/* <OfferSection /> */}
-      <ProducCategory suppliers={supplierWithITems} />
+    <div className="container mx-auto bg-background text-foreground">
+      {/* <OfferSection offers={promotions} /> */}
+      <ProducCategory suppliers={supplierWithItems} />
       <ProductList products={products} />
     </div>
   );

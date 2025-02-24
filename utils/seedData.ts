@@ -1,9 +1,28 @@
 // scripts/seed.ts
-import { faker } from "@faker-js/faker";
+import { faker } from "@faker-js/faker/locale/ar"; // Use Arabic locale
 import db from "../lib/prisma";
 import { generateOrderNumber } from "../utils/orderNumber";
 
-// Helper function to parse command-line arguments
+// Define an array of actual image URLs (using placeholder images)
+const actualImages = [
+  "https://images.unsplash.com/photo-1698734523062-3c3d0b5e5f9a?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80",
+  "https://images.unsplash.com/photo-1698734523062-3c3d0b5e5f9a?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80",
+  "https://images.unsplash.com/photo-1698734523062-3c3d0b5e5f9a?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80",
+  "https://images.unsplash.com/photo-1698734523062-3c3d0b5e5f9a?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80",
+  "https://images.unsplash.com/photo-1698734523062-3c3d0b5e5f9a?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80",
+];
+
+// Helper function to randomly pick an image from the list
+const getActualImage = (): string => {
+  return faker.helpers.arrayElement(actualImages);
+};
+
+// Utility logging function with timestamps
+const log = (message: string): void => {
+  console.log(`[${new Date().toISOString()}] ${message}`);
+};
+
+// Helper: Parse command-line arguments with default values
 function getArgValue(argName: string, defaultValue: number): number {
   const arg = process.argv.find((arg) => arg.startsWith(`--${argName}=`));
   if (arg) {
@@ -15,37 +34,34 @@ function getArgValue(argName: string, defaultValue: number): number {
   return defaultValue;
 }
 
-async function main() {
-  console.log("Seeding database with fake data...");
+// Clear existing data in proper relational order
+async function clearData(): Promise<void> {
   try {
-    // Parse command-line arguments for customizable seed sizes
-    const supplierCount = getArgValue("suppliers", 5); // Default: 5 suppliers
-    const productCount = getArgValue("products", 10); // Default: 10 products
-    const userCount = getArgValue("users", 5); // Default: 5 users
-    const driverCount = getArgValue("drivers", 3); // Default: 3 drivers
-    const orderCount = getArgValue("orders", 10); // Default: 10 orders
-    const promotionCount = getArgValue("promotions", 3); // Default: 3 promotions
+    log("Clearing existing data...");
+    // Delete dependent records first
+    await db.reply.deleteMany();
+    await db.contactSubmission.deleteMany();
+    await db.newLetter.deleteMany();
+    await db.orderItem.deleteMany();
+    await db.order.deleteMany();
+    await db.locationHistory.deleteMany();
+    await db.driver.deleteMany();
+    await db.promotion.deleteMany();
+    await db.product.deleteMany();
+    await db.supplier.deleteMany();
+    await db.user.deleteMany();
+    await db.company.deleteMany();
+    await db.shift.deleteMany();
+    log("Existing data cleared successfully.");
+  } catch (error) {
+    throw new Error(`Error clearing data: ${error}`);
+  }
+}
 
-    console.log(
-      `Custom seed sizes: Suppliers=${supplierCount}, Products=${productCount}, Users=${userCount}, Drivers=${driverCount}, Orders=${orderCount}, Promotions=${promotionCount}`
-    );
-
-    // Clear existing data (optional)
-    console.log("Clearing existing data...");
-    await db.orderItem.deleteMany(); // Delete OrderItems
-    await db.order.deleteMany(); // Delete Orders
-    await db.locationHistory.deleteMany(); // Delete LocationHistory
-    await db.driver.deleteMany(); // Delete Drivers
-    await db.promotion.deleteMany(); // Delete Promotions
-    await db.product.deleteMany(); // Delete Products
-    await db.supplier.deleteMany(); // Delete Suppliers
-    await db.user.deleteMany(); // Delete Users
-    await db.company.deleteMany(); // Delete Companies
-    await db.shift.deleteMany(); // Delete Shifts
-    console.log("Existing data cleared successfully.");
-
-    // Generate fake shifts
-    console.log("Generating fake shifts...");
+// Seed Shifts and return them for later use
+async function seedShifts(): Promise<{ dayShift: any; nightShift: any }> {
+  try {
+    log("Generating fake shifts...");
     const dayShift = await db.shift.create({
       data: {
         name: "صباح",
@@ -53,7 +69,6 @@ async function main() {
         endTime: "18:00",
       },
     });
-
     const nightShift = await db.shift.create({
       data: {
         name: "مساء",
@@ -61,97 +76,124 @@ async function main() {
         endTime: "06:00",
       },
     });
+    log("Generated 2 fake shifts (Day and Night).");
+    return { dayShift, nightShift };
+  } catch (error) {
+    throw new Error(`Error seeding shifts: ${error}`);
+  }
+}
 
-    console.log("Generated 2 fake shifts (Day and Night).");
-
-    // Generate fake companies
-    console.log("Generating fake companies...");
-    const company = await db.company.create({
+// Seed a fake company
+async function seedCompany(): Promise<void> {
+  try {
+    log("Generating fake company...");
+    await db.company.create({
       data: {
-        fullName: "John Doe & Co.",
+        fullName: "جون دو وشركاه", // Example Arabic company name
         email: "john.doe@example.com",
         phoneNumber: faker.phone.number(),
-        profilePicture: faker.image.url(),
-        bio: "We are a software development company.",
-        taxNumber: "1234567890", // Tax number
-        taxQrImage: "https://example.com/tax-qr.png", // Tax QR image
+        profilePicture: getActualImage(),
+        bio: "نحن شركة تطوير برمجيات.",
+        taxNumber: "1234567890",
+        taxQrImage: "https://example.com/tax-qr.png",
         twitter: "https://twitter.com/company",
         linkedin: "https://linkedin.com/company",
         instagram: "https://instagram.com/company",
         facebook: "https://facebook.com/company",
-        // github: "https://github.com/company",
         website: "https://example.com",
-        // defaultShiftId: dayShift.id, // Link to Day Shift
       },
     });
+    log("Generated 1 fake company.");
+  } catch (error) {
+    throw new Error(`Error seeding company: ${error}`);
+  }
+}
 
-    console.log("Generated 1 fake company.");
-
-    // Generate fake suppliers
-    console.log("Generating fake suppliers...");
-    for (let i = 0; i < supplierCount; i++) {
+// Seed suppliers
+async function seedSuppliers(count: number): Promise<void> {
+  try {
+    log(`Generating ${count} fake suppliers...`);
+    for (let i = 0; i < count; i++) {
       await db.supplier.create({
         data: {
           name: faker.company.name(),
-          logo: faker.image.url(),
-          publicId: faker.string.uuid(), // Add publicId for Cloudinary
+          logo: getActualImage(),
+          publicId: faker.string.uuid(),
           email: faker.internet.email(),
           phone: faker.phone.number(),
           address: faker.location.streetAddress(),
         },
       });
     }
-    console.log(`Generated ${supplierCount} fake suppliers.`);
+    log(`Generated ${count} fake suppliers.`);
+  } catch (error) {
+    throw new Error(`Error seeding suppliers: ${error}`);
+  }
+}
 
-    // Generate fake products
-    console.log("Generating fake products...");
-    const allSuppliers = await db.supplier.findMany({ select: { id: true } }); // Fetch all supplier IDs
+// Seed products (now including details and publicId fields)
+async function seedProducts(count: number): Promise<void> {
+  try {
+    log(`Generating ${count} fake products...`);
+    const allSuppliers = await db.supplier.findMany({ select: { id: true } });
     if (allSuppliers.length === 0) {
       throw new Error("No suppliers available to assign to products.");
     }
-
-    for (let i = 0; i < productCount; i++) {
-      const supplier = faker.helpers.arrayElement(allSuppliers); // Randomly select a supplier
+    for (let i = 0; i < count; i++) {
+      const supplier = faker.helpers.arrayElement(allSuppliers);
       await db.product.create({
         data: {
           name: faker.commerce.productName(),
           supplierId: supplier.id,
           price: parseFloat(faker.commerce.price()),
           size: faker.helpers.arrayElement(["1L", "500ml", "250ml"]),
-          imageUrl: faker.image.url(),
-          published: faker.datatype.boolean(), // Add published field
+          details: faker.lorem.sentence(), // Added details field
+          imageUrl: getActualImage(),
+          publicId: faker.string.uuid(), // Added publicId field
+          published: faker.datatype.boolean(),
         },
       });
     }
-    console.log(`Generated ${productCount} fake products.`);
+    log(`Generated ${count} fake products.`);
+  } catch (error) {
+    throw new Error(`Error seeding products: ${error}`);
+  }
+}
 
-    // Generate fake users (customers)
-    console.log("Generating fake users...");
-    for (let i = 0; i < userCount; i++) {
+// Seed users (customers)
+async function seedUsers(count: number): Promise<void> {
+  try {
+    log(`Generating ${count} fake users...`);
+    for (let i = 0; i < count; i++) {
       await db.user.create({
         data: {
           name: faker.person.fullName(),
           email: faker.internet.email(),
-          password: faker.internet.password(), // In production, hash passwords!
+          password: faker.internet.password(), // Remember: hash in production!
           role: faker.helpers.arrayElement(["customer", "admin"]),
         },
       });
     }
-    console.log(`Generated ${userCount} fake users.`);
+    log(`Generated ${count} fake users.`);
+  } catch (error) {
+    throw new Error(`Error seeding users: ${error}`);
+  }
+}
 
-    // Generate fake drivers
-    console.log("Generating fake drivers...");
-    for (let i = 0; i < driverCount; i++) {
+// Seed drivers and their location histories
+async function seedDrivers(count: number): Promise<void> {
+  try {
+    log(`Generating ${count} fake drivers...`);
+    for (let i = 0; i < count; i++) {
       const driver = await db.driver.create({
         data: {
           name: faker.person.fullName(),
           email: faker.internet.email(),
           phone: faker.phone.number(),
-          imageUrl: faker.image.url(), // Add imageUrl for the driver
+          imageUrl: getActualImage(),
         },
       });
-
-      // Add current location history for the driver
+      // Create location history for the driver
       await db.locationHistory.create({
         data: {
           driverId: driver.id,
@@ -160,47 +202,55 @@ async function main() {
         },
       });
     }
-    console.log(`Generated ${driverCount} fake drivers.`);
+    log(`Generated ${count} fake drivers.`);
+  } catch (error) {
+    throw new Error(`Error seeding drivers: ${error}`);
+  }
+}
 
-    // Generate fake orders
-    console.log("Generating fake orders...");
+// Seed orders along with order items
+async function seedOrders(
+  count: number,
+  dayShift: any,
+  nightShift: any
+): Promise<void> {
+  try {
+    log(`Generating ${count} fake orders...`);
     const allUsers = await db.user.findMany({ select: { id: true } });
     const allDrivers = await db.driver.findMany({ select: { id: true } });
     const allProducts = await db.product.findMany({
-      select: { id: true, price: true }, // Fetch product IDs and prices
+      select: { id: true, price: true },
     });
 
     if (allUsers.length === 0 || allProducts.length === 0) {
       throw new Error("Not enough users or products to create orders.");
     }
 
-    for (let i = 0; i < orderCount; i++) {
+    for (let i = 0; i < count; i++) {
       const customer = faker.helpers.arrayElement(allUsers);
       const driver = faker.helpers.arrayElement(allDrivers);
-
-      // Generate a unique order number
       const orderNumber = await generateOrderNumber();
 
-      // Create order items and calculate the total amount
-      const items = faker.helpers.multiple(
-        () => {
-          const product = faker.helpers.arrayElement(allProducts);
-          const quantity = faker.number.int({ min: 1, max: 5 });
-          const price = product.price; // Use the current price of the product
-          return {
-            productId: product.id,
-            quantity,
-            price,
-            subtotal: price * quantity, // Calculate subtotal for this item
-          };
-        },
-        { count: faker.number.int({ min: 1, max: 3 }) }
+      // Create order items
+      const itemCount: number = faker.number.int({ min: 1, max: 3 });
+      const items = Array.from({ length: itemCount }, () => {
+        const product = faker.helpers.arrayElement(allProducts);
+        const quantity = faker.number.int({ min: 1, max: 5 });
+        const price = product.price;
+        return {
+          productId: product.id,
+          quantity,
+          price,
+        };
+      });
+
+      // Calculate total amount for the order
+      const totalAmount = items.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0
       );
 
-      // Calculate the total amount for the order
-      const totalAmount = items.reduce((sum, item) => sum + item.subtotal, 0);
-
-      // Create the order with the total amount
+      // Create order with relational data
       const order = await db.order.create({
         data: {
           orderNumber,
@@ -211,49 +261,140 @@ async function main() {
             "Delivered",
             "In Transit",
           ]),
-          amount: totalAmount, // Store the total amount
-          shiftId: faker.helpers.arrayElement([dayShift.id, nightShift.id]), // Assign a random shift
+          amount: totalAmount,
+          shiftId: faker.helpers.arrayElement([dayShift.id, nightShift.id]),
           items: {
-            create: items.map((item) => ({
-              productId: item.productId,
-              quantity: item.quantity,
-              price: item.price, // Store the historical price
-            })),
+            create: items,
           },
         },
       });
-
-      console.log(`Generated order: ${order.orderNumber}`);
+      log(`Generated order: ${order.orderNumber}`);
     }
-    console.log(`Generated ${orderCount} fake orders.`);
+    log(`Generated ${count} fake orders.`);
+  } catch (error) {
+    throw new Error(`Error seeding orders: ${error}`);
+  }
+}
 
-    // Generate fake promotions
-    console.log("Generating fake promotions...");
-    for (let i = 0; i < promotionCount; i++) {
-      const productIds = faker.helpers.multiple(
-        () => faker.helpers.arrayElement(allProducts).id,
-        { count: faker.number.int({ min: 1, max: 3 }) }
+// Seed promotions
+async function seedPromotions(count: number): Promise<void> {
+  try {
+    log(`Generating ${count} fake promotions...`);
+    const allProducts = await db.product.findMany({ select: { id: true } });
+    if (allProducts.length === 0) {
+      throw new Error("No products available to assign to promotions.");
+    }
+    for (let i = 0; i < count; i++) {
+      // Get a random set of product IDs
+      const promoProductCount = faker.number.int({ min: 1, max: 3 });
+      const productIds = Array.from(
+        { length: promoProductCount },
+        () => faker.helpers.arrayElement(allProducts).id
       );
 
       await db.promotion.create({
         data: {
           title: faker.commerce.productName(),
           description: faker.commerce.productDescription(),
-          startDate: faker.date.past(),
-          endDate: faker.date.future(),
-          discount: parseFloat(
-            faker.number.float({ min: 5, max: 50 }).toFixed(2)
-          ),
+          imageUrl: faker.image.url(),
+
           active: faker.datatype.boolean(),
-          productIds: productIds,
+          productIds,
         },
       });
     }
-    console.log(`Generated ${promotionCount} fake promotions.`);
-
-    console.log("Database seeded successfully!");
+    log(`Generated ${count} fake promotions.`);
   } catch (error) {
-    console.error("Error seeding database:", error);
+    throw new Error(`Error seeding promotions: ${error}`);
+  }
+}
+
+// Seed NewLetters
+async function seedNewLetters(count: number): Promise<void> {
+  try {
+    log(`Generating ${count} fake newsletters...`);
+    for (let i = 0; i < count; i++) {
+      await db.newLetter.create({
+        data: {
+          email: faker.internet.email(),
+        },
+      });
+    }
+    log(`Generated ${count} fake newsletters.`);
+  } catch (error) {
+    throw new Error(`Error seeding newsletters: ${error}`);
+  }
+}
+
+// Seed ContactSubmissions and their Replies
+async function seedContactSubmissionsWithReplies(count: number): Promise<void> {
+  try {
+    log(`Generating ${count} fake contact submissions with replies...`);
+    for (let i = 0; i < count; i++) {
+      const submission = await db.contactSubmission.create({
+        data: {
+          name: faker.person.fullName(),
+          email: faker.internet.email(),
+          subject: faker.lorem.words(3),
+          message: faker.lorem.sentences(2),
+        },
+      });
+      // Create a random number of replies (between 1 and 3) for each submission
+      const replyCount = faker.number.int({ min: 1, max: 3 });
+      for (let j = 0; j < replyCount; j++) {
+        await db.reply.create({
+          data: {
+            content: faker.lorem.sentence(),
+            contactSubmissionId: submission.id,
+          },
+        });
+      }
+    }
+    log(`Generated ${count} fake contact submissions with replies.`);
+  } catch (error) {
+    throw new Error(`Error seeding contact submissions: ${error}`);
+  }
+}
+
+// Main seeding function
+async function main(): Promise<void> {
+  log("Starting database seeding process...");
+
+  // Retrieve seed sizes from command-line args or use defaults
+  const supplierCount = getArgValue("suppliers", 5);
+  const productCount = getArgValue("products", 10);
+  const userCount = getArgValue("users", 5);
+  const driverCount = getArgValue("drivers", 3);
+  const orderCount = getArgValue("orders", 10);
+  const promotionCount = getArgValue("promotions", 3);
+  const newsletterCount = getArgValue("newsletters", 3);
+  const contactSubmissionCount = getArgValue("contactsubmissions", 3);
+
+  log(
+    `Seed sizes: Suppliers=${supplierCount}, Products=${productCount}, Users=${userCount}, Drivers=${driverCount}, Orders=${orderCount}, Promotions=${promotionCount}, Newsletters=${newsletterCount}, ContactSubmissions=${contactSubmissionCount}`
+  );
+
+  try {
+    // Clear existing data
+    await clearData();
+
+    // Seed independent and relational data
+    const { dayShift, nightShift } = await seedShifts();
+    await seedCompany();
+    await seedSuppliers(supplierCount);
+    await seedProducts(productCount);
+    await seedUsers(userCount);
+    await seedDrivers(driverCount);
+    await seedOrders(orderCount, dayShift, nightShift);
+    await seedPromotions(promotionCount);
+
+    // Seed additional models from the schema
+    await seedNewLetters(newsletterCount);
+    await seedContactSubmissionsWithReplies(contactSubmissionCount);
+
+    log("Database seeded successfully!");
+  } catch (error) {
+    log(`Error seeding database: ${error}`);
     process.exit(1);
   } finally {
     await db.$disconnect();

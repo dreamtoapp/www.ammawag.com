@@ -1,4 +1,5 @@
 // app/(ecommerce)/layout.tsx
+import { TooltipProvider } from "../../components/ui/tooltip";
 import { companyInfo } from "./homepage/actions/companyDetail";
 import Fotter from "./homepage/component/Fotter/Fotter";
 import Header from "./homepage/component/Header/Header";
@@ -11,9 +12,8 @@ export default async function EcommerceLayout({
   children: React.ReactNode;
 }) {
   const companyData = await companyInfo();
-  console.log(companyData);
   return (
-    <>
+    <TooltipProvider>
       {/* Header is shared across all e-commerce pages */}
       <Header />
       <main className="container mx-auto p-4">{children}</main>
@@ -25,6 +25,6 @@ export default async function EcommerceLayout({
         latitude={companyData?.latitude}
         longitude={companyData?.longitude}
       />
-    </>
+    </TooltipProvider>
   );
 }

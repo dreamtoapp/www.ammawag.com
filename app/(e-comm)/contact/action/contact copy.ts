@@ -38,7 +38,6 @@ export async function submitContactForm(
       },
     });
     revalidatePath("/dashboard/clientsubmission");
-    console.log("clientsubmission revalidated");
 
     return {
       success: true,

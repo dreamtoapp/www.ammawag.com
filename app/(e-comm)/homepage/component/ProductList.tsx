@@ -12,11 +12,10 @@ import {
   CardTitle,
   CardContent,
   CardFooter,
+  CardDescription,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-
-const PRIMARY_COLOR =
-  "bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:from-blue-600 hover:to-indigo-700 transition-all duration-300 shadow-md rounded-full";
+import { Skeleton } from "@/components/ui/skeleton"; // For loading states
 
 // Skeleton Component
 const ProductSkeleton = ({ count }: { count: number }) => (
@@ -24,34 +23,34 @@ const ProductSkeleton = ({ count }: { count: number }) => (
     {Array.from({ length: count }).map((_, index) => (
       <div
         key={index}
-        className="rounded-2xl shadow-md overflow-hidden relative bg-white border-gray-200 animate-pulse"
+        className="rounded-2xl shadow-md overflow-hidden relative bg-card border border-border animate-pulse"
       >
         {/* Image Placeholder */}
-        <div className="w-full h-40 bg-gray-300 rounded-t-2xl"></div>
+        <div className="w-full h-40 bg-muted rounded-t-2xl"></div>
 
         {/* Content Placeholder */}
         <div className="space-y-2 p-4 text-center">
           {/* Product Name Placeholder */}
-          <div className="h-4 bg-gray-300 rounded w-3/4 mx-auto"></div>
+          <div className="h-4 bg-muted rounded w-3/4 mx-auto"></div>
 
           {/* Price Placeholder */}
-          <div className="h-4 bg-gray-300 rounded w-1/2 mx-auto mt-2"></div>
+          <div className="h-4 bg-muted rounded w-1/2 mx-auto mt-2"></div>
 
           {/* Quantity Buttons Placeholder */}
           <div className="flex items-center justify-center gap-2 mt-2">
-            <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
-            <div className="w-8 h-8 bg-gray-300 rounded-full"></div>
+            <div className="w-8 h-8 bg-muted rounded-full"></div>
+            <div className="w-8 h-8 bg-muted rounded-full"></div>
           </div>
 
           {/* Total Price Placeholder */}
-          <div className="mt-2 bg-gray-100 p-2 rounded-lg shadow-sm">
-            <div className="h-4 bg-gray-300 rounded w-1/2 mx-auto"></div>
+          <div className="mt-2 bg-muted p-2 rounded-lg shadow-sm">
+            <div className="h-4 bg-muted-foreground/20 rounded w-1/2 mx-auto"></div>
           </div>
         </div>
 
         {/* Add to Cart Button Placeholder */}
         <div className="p-4 flex justify-center items-center">
-          <div className="w-24 h-10 bg-gray-300 rounded-full"></div>
+          <div className="w-24 h-10 bg-muted rounded-full"></div>
         </div>
       </div>
     ))}
@@ -118,7 +117,7 @@ export default function ProductList({ products }: { products: Product[] }) {
       {products.map((product) => (
         <Card
           key={product.id}
-          className="rounded-2xl shadow-md overflow-hidden relative bg-white border-gray-200"
+          className="rounded-2xl shadow-md overflow-hidden relative bg-card border-border"
         >
           {/* Persistent Checkmark */}
           {cart[product.id] && (
@@ -140,10 +139,13 @@ export default function ProductList({ products }: { products: Product[] }) {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
-                className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-2 bg-green-100 text-green-800"
+                className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-2 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200"
               >
                 <span className="text-sm font-medium">تمت الإضافة!</span>
-                <Check size={16} className="text-green-600" />
+                <Check
+                  size={16}
+                  className="text-green-600 dark:text-green-400"
+                />
               </motion.div>
             )}
           </AnimatePresence>
@@ -162,12 +164,16 @@ export default function ProductList({ products }: { products: Product[] }) {
 
           <CardContent className="space-y-2 p-4 text-center">
             {/* Product Name */}
-            <CardTitle className="text-base font-bold text-gray-800">
+            <CardTitle className="text-base font-bold text-foreground">
               {product.name}
             </CardTitle>
+            {/* Product Description */}
+            <CardDescription className="text-muted-foreground">
+              {product.details}
+            </CardDescription>
 
             {/* Price */}
-            <div className="flex justify-between items-center text-sm font-semibold text-gray-900">
+            <div className="flex justify-between items-center text-sm font-semibold text-foreground">
               <div className="flex items-center gap-2">
                 <DollarSign size={16} className="text-amber-500" />
                 <span>{product.price.toFixed(2)} $</span>
@@ -180,52 +186,45 @@ export default function ProductList({ products }: { products: Product[] }) {
                 variant="outline"
                 size="icon"
                 onClick={() => updateQuantity(product.id, -1)}
-                className="w-8 h-8 text-sm border border-gray-300 hover:bg-gray-100 transition-colors duration-200 rounded-full"
+                className="w-8 h-8 text-sm border border-border hover:bg-accent transition-colors duration-200 rounded-full"
               >
                 -
               </Button>
-              <span className="text-sm font-medium text-gray-700">
+              <span className="text-sm font-medium text-foreground">
                 {quantities[product.id]}
               </span>
               <Button
                 variant="outline"
                 size="icon"
                 onClick={() => updateQuantity(product.id, 1)}
-                className="w-8 h-8 text-sm border border-gray-300 hover:bg-gray-100 transition-colors duration-200 rounded-full"
+                className="w-8 h-8 text-sm border border-border hover:bg-accent transition-colors duration-200 rounded-full"
               >
                 +
               </Button>
             </div>
 
             {/* Total Price */}
-            <div className="mt-2 bg-gray-100 p-2 rounded-lg shadow-sm">
-              <div className="flex items-center justify-center gap-2 text-sm font-semibold text-gray-900">
+            <div className="mt-2 bg-accent p-2 rounded-lg shadow-sm">
+              <div className="flex items-center justify-center gap-2 text-sm font-semibold text-foreground">
                 <span>الإجمالي:</span>
-                <span className="text-black">
+                <span>
                   ${(quantities[product.id] * product.price).toFixed(2)}
                 </span>
               </div>
             </div>
           </CardContent>
 
-          {/* Add to Cart Button with React Bits Effect */}
+          {/* Add to Cart Button */}
           <CardFooter className="p-4 flex justify-center items-center">
-            <button
+            <Button
               onClick={() =>
                 handleAddToCart(product.id, quantities[product.id], product)
               }
-              className="relative inline-flex items-center justify-center px-6 py-2 overflow-hidden font-medium text-white transition-all bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full group hover:from-blue-600 hover:to-indigo-700"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 shadow-md rounded-full"
             >
-              {/* Animated Background */}
-              <span className="absolute inset-0 w-full h-full transition-all duration-300 ease-out transform translate-x-full bg-orange-400 group-hover:-translate-x-0"></span>
-              <span className="absolute inset-0 w-full h-full transition-all duration-300 ease-out transform -translate-x-full bg-red-400 group-hover:translate-x-0"></span>
-
-              {/* Button Content */}
-              <span className="relative flex items-center gap-2">
-                <FaCartPlus size={16} />
-                أضف إلى السلة
-              </span>
-            </button>
+              <FaCartPlus size={16} className="mr-2" />
+              أضف إلى السلة
+            </Button>
           </CardFooter>
         </Card>
       ))}

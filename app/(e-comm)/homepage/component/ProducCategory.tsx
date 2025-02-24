@@ -4,7 +4,17 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { Badge } from "../../../../components/ui/badge";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Input } from "@/components/ui/input";
+import { FiX } from "react-icons/fi"; // Clear filter icon
+import { ImSpinner8 } from "react-icons/im"; // Spinner icon
 
 // تعريف نوع المورد
 interface Supplier {
@@ -33,10 +43,10 @@ const ProductCategory = ({ suppliers }: ProductCategoryProps) => {
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(
     null
   );
-  const [isFilterApplied, setIsFilterApplied] = useState(false); // Track if a filter is applied
+  const [isFilterApplied, setIsFilterApplied] = useState(false);
   const [loadingSupplierId, setLoadingSupplierId] = useState<string | null>(
     null
-  ); // Track loading state per supplier
+  );
 
   // Effect to sync selectedSupplier with the query parameter
   useEffect(() => {
@@ -46,127 +56,143 @@ const ProductCategory = ({ suppliers }: ProductCategoryProps) => {
     if (supplierName && supplierId) {
       const decodedSupplierName = decodeURIComponent(
         supplierName.replace(/-/g, " ")
-      ); // Replace hyphens with spaces
+      );
       const supplier = suppliers.find(
         (s) => s.id === supplierId && s.name === decodedSupplierName
       );
       if (supplier) {
         setSelectedSupplier(supplier);
-        setIsFilterApplied(true); // Filter is applied via URL
+        setIsFilterApplied(true);
       }
     } else {
-      setSelectedSupplier(null); // Reset selectedSupplier if no query parameter
-      setIsFilterApplied(false); // No filter applied
+      setSelectedSupplier(null);
+      setIsFilterApplied(false);
     }
   }, [searchParams, suppliers]);
 
   // Handle supplier selection and URL update
   const handleSelectSupplier = async (supplier: Supplier) => {
-    setLoadingSupplierId(supplier.id); // Start loading for this supplier
+    setLoadingSupplierId(supplier.id);
 
-    // Clean the supplier name for the URL (replace spaces with hyphens)
     const cleanSupplierName = supplier.name.replace(/\s+/g, "-");
-    const encodedSupplierName = encodeURIComponent(cleanSupplierName); // Encode the supplier name
-    const newUrl = `?name=${encodedSupplierName}&sid=${supplier.id}`; // Construct the new URL
+    const encodedSupplierName = encodeURIComponent(cleanSupplierName);
+    const newUrl = `?name=${encodedSupplierName}&sid=${supplier.id}`;
 
-    // Simulate a delay (e.g., for data fetching or page transition)
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // 1-second delay
-
-    router.push(newUrl); // Update the URL
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate delay
+    router.push(newUrl);
     setSelectedSupplier(supplier);
-    setIsFilterApplied(true); // Filter is applied
-    setLoadingSupplierId(null); // Stop loading
+    setIsFilterApplied(true);
+    setLoadingSupplierId(null);
   };
 
   // Handle removing the filter
   const handleRemoveFilter = async () => {
-    setLoadingSupplierId("remove"); // Start loading for filter removal
-    await new Promise((resolve) => setTimeout(resolve, 1000)); // 1-second delay
-    setSelectedSupplier(null); // Reset selectedSupplier
-    setIsFilterApplied(false); // No filter applied
-    router.push("/"); // Navigate back to the base URL (remove query parameter)
-    setLoadingSupplierId(null); // Stop loading
+    setLoadingSupplierId("remove");
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate delay
+    setSelectedSupplier(null);
+    setIsFilterApplied(false);
+    router.push("/");
+    setLoadingSupplierId(null);
   };
 
   return (
-    <div className="bg-gray-50 p-6 rtl text-right w-full max-w-screen-lg mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">الموردون</h2>
-        {isFilterApplied && ( // Show "إزالة التصفية" only if a filter is applied
-          <Button
-            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition-all shadow-md"
-            onClick={handleRemoveFilter}
-            disabled={loadingSupplierId === "remove"} // Disable button while loading
-          >
-            {loadingSupplierId === "remove" ? (
-              <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
-            ) : (
-              "إزالة التصفية"
-            )}
-          </Button>
-        )}
-      </div>
-      <ScrollArea className="w-full rounded-lg border bg-white shadow-sm overflow-x-auto">
-        <div className="flex space-x-4 p-4">
-          {suppliers.map((supplier) => (
-            <div
-              key={supplier.id}
-              className={`relative cursor-pointer rounded-lg p-4 transition-all flex-shrink-0 w-32 h-32 flex flex-col justify-center items-center bg-white hover:bg-gray-50 border ${
-                selectedSupplier?.id === supplier.id
-                  ? "border-2 border-blue-500 shadow-lg"
-                  : "border-gray-200 hover:border-gray-300"
-              }`}
-              onClick={() =>
-                !loadingSupplierId && handleSelectSupplier(supplier)
-              } // Disable clicks while loading
-            >
-              {/* Overlay and spinner for the selected supplier */}
-              {loadingSupplierId === supplier.id && (
-                <>
-                  <div className="absolute inset-0 bg-black bg-opacity-30 rounded-lg z-10"></div>{" "}
-                  {/* Semi-transparent overlay */}
-                  <div className="absolute inset-0 flex justify-center items-center z-20">
-                    <div className="animate-spin rounded-full h-8 w-8 border-4 border-t-blue-500 border-r-blue-500 border-b-transparent border-l-transparent"></div>{" "}
-                    {/* Attractive spinner */}
-                  </div>
-                </>
-              )}
-
-              <Avatar className="w-16 h-16 mb-2 z-0">
-                <AvatarImage
-                  src={supplier.logo || ""}
-                  alt={supplier.name}
-                  className="object-cover"
-                />
-                <AvatarFallback className="bg-blue-100 text-blue-600 font-semibold">
-                  {supplier.name.charAt(0)}
-                </AvatarFallback>
-              </Avatar>
-              {/* Supplier name with truncation and tooltip */}
-              <div
-                className="w-full text-sm font-medium text-gray-700 text-center truncate z-0"
-                title={supplier.name} // Tooltip shows full name on hover
-              >
-                {supplier.name}
-              </div>
-              {/* Badge for product count */}
-              {supplier._count?.products !== undefined && (
-                <Badge
-                  className={`absolute -top-2 -right-2 text-white shadow-sm transition-colors z-0 ${
-                    selectedSupplier?.id === supplier.id
-                      ? "bg-blue-500 hover:bg-blue-600" // Match border color
-                      : "bg-green-500 hover:bg-green-600" // Default color
-                  }`}
+    <Card className="w-full max-w-screen-lg mx-auto rtl text-right shadow-lg dark:bg-gray-900 dark:border-gray-800">
+      <CardHeader className="border-b p-6 dark:border-gray-800">
+        <div className="flex justify-between items-center">
+          <CardTitle className="text-2xl font-bold text-foreground dark:text-gray-100">
+            الفئات
+          </CardTitle>
+          {isFilterApplied && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="destructive"
+                  size="icon"
+                  onClick={handleRemoveFilter}
+                  disabled={loadingSupplierId === "remove"}
+                  className="dark:bg-red-600 dark:hover:bg-red-700"
                 >
-                  {supplier._count.products} منتجات
-                </Badge>
-              )}
-            </div>
-          ))}
+                  {loadingSupplierId === "remove" ? (
+                    <ImSpinner8 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <FiX className="h-4 w-4" />
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent
+                side="bottom"
+                className="dark:bg-gray-800 dark:text-gray-100"
+              >
+                <p>إزالة التصفية</p>
+              </TooltipContent>
+            </Tooltip>
+          )}
         </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
-    </div>
+      </CardHeader>
+      <CardContent className="p-6">
+        <ScrollArea className="w-full rounded-lg border shadow-sm dark:border-gray-800">
+          <div className="flex space-x-4 p-4">
+            {suppliers.map((supplier) => (
+              <Tooltip key={supplier.id}>
+                <TooltipTrigger asChild>
+                  <div
+                    className={`relative cursor-pointer rounded-lg p-4 transition-all flex-shrink-0 w-32 h-32 flex flex-col justify-center items-center hover:bg-accent/50 border ${
+                      selectedSupplier?.id === supplier.id
+                        ? "border-2 border-primary shadow-lg dark:border-blue-600"
+                        : "border-muted hover:border-primary dark:border-gray-700 dark:hover:border-blue-600"
+                    }`}
+                    onClick={() =>
+                      !loadingSupplierId && handleSelectSupplier(supplier)
+                    }
+                  >
+                    {loadingSupplierId === supplier.id && (
+                      <>
+                        <div className="absolute inset-0 bg-black/30 rounded-lg z-10"></div>
+                        <div className="absolute inset-0 flex justify-center items-center z-20">
+                          <ImSpinner8 className="h-8 w-8 animate-spin text-primary dark:text-blue-600" />
+                        </div>
+                      </>
+                    )}
+
+                    <Avatar className="w-16 h-16 mb-2 z-0">
+                      <AvatarImage
+                        src={supplier.logo || ""}
+                        alt={supplier.name}
+                      />
+                      <AvatarFallback className="bg-primary/10 text-primary font-semibold dark:bg-blue-900/20 dark:text-blue-400">
+                        {supplier.name.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="w-full text-sm font-medium text-foreground text-center truncate dark:text-gray-100">
+                      {supplier.name}
+                    </div>
+                    {supplier._count?.products !== undefined && (
+                      <Badge
+                        variant={
+                          selectedSupplier?.id === supplier.id
+                            ? "default"
+                            : "secondary"
+                        }
+                        className="absolute -top-2 -right-2 shadow-sm dark:bg-gray-800 dark:text-gray-100"
+                      >
+                        {supplier._count.products} منتجات
+                      </Badge>
+                    )}
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="bottom"
+                  className="dark:bg-gray-800 dark:text-gray-100"
+                >
+                  <p>{supplier.name}</p>
+                </TooltipContent>
+              </Tooltip>
+            ))}
+          </div>
+          <ScrollBar orientation="horizontal" className="dark:bg-gray-700" />
+        </ScrollArea>
+      </CardContent>
+    </Card>
   );
 };
 

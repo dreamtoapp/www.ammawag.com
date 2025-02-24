@@ -53,7 +53,7 @@ export const sendInvoiceEmail = async ({
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log(`✅ Email sent successfully to ${to}: ${info.messageId}`);
+    // console.log(`✅ Email sent successfully to ${to}: ${info.messageId}`);
   } catch (error: any) {
     console.error(`❌ Error sending email to ${to}:`, error);
     throw new Error(`Failed to send email: ${error.message}`);

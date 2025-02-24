@@ -11,7 +11,8 @@ const CartSummary = () => {
   const router = useRouter();
 
   return (
-    <div className=" bg-card text-foreground p-5 rounded-xl shadow-sm border w-full max-w-sm    ">
+    <div className="bg-card text-foreground p-6 rounded-xl shadow-lg dark:shadow-gray-800/50 border border-gray-200 dark:border-gray-700 w-full max-w-sm">
+      {/* Header */}
       <div className="flex flex-row-reverse items-center justify-between mb-6">
         <h2 className="text-xl font-semibold flex items-center">
           ملخص الطلب
@@ -22,8 +23,9 @@ const CartSummary = () => {
         </div>
       </div>
 
+      {/* Summary Items */}
       <div className="space-y-4">
-        {/* Summary Items */}
+        {/* Subtotal */}
         <div className="flex flex-row-reverse items-center justify-between">
           <div className="flex items-center gap-2 text-muted-foreground">
             <Tag className="h-4 w-4" />
@@ -32,6 +34,7 @@ const CartSummary = () => {
           <span className="font-medium">{formatCurrency(totalPrice)}</span>
         </div>
 
+        {/* Tax */}
         <div className="flex flex-row-reverse items-center justify-between">
           <div className="flex items-center gap-2 text-muted-foreground">
             <DollarSign className="h-4 w-4" />
@@ -42,7 +45,8 @@ const CartSummary = () => {
           </span>
         </div>
 
-        <div className="flex flex-row-reverse items-center justify-between pt-4 border-t">
+        {/* Total */}
+        <div className="flex flex-row-reverse items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-2">
             <Package className="h-5 w-5 text-primary" />
             <span className="font-semibold">الإجمالي النهائي</span>
@@ -54,11 +58,11 @@ const CartSummary = () => {
 
         {/* Checkout Button */}
         <Button
-          className="w-full mt-6 h-12 text-lg font-semibold"
+          className="w-full mt-6 h-12 text-lg font-semibold bg-primary hover:bg-primary/90 transition-all duration-200"
           size="lg"
           onClick={() => router.push("/")}
         >
-          تسوق الآن
+          متابعة التسوق
         </Button>
       </div>
     </div>
