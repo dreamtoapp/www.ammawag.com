@@ -55,7 +55,7 @@ export default async function Page({
 
   return (
     <div className="container mx-auto bg-background text-foreground">
-      {/* <OfferSection offers={promotions} /> */}
+      <OfferSection offers={promotions} />
       <ProducCategory suppliers={supplierWithItems} />
       <ProductList products={products} />
     </div>
