@@ -59,13 +59,11 @@ export default function EditSupplierDialog({
       const file = e.target.files[0];
       setImageLoading(true); // Start image loading
       setLogoFile(file);
-
       // Simulate image loading delay (optional, for better UX)
       setTimeout(() => {
         setPreviewUrl(URL.createObjectURL(file)); // Preview the uploaded image
         setImageLoading(false); // Stop image loading
       }, 500);
-
       setErrors((prevErrors) => ({ ...prevErrors, logo: "" })); // Clear logo error
     } else {
       setLogoFile(undefined);
@@ -79,7 +77,6 @@ export default function EditSupplierDialog({
       setSubmitLoading(true); // Start loading
       // Validate form data using Zod
       supplierSchema.parse(formData);
-
       // Ensure a logo file is provided
       if (!logoFile && !supplier.logo) {
         setErrors((prevErrors) => ({
@@ -89,7 +86,6 @@ export default function EditSupplierDialog({
         setSubmitLoading(false); // Stop loading if validation fails
         return;
       }
-
       // If validation passes, submit the form
       await createOrUpdateSupplier(supplier.id, formData, logoFile);
       window.location.reload(); // Refresh the page after updating
@@ -100,7 +96,6 @@ export default function EditSupplierDialog({
         error.errors.forEach((err: z.ZodIssue) => {
           fieldErrors[err.path[0]] = err.message;
         });
-
         // Find the first error and display it
         const firstErrorKey = Object.keys(fieldErrors)[0];
         setErrors({ [firstErrorKey]: fieldErrors[firstErrorKey] });
@@ -115,61 +110,69 @@ export default function EditSupplierDialog({
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="outline">
-          <Pencil />
+          <Pencil className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] min-h-[500px]">
+      <DialogContent className="sm:max-w-[425px] min-h-[500px] bg-background text-foreground border-border shadow-lg">
         <DialogHeader>
-          <DialogTitle>Edit Supplier</DialogTitle>
+          <DialogTitle className="text-lg font-semibold text-foreground">
+            تعديل المورد
+          </DialogTitle>
         </DialogHeader>
 
         {/* Tabs */}
         <Tabs defaultValue="details" className="w-full">
           {/* Fixed Tabs List */}
-          <TabsList className="grid w-full grid-cols-2 sticky top-0 bg-white z-10">
-            <TabsTrigger value="details">Supplier Details</TabsTrigger>
-            <TabsTrigger value="logo">Logo Upload</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 sticky top-0 bg-background z-10 border-b border-border">
+            <TabsTrigger
+              value="details"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            >
+              تفاصيل المورد
+            </TabsTrigger>
+            <TabsTrigger
+              value="logo"
+              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            >
+              رفع الشعار
+            </TabsTrigger>
           </TabsList>
 
           {/* Scrollable Content */}
-          <div className="overflow-y-auto max-h-[350px] mt-4 space-y-4">
+          <div className="overflow-y-auto max-h-[350px] mt-4 space-y-4 p-4">
             {/* Supplier Details Tab */}
             <TabsContent value="details">
               <div className="space-y-4">
                 <InputField
                   name="name"
-                  label="Supplier Name"
-                  placeholder="Enter supplier name"
+                  label="اسم المورد"
+                  placeholder="أدخل اسم المورد"
                   value={formData.name}
                   onChange={handleChange}
-                  // tooltip="The name of the supplier or company."
                   error={errors.name}
                 />
                 <InputField
                   name="email"
-                  label="Email"
-                  placeholder="Enter email address"
+                  label="البريد الإلكتروني"
+                  placeholder="أدخل البريد الإلكتروني"
                   value={formData.email}
                   onChange={handleChange}
-                  // tooltip="The contact email for the supplier."
                   error={errors.email}
                 />
                 <InputField
                   name="phone"
-                  label="Phone"
-                  placeholder="Enter phone number"
+                  label="رقم الهاتف"
+                  placeholder="أدخل رقم الهاتف"
                   value={formData.phone}
                   onChange={handleChange}
-                  // tooltip="The contact phone number for the supplier."
                   error={errors.phone}
                 />
                 <InputField
                   name="address"
-                  label="Address"
-                  placeholder="Enter physical address"
+                  label="العنوان"
+                  placeholder="أدخل العنوان"
                   value={formData.address}
                   onChange={handleChange}
-                  // tooltip="The physical address of the supplier."
                   error={errors.address}
                 />
               </div>
@@ -179,14 +182,14 @@ export default function EditSupplierDialog({
             <TabsContent value="logo">
               <div className="flex flex-col h-full">
                 <ImageUploadField
-                  label="Logo"
+                  label="الشعار"
                   previewUrl={previewUrl}
                   onChange={handleFileChange}
                   error={errors.logo}
                 />
                 {imageLoading && (
                   <div className="flex justify-center items-center mt-4">
-                    <Loader2 className="animate-spin h-5 w-5 text-gray-500" />
+                    <Loader2 className="animate-spin h-5 w-5 text-muted-foreground" />
                   </div>
                 )}
               </div>
@@ -194,28 +197,29 @@ export default function EditSupplierDialog({
           </div>
 
           {/* Single Error Message */}
-          <div className="mt-4">
+          <div className="mt-4 px-4">
             {Object.entries(errors).map(([field, message]) => (
-              <p key={field} className="text-sm text-red-500">
+              <p key={field} className="text-sm text-destructive">
                 {message}
               </p>
             ))}
           </div>
 
           {/* Fixed Submit Button */}
-          <div className="absolute bottom-0 bg-white py-4 border-t border-gray-200">
+          <div className="w-full bg-background py-4 border-t border-border">
             <Button
               type="button"
               onClick={handleSubmit}
               disabled={submitLoading} // Disable button while loading
-              className="w-full bg-blue-600 hover:bg-blue-700"
+              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
             >
               {submitLoading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> جاري
+                  الحفظ...
                 </>
               ) : (
-                "Save Changes"
+                "حفظ التغييرات"
               )}
             </Button>
           </div>

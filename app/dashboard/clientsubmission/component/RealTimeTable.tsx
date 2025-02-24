@@ -1,4 +1,3 @@
-// app/dashboard/contact/RealTimeTable.tsx
 "use client";
 import { useEffect, useState } from "react";
 import Pusher from "pusher-js";
@@ -76,7 +75,7 @@ export default function RealTimeTable({
   }, []);
 
   return (
-    <div className="p-6 relative">
+    <div className="p-6 relative bg-background text-foreground">
       {/* Notification */}
       <AnimatePresence>
         {notification && (
@@ -88,36 +87,37 @@ export default function RealTimeTable({
         )}
       </AnimatePresence>
 
-      {/* Table */}
-      <h1 className="text-2xl font-bold mb-4 text-right">الرسائل الواردة</h1>
-
-      {/* Total Messages Count */}
+      {/* Title and Total Messages Count */}
       <div className="mb-4 text-right">
-        <span className="text-gray-700 font-medium">
+        <h1 className="text-2xl font-bold mb-2 text-primary">
+          الرسائل الواردة
+        </h1>
+        <span className="text-muted-foreground font-medium">
           إجمالي الرسائل: {submissions.length}
         </span>
       </div>
 
+      {/* Table */}
       <Table>
         {/* Styled Table Header */}
-        <TableHeader className="bg-gray-100">
+        <TableHeader className="bg-muted/50">
           <TableRow>
-            <TableHead className="text-right font-bold text-gray-800">
+            <TableHead className="text-right font-bold text-muted-foreground">
               الاسم
             </TableHead>
-            <TableHead className="text-right font-bold text-gray-800">
+            <TableHead className="text-right font-bold text-muted-foreground">
               البريد الإلكتروني
             </TableHead>
-            <TableHead className="text-right font-bold text-gray-800">
+            <TableHead className="text-right font-bold text-muted-foreground">
               الموضوع
             </TableHead>
-            <TableHead className="text-right font-bold text-gray-800">
+            <TableHead className="text-right font-bold text-muted-foreground">
               الرسالة
             </TableHead>
-            <TableHead className="text-right font-bold text-gray-800">
+            <TableHead className="text-right font-bold text-muted-foreground">
               تاريخ الاستلام
             </TableHead>
-            <TableHead className="text-right font-bold text-gray-800">
+            <TableHead className="text-right font-bold text-muted-foreground">
               الإجراءات
             </TableHead>
           </TableRow>
@@ -134,23 +134,27 @@ export default function RealTimeTable({
                 exit={{ opacity: 0, y: 20 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className={`${
-                  index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                } hover:bg-gray-100 transition-colors`}
+                  index % 2 === 0 ? "bg-muted/50" : "bg-background"
+                } hover:bg-muted/80 transition-colors`}
               >
-                <TableCell className="text-right">{submission.name}</TableCell>
-                <TableCell className="text-right">{submission.email}</TableCell>
-                <TableCell className="text-right">
+                <TableCell className="text-right text-foreground">
+                  {submission.name}
+                </TableCell>
+                <TableCell className="text-right text-foreground">
+                  {submission.email}
+                </TableCell>
+                <TableCell className="text-right text-foreground">
                   {submission.subject}
                 </TableCell>
-                <TableCell className="text-right">
+                <TableCell className="text-right text-muted-foreground line-clamp-2">
                   {submission.message}
                 </TableCell>
-                <TableCell className="text-right">
+                <TableCell className="text-right text-muted-foreground">
                   {submission.createdAt}
                 </TableCell>
                 <TableCell className="text-right">
                   {/* Reply Button */}
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" size="sm" className="w-full">
                     رد
                   </Button>
                 </TableCell>

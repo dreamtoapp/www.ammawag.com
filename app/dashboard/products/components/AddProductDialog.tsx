@@ -26,6 +26,7 @@ export default function AddProductDialog({
     name: "",
     price: 0,
     size: "",
+    details: "", // Added details field
   });
   const [imageFile, setImageFile] = useState<File | undefined>(undefined); // File selected by the user
   const [previewUrl, setPreviewUrl] = useState<string | null>(null); // Preview URL for the uploaded image
@@ -33,7 +34,9 @@ export default function AddProductDialog({
   const [loading, setLoading] = useState(false); // Loading state for form submission
 
   // Handle text input changes
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
     // Convert price to a number if the field is "price"
     const parsedValue = name === "price" ? parseFloat(value) || 0 : value;
@@ -95,65 +98,74 @@ export default function AddProductDialog({
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">Add New Item</Button>
+        <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
+          إضافة منتج جديد
+        </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[425px] bg-background text-foreground border-border shadow-lg">
         <DialogHeader>
-          <DialogTitle>Add New Product</DialogTitle>
+          <DialogTitle className="text-lg font-semibold">
+            إضافة منتج جديد
+          </DialogTitle>
         </DialogHeader>
-        <form className="space-y-4">
+        <form className="space-y-4 p-4">
           {/* Name Field */}
           <InputField
             name="name"
-            label="Product Name"
-            placeholder="Enter product name"
+            label="اسم المنتج"
+            placeholder="أدخل اسم المنتج"
             value={formData.name}
             onChange={handleChange}
             error={errors.name}
           />
-
           {/* Price Field */}
           <InputField
             name="price"
-            label="Price"
+            label="السعر"
             type="number"
-            placeholder="Enter price"
+            placeholder="أدخل السعر"
             value={formData.price.toString()}
             onChange={handleChange}
             error={errors.price}
           />
-
           {/* Size Field */}
           <InputField
             name="size"
-            label="Size"
-            placeholder="Enter size (e.g., 1L, 500ml)"
+            label="الحجم"
+            placeholder="أدخل الحجم (مثل: 1 لتر، 500 مل)"
             value={formData.size}
             onChange={handleChange}
             error={errors.size}
           />
-
+          {/* Details Field */}
+          <InputField
+            name="details"
+            label="تفاصيل المنتج"
+            placeholder="أدخل تفاصيل المنتج..."
+            value={formData.details}
+            onChange={handleChange}
+            error={errors.details}
+          />
           {/* Image Upload Field */}
           <ImageUploadField
-            label="Product Image"
+            label="صورة المنتج"
             previewUrl={previewUrl}
             onChange={handleFileChange}
             error={errors.imageUrl}
           />
-
           {/* Submit Button with Loader */}
           <Button
             type="button"
             onClick={handleSubmit}
             disabled={loading} // Disable button while loading
-            className="w-full bg-blue-600 hover:bg-blue-700"
+            className="w-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
           >
             {loading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> جاري الحفظ...
               </>
             ) : (
-              "Add Product"
+              "إضافة المنتج"
             )}
           </Button>
         </form>

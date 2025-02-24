@@ -1,4 +1,4 @@
-// app/components/AppSidebar.tsx
+"use client";
 import {
   Sidebar,
   SidebarContent,
@@ -22,7 +22,11 @@ import {
   ShoppingBasket,
   Timer,
   Newspaper,
+  Sun,
+  Moon,
 } from "lucide-react";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
 // Define navigation groups as data
 const NAVIGATION_GROUPS = [
@@ -101,12 +105,7 @@ function NavItem({
       {/* Icon */}
       <span className="mr-2">{icon}</span>
       {/* Label */}
-      <Text
-        variant="p"
-        locale="ar"
-        className="text-gray-800 font-cairo"
-        cairoFont
-      >
+      <Text variant="p" locale="ar" className="font-cairo">
         {label}
       </Text>
     </Link>
@@ -114,8 +113,23 @@ function NavItem({
 }
 
 export function AppSidebar() {
+  const { theme, setTheme } = useTheme(); // Use the useTheme hook
+  const [mounted, setMounted] = useState(false); // Track if the component is mounted
+
+  // Ensure the component is mounted before accessing client-side APIs
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Avoid rendering theme toggle until mounted
+  if (!mounted) {
+    return null;
+  }
+
+  const isDark = theme === "dark"; // Determine if the theme is dark
+
   return (
-    <Sidebar className="bg-gray-100 text-gray-800" side="right">
+    <Sidebar side="right">
       {/* Header */}
       <SidebarHeader className="bg-blue-600 p-4 flex justify-center items-center border-b">
         <Image
@@ -129,10 +143,10 @@ export function AppSidebar() {
       {/* Content */}
       <SidebarContent className="p-4 space-y-2">
         {NAVIGATION_GROUPS.map((group, index) => (
-          <SidebarGroup key={index} className="bg-gray-100">
+          <SidebarGroup key={index}>
             {/* Group Title */}
             <Text
-              className="font-semibold text-sm mb-2 text-gray-700"
+              className="font-semibold text-sm mb-2"
               variant="p"
               locale="ar"
               cairoFont
@@ -162,7 +176,7 @@ export function AppSidebar() {
           {/* Logout Icon */}
           <LogOut className="mr-2 h-4 w-4" />
           <Text
-            className="font-semibold text-sm text-gray-700"
+            className="font-semibold text-sm"
             variant="p"
             locale="ar"
             cairoFont
@@ -170,6 +184,17 @@ export function AppSidebar() {
             تسجيل الخروج
           </Text>
         </Button>
+        <button
+          onClick={() => setTheme(isDark ? "light" : "dark")} // Toggle theme
+          className="flex items-center gap-2 w-full mt-2"
+        >
+          {/* Render both icons initially to avoid hydration mismatch */}
+          <Sun size={16} className={`${isDark ? "hidden" : "text-primary"}`} />
+          <Moon size={16} className={`${isDark ? "text-primary" : "hidden"}`} />
+          <span className="mr-2">
+            {isDark ? "تبديل إلى الوضع النهاري" : "تبديل إلى الوضع الليلي"}
+          </span>
+        </button>
       </SidebarFooter>
     </Sidebar>
   );

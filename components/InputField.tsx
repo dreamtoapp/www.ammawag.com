@@ -21,7 +21,7 @@ export default function InputField({
 }: InputFieldProps) {
   return (
     <div>
-      <label htmlFor={name} className="block text-sm font-medium text-gray-700">
+      <label htmlFor={name} className="block text-sm font-medium ">
         {label}
       </label>
       <input

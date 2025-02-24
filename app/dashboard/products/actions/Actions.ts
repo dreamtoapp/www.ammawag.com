@@ -58,12 +58,14 @@ export async function getProductsBySupplier(supplierId: string) {
         email: true,
         phone: true,
         logo: true,
+
         products: {
           select: {
             id: true,
             name: true,
             price: true,
             size: true,
+            details: true,
             imageUrl: true,
           },
         },

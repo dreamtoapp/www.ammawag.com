@@ -1,5 +1,4 @@
 "use client"; // Mark this as a Client Component
-
 import {
   Table,
   TableBody,
@@ -41,7 +40,6 @@ export default function SubscriberTable({
       selectedEmails.forEach((email) => {
         formData.append("selectedEmails", email);
       });
-
       const result = await sendBulkEmail(formData);
       if (result.error) {
         toast.error(result.error);
@@ -84,7 +82,7 @@ export default function SubscriberTable({
     <>
       {/* Bulk Email Form */}
       <form action={handleSendBulkEmail} className="mb-8 max-w-2xl mx-auto">
-        <h2 className="text-xl font-semibold mb-4 text-center">
+        <h2 className="text-xl font-semibold mb-4 text-center text-primary">
           إرسال منشور إلكتروني
         </h2>
         <div className="space-y-4">
@@ -98,13 +96,13 @@ export default function SubscriberTable({
             name="message"
             placeholder="الرسالة"
             rows={5}
-            className="w-full p-2 border rounded resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-2 border rounded resize-none focus:outline-none focus:ring-2 focus:ring-primary"
             required
           ></textarea>
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
             <Button
               type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 transition-all"
+              className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 transition-all flex items-center justify-center"
               disabled={isSending} // Disable button while loading
             >
               {isSending ? (
@@ -116,15 +114,15 @@ export default function SubscriberTable({
             </Button>
             <Button
               type="button"
-              className="w-full bg-green-600 hover:bg-green-700 transition-all"
-              // onClick={handleSendWhatsAppSMS}
+              className="w-full md:w-auto bg-green-600 hover:bg-green-700 transition-all flex items-center justify-center"
+              onClick={handleSendWhatsAppSMS}
             >
               <FaWhatsapp className="mr-2 h-4 w-4" /> إرسال WhatsApp
             </Button>
             <Button
               type="button"
-              className="w-full bg-green-600 hover:bg-green-700 transition-all"
-              // onClick={handleSendWhatsAppSMS}
+              className="w-full md:w-auto bg-green-600 hover:bg-green-700 transition-all flex items-center justify-center"
+              onClick={handleSendWhatsAppSMS}
             >
               <FaSms className="mr-2 h-4 w-4" /> إرسال SMS
             </Button>
@@ -140,29 +138,30 @@ export default function SubscriberTable({
             variant="outline"
             onClick={() => toggleAllCheckboxes(true)}
             aria-label="تحديد جميع المشتركين"
+            className="flex items-center gap-2"
           >
-            <CheckSquare className="mr-2 h-4 w-4" /> تحديد الكل
+            <CheckSquare className="h-4 w-4" /> تحديد الكل
           </Button>
           <Button
             variant="secondary"
             onClick={() => toggleAllCheckboxes(false)}
             aria-label="إلغاء تحديد جميع المشتركين"
+            className="flex items-center gap-2"
           >
-            <Square className="mr-2 h-4 w-4" /> إلغاء التحديد
+            <Square className="h-4 w-4" /> إلغاء التحديد
           </Button>
         </div>
-
         {/* Right Side: Badges */}
         <div className="flex gap-3">
           <Badge variant="secondary">عدد المشتركين: {subscribers.length}</Badge>
-          <Badge className="bg-blue-500 hover:bg-blue-600 text-white">
+          <Badge className="bg-primary hover:bg-primary/90 text-white">
             {selectedEmails.length} مختار
           </Badge>
         </div>
       </div>
 
       {/* Subscribers Table */}
-      <div className="rounded-md border overflow-hidden">
+      <div className="rounded-md border overflow-hidden mt-6">
         <Table>
           <TableHeader>
             <TableRow>

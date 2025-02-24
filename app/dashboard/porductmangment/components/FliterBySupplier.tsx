@@ -1,4 +1,3 @@
-// app/dashboard/products/components/FilterBySupplier.tsx
 "use client"; // Mark as a Client Component
 import {
   Select,
@@ -8,6 +7,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Package } from "lucide-react"; // Import Lucide icon for visual enhancement
 
 interface Supplier {
   id: string;
@@ -28,29 +28,37 @@ export default function FilterBySupplier({ suppliers }: FilterBySupplierProps) {
   // Handle supplier selection
   const handleSupplierChange = (supplierId: string) => {
     const params = new URLSearchParams(searchParams.toString());
-
     if (supplierId === "all") {
       params.delete("supplierId"); // Remove the supplierId parameter for "All Suppliers"
     } else {
       params.set("supplierId", supplierId); // Add or update the supplierId parameter
     }
-
     // Update the URL with the new query parameters
     router.push(`?${params.toString()}`);
   };
 
   return (
     <div className="flex items-center space-x-2">
-      <label htmlFor="supplier" className="text-sm font-medium text-gray-700">
-        Filter by Supplier:
+      {/* Label with Icon */}
+      <label
+        htmlFor="supplier"
+        className="text-sm font-medium text-foreground flex items-center gap-2"
+      >
+        <Package className="h-4 w-4 text-primary" />{" "}
+        {/* Use 'text-primary' for the icon */}
+        عرض المنتجات حسب
       </label>
+      {/* Select Dropdown */}
       <Select value={currentSupplierId} onValueChange={handleSupplierChange}>
         <SelectTrigger id="supplier" className="w-[200px]">
-          <SelectValue placeholder="Select a supplier" />
+          <SelectValue placeholder="اختر موردًا" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="all">All Suppliers</SelectItem>{" "}
-          {/* Use "all" as the value */}
+          {/* Option for All Suppliers */}
+          <SelectItem value="all" className="text-primary font-medium">
+            جميع الموردين
+          </SelectItem>
+          {/* Options for Individual Suppliers */}
           {suppliers.map((supplier) => (
             <SelectItem key={supplier.id} value={supplier.id}>
               {supplier.name}

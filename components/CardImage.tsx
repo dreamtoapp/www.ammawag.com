@@ -1,7 +1,6 @@
 "use client";
 import Image from "next/image";
 import React, { useState } from "react";
-import { motion } from "framer-motion";
 
 interface CardImageProps {
   imageUrl: string | null | undefined; // Allow undefined
@@ -20,45 +19,45 @@ const CardImage: React.FC<CardImageProps> = ({
   width = "100%",
   height = "auto",
   aspectRatio = "square",
-  fallbackSrc = "/default-logo.png",
+  fallbackSrc = "/default-logo.png", // Ensure this is a valid local path
   placeholderText = "No Image Available",
   priority = false, // Default to false unless specified
 }) => {
   const [isLoading, setIsLoading] = useState(true); // State to track image loading
+  const [hasError, setHasError] = useState(false); // State to track image errors
 
   const getAspectRatioClass = () => {
     switch (aspectRatio) {
       case "square":
         return "aspect-square";
       case "landscape":
-        return "aspect-video";
+        return "aspect-video"; // 16:9
       case "portrait":
-        return "aspect-[3/4]";
+        return "aspect-[3/4]"; // 3:4
       default:
         return "aspect-square";
     }
   };
 
   return (
-    <motion.div
-      className={`relative w-${width} h-${height} ${getAspectRatioClass()} overflow-hidden rounded-md shadow-sm`}
+    <div
+      className={`relative w-full h-full ${getAspectRatioClass()} overflow-hidden rounded-md shadow-sm`}
       style={{ width, height }}
-      initial={{ opacity: 0, scale: 0.8 }} // Start small and invisible
-      animate={{ opacity: 1, scale: 1 }} // Animate to full size and visible
-      transition={{
-        duration: 0.6, // Duration of the animation
-        ease: "easeOut", // Smooth easing function
-        delay: 0.2, // Slight delay to catch the eye
-      }}
-      whileHover={{ scale: 1.05 }} // Slightly zoom in on hover
     >
-      {/* Skeleton Loader */}
-      {isLoading && (
-        <div className="animate-pulse w-full h-full bg-gray-300 rounded-md" />
+      {/* Placeholder */}
+      {(isLoading || hasError) && (
+        <div
+          className="absolute inset-0 flex items-center justify-center bg-gray-200"
+          style={{
+            backgroundColor: "var(--muted)",
+            color: "var(--muted-foreground)",
+          }}
+        >
+          <span className="text-sm text-gray-500">{placeholderText}</span>
+        </div>
       )}
-
       {/* Image */}
-      {imageUrl ? (
+      {imageUrl && !hasError && (
         <Image
           src={imageUrl}
           alt={altText}
@@ -67,20 +66,29 @@ const CardImage: React.FC<CardImageProps> = ({
           className={`object-cover object-center transition-opacity duration-300 ${
             isLoading ? "opacity-0" : "opacity-100"
           }`}
-          onLoad={() => setIsLoading(false)} // Use onLoad instead of onLoadingComplete
+          onLoad={() => setIsLoading(false)} // Hide placeholder when image loads
           onError={(e) => {
-            e.currentTarget.src = fallbackSrc;
-            setIsLoading(false); // Ensure loading state is reset on error
+            e.currentTarget.src = ""; // Clear the broken image source
+            setIsLoading(false); // Stop showing the loader
+            setHasError(true); // Mark as errored
           }}
-          loading="lazy"
+          loading={priority ? "eager" : "lazy"} // Use eager loading if priority is true
           priority={priority} // Add the priority property
         />
-      ) : (
-        <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-          <span className="text-gray-500 text-sm">{placeholderText}</span>
+      )}
+      {/* Fallback Content */}
+      {!imageUrl && !isLoading && (
+        <div
+          className="absolute inset-0 flex items-center justify-center bg-gray-200"
+          style={{
+            backgroundColor: "var(--muted)",
+            color: "var(--muted-foreground)",
+          }}
+        >
+          <span className="text-sm text-gray-500">{placeholderText}</span>
         </div>
       )}
-    </motion.div>
+    </div>
   );
 };
 

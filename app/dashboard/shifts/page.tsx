@@ -1,4 +1,3 @@
-// app/dashboard/shifts/page.tsx
 "use client";
 import React, { useEffect, useState } from "react";
 import {
@@ -34,6 +33,7 @@ export default function ShiftsPage() {
     startTime: "",
     endTime: "",
   });
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   // Fetch shifts on page load
   useEffect(() => {
@@ -52,7 +52,11 @@ export default function ShiftsPage() {
   // Handle dialog submission
   const handleAddShift = async () => {
     if (!newShift.name || !newShift.startTime || !newShift.endTime) {
-      toast.error("يرجى ملء جميع الحقول.");
+      setErrors({
+        name: !newShift.name ? "يرجى إدخال اسم الوردية." : "",
+        startTime: !newShift.startTime ? "يرجى إدخال وقت البدء." : "",
+        endTime: !newShift.endTime ? "يرجى إدخال وقت الانتهاء." : "",
+      });
       return;
     }
 
@@ -61,8 +65,12 @@ export default function ShiftsPage() {
       locale: ar,
     });
     const end = parse(newShift.endTime, "hh:mm a", new Date(), { locale: ar });
+
     if (start >= end) {
-      toast.error("وقت البدء يجب أن يكون قبل وقت الانتهاء.");
+      setErrors({
+        ...errors,
+        endTime: "وقت البدء يجب أن يكون قبل وقت الانتهاء.",
+      });
       return;
     }
 
@@ -72,9 +80,11 @@ export default function ShiftsPage() {
         startTime: format(start, "HH:mm"), // Convert to 24-hour format for storage
         endTime: format(end, "HH:mm"), // Convert to 24-hour format for storage
       } as Shift);
+
       setShifts([...shifts, createdShift]);
       setIsDialogOpen(false); // Close the dialog
       setNewShift({ name: "", startTime: "", endTime: "" }); // Reset form
+      setErrors({});
       toast.success("تمت إضافة الوردية بنجاح!");
     } catch (error) {
       console.error("Error creating shift:", error);
@@ -95,8 +105,9 @@ export default function ShiftsPage() {
   };
 
   return (
-    <div className="p-6 bg-white rounded-lg shadow-md space-y-6 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold text-gray-800 text-center">
+    <div className="p-6 bg-background rounded-lg shadow-md space-y-6 max-w-6xl mx-auto">
+      {/* Header */}
+      <h1 className="text-3xl font-bold text-primary text-center">
         إدارة الورديات
       </h1>
 
@@ -104,20 +115,25 @@ export default function ShiftsPage() {
       <div className="flex justify-end">
         <Button
           onClick={() => setIsDialogOpen(true)}
-          className="bg-green-600 hover:bg-green-700"
+          className="bg-green-600 hover:bg-green-700 text-white"
+          aria-label="إضافة وردية جديدة"
         >
           إضافة وردية جديدة
         </Button>
       </div>
 
       {/* Shifts List */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {shifts.length > 0 ? (
           shifts.map((shift) => {
             const start = parse(shift.startTime, "HH:mm", new Date());
             const end = parse(shift.endTime, "HH:mm", new Date());
+
             return (
-              <Card key={shift.id}>
+              <Card
+                key={shift.id}
+                className="hover:border-primary hover:shadow-lg transition-all duration-300"
+              >
                 <CardHeader>
                   <CardTitle>{shift.name}</CardTitle>
                   <CardDescription>
@@ -139,6 +155,7 @@ export default function ShiftsPage() {
                     variant="destructive"
                     size="sm"
                     onClick={() => handleDeleteShift(shift.id)}
+                    aria-label={`حذف الوردية ${shift.name}`}
                   >
                     حذف
                   </Button>
@@ -147,9 +164,32 @@ export default function ShiftsPage() {
             );
           })
         ) : (
-          <p className="text-gray-500 col-span-full text-center">
-            لا توجد ورديات متوفرة.
-          </p>
+          <div className="col-span-full flex flex-col items-center justify-center space-y-4">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-12 h-12 text-muted-foreground"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <p className="text-muted-foreground text-center">
+              لا توجد ورديات متوفرة. <br />
+              اضغط على الزر لإضافة وردية جديدة.
+            </p>
+            <Button
+              onClick={() => setIsDialogOpen(true)}
+              className="bg-primary text-primary-foreground"
+            >
+              إضافة وردية جديدة
+            </Button>
+          </div>
         )}
       </div>
 
@@ -163,11 +203,9 @@ export default function ShiftsPage() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
+            {/* Name Field */}
             <div>
-              <Label
-                htmlFor="shiftName"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <Label htmlFor="shiftName" className="block text-sm font-medium">
                 اسم الوردية
               </Label>
               <Input
@@ -177,14 +215,17 @@ export default function ShiftsPage() {
                   setNewShift({ ...newShift, name: e.target.value })
                 }
                 placeholder="أدخل اسم الوردية (مثل 'نهار' أو 'ليل')"
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full border-input focus:border-primary focus:ring-primary"
+                aria-invalid={!!errors.name}
               />
+              {errors.name && (
+                <p className="text-red-500 text-xs mt-1">{errors.name}</p>
+              )}
             </div>
+
+            {/* Start Time Field */}
             <div>
-              <Label
-                htmlFor="startTime"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <Label htmlFor="startTime" className="block text-sm font-medium">
                 وقت البدء
               </Label>
               <Input
@@ -194,14 +235,17 @@ export default function ShiftsPage() {
                 onChange={(e) =>
                   setNewShift({ ...newShift, startTime: e.target.value })
                 }
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full border-input focus:border-primary focus:ring-primary"
+                aria-invalid={!!errors.startTime}
               />
+              {errors.startTime && (
+                <p className="text-red-500 text-xs mt-1">{errors.startTime}</p>
+              )}
             </div>
+
+            {/* End Time Field */}
             <div>
-              <Label
-                htmlFor="endTime"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <Label htmlFor="endTime" className="block text-sm font-medium">
                 وقت الانتهاء
               </Label>
               <Input
@@ -211,15 +255,25 @@ export default function ShiftsPage() {
                 onChange={(e) =>
                   setNewShift({ ...newShift, endTime: e.target.value })
                 }
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                className="mt-1 block w-full border-input focus:border-primary focus:ring-primary"
+                aria-invalid={!!errors.endTime}
               />
+              {errors.endTime && (
+                <p className="text-red-500 text-xs mt-1">{errors.endTime}</p>
+              )}
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setIsDialogOpen(false)}
+              aria-label="إلغاء"
+            >
               إلغاء
             </Button>
-            <Button onClick={handleAddShift}>حفظ</Button>
+            <Button onClick={handleAddShift} aria-label="حفظ">
+              حفظ
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

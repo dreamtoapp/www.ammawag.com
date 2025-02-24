@@ -25,10 +25,10 @@ export default async function ProductsPage({
   // Handle cases where the supplier is not found or an error occurs
   if (!supplierResponse.success) {
     return (
-      <div className="p-6 space-y-6">
-        <h1 className="text-3xl font-bold text-gray-800">Manage Products</h1>
-        <div className="bg-white shadow-md rounded-lg p-6 text-center">
-          <p className="text-red-500">{supplierResponse.message}</p>
+      <div className="p-6 space-y-6 bg-background text-foreground">
+        <h1 className="text-3xl font-bold">ادارة المنتجات</h1>
+        <div className="bg-card shadow-md rounded-lg p-6 text-center">
+          <p className="text-destructive">{supplierResponse.message}</p>
         </div>
       </div>
     );
@@ -38,24 +38,24 @@ export default async function ProductsPage({
   const supplier = supplierResponse.data;
   if (!supplier) {
     return (
-      <div className="p-6 space-y-6">
-        <h1 className="text-3xl font-bold text-gray-800">Manage Products</h1>
-        <div className="bg-white shadow-md rounded-lg p-6 text-center">
-          <p className="text-red-500">Supplier data is missing.</p>
+      <div className="p-6 space-y-6 bg-background text-foreground">
+        <h1 className="text-3xl font-bold">ادارة المنتجات</h1>
+        <div className="bg-card shadow-md rounded-lg p-6 text-center">
+          <p className="text-destructive">Supplier data is missing.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 bg-background text-foreground">
       {/* Page Title */}
-      <h1 className="text-3xl font-bold text-gray-800">Manage Products</h1>
+      <h1 className="text-3xl font-bold">ادارة المنتجات</h1>
 
       {/* Supplier Information */}
-      <div className="bg-white shadow-md rounded-lg p-6 flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
+      <div className="bg-card shadow-md rounded-lg p-6 flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
         {/* Supplier Logo */}
-        <div className="w-24 h-24 relative rounded-full overflow-hidden border-2 border-gray-200">
+        <div className="w-24 h-24 relative rounded-full overflow-hidden border-2 border-border">
           {supplier.logo ? (
             <Image
               src={supplier.logo}
@@ -64,21 +64,21 @@ export default async function ProductsPage({
               className="object-cover object-center"
             />
           ) : (
-            <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-              <span className="text-gray-500">No Logo</span>
+            <div className="w-full h-full bg-muted flex items-center justify-center">
+              <span className="text-muted-foreground">No Logo</span>
             </div>
           )}
         </div>
 
         {/* Supplier Details */}
         <div className="flex-grow">
-          <h2 className="text-xl font-semibold text-gray-800">
+          <h2 className="text-xl font-semibold text-foreground">
             {supplier.name}
           </h2>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-muted-foreground">
             <strong>Email:</strong> {supplier.email}
           </p>
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-muted-foreground">
             <strong>Phone:</strong> {supplier.phone}
           </p>
         </div>
@@ -87,7 +87,9 @@ export default async function ProductsPage({
       {/* Add New Item Button */}
       <div className="flex items-center justify-between">
         <AddProductDialog supplierId={supplier.id} />
-        <p>Items :{supplier.products.length}</p>
+        <p className="text-muted-foreground">
+          Items: {supplier.products.length}
+        </p>
       </div>
 
       {/* Product List */}
@@ -98,7 +100,9 @@ export default async function ProductsPage({
           ))}
         </div>
       ) : (
-        <p className="text-gray-600">No products found for this supplier.</p>
+        <p className="text-muted-foreground">
+          No products found for this supplier.
+        </p>
       )}
     </div>
   );

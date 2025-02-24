@@ -104,11 +104,8 @@ model Promotion {
   title       String     @default("")
   description String     @default("")
   imageUrl    String?    // Optional image URL for promotional material
-  // startDate   DateTime?  // Start date of the promotion (optional)
-  // endDate     DateTime?  // End date of the promotion (optional)
   price  Float? // Price of the promotion (optional)
   discoutPrice  Float? // Price of the promotion (optional)
-  // discount    Float      @default(0.0) // Discount percentage (default is 0%)
   active      Boolean    @default(true) // Whether the promotion is active
   productIds  String[]   @db.ObjectId // Links to Products (many-to-many relationship)
   createdAt   DateTime   @default(now())
