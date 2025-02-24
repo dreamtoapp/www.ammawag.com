@@ -1,4 +1,3 @@
-// app/(e-comm)/page.tsx
 import {
   fetchProducts,
   getPromotions,
@@ -12,12 +11,12 @@ const OfferSection = dynamic(() => import("./homepage/component/Offer"));
 const ProducCategory = dynamic(
   () => import("./homepage/component/ProducCategory")
 );
+const WhatsAppButton = dynamic(
+  () => import("./homepage/component/WhatsAppButton")
+);
 
 // Define types for params and searchParams
 type SearchParams = { [key: string]: string | string[] | undefined };
-
-// Simulate a delay for testing
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Generate metadata dynamically
 export async function generateMetadata({
@@ -43,9 +42,6 @@ export default async function Page({
   const resolvedSearchParams = await searchParams;
   const { sid } = resolvedSearchParams;
 
-  // Simulate a 3-second delay for testing
-  // await delay(9000);
-
   // Fetch data in parallel
   const [products, supplierWithItems, promotions] = await Promise.all([
     fetchProducts(sid?.toString()),
@@ -58,6 +54,7 @@ export default async function Page({
       <OfferSection offers={promotions} />
       <ProducCategory suppliers={supplierWithItems} />
       <ProductList products={products} />
+      <WhatsAppButton /> {/* Add the WhatsApp button */}
     </div>
   );
 }

@@ -1,19 +1,20 @@
+// scripts/seed.ts
 import { faker } from "@faker-js/faker/locale/ar"; // Use Arabic locale
 import db from "../lib/prisma";
 import { generateOrderNumber } from "../utils/orderNumber";
 
-// Define an array of real image URLs (from Unsplash or Pexels)
-const realImages = [
-  "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=150&q=80", // Food
-  "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=150&q=80", // Drink
-  "https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=150&q=80", // Product
-  "https://images.unsplash.com/photo-1491553895911-0055eca6402d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=150&q=80", // Tech
-  "https://images.unsplash.com/photo-1493612276216-ee3925520721?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=150&q=80", // Nature
+// Define an array of actual image URLs (using placeholder images)
+const actualImages = [
+  "https://images.unsplash.com/photo-1698734523062-3c3d0b5e5f9a?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80",
+  "https://images.unsplash.com/photo-1698734523062-3c3d0b5e5f9a?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80",
+  "https://images.unsplash.com/photo-1698734523062-3c3d0b5e5f9a?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80",
+  "https://images.unsplash.com/photo-1698734523062-3c3d0b5e5f9a?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80",
+  "https://images.unsplash.com/photo-1698734523062-3c3d0b5e5f9a?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&q=80",
 ];
 
 // Helper function to randomly pick an image from the list
-const getRealImage = (): string => {
-  return faker.helpers.arrayElement(realImages);
+const getActualImage = (): string => {
+  return faker.helpers.arrayElement(actualImages);
 };
 
 // Utility logging function with timestamps
@@ -91,7 +92,7 @@ async function seedCompany(): Promise<void> {
         fullName: "جون دو وشركاه", // Example Arabic company name
         email: "john.doe@example.com",
         phoneNumber: faker.phone.number(),
-        profilePicture: getRealImage(), // Use real image URL
+        profilePicture: getActualImage(),
         bio: "نحن شركة تطوير برمجيات.",
         taxNumber: "1234567890",
         taxQrImage: "https://example.com/tax-qr.png",
@@ -116,7 +117,7 @@ async function seedSuppliers(count: number): Promise<void> {
       await db.supplier.create({
         data: {
           name: faker.company.name(),
-          logo: getRealImage(), // Use real image URL
+          logo: getActualImage(),
           publicId: faker.string.uuid(),
           email: faker.internet.email(),
           phone: faker.phone.number(),
@@ -147,7 +148,7 @@ async function seedProducts(count: number): Promise<void> {
           price: parseFloat(faker.commerce.price()),
           size: faker.helpers.arrayElement(["1L", "500ml", "250ml"]),
           details: faker.lorem.sentence(), // Added details field
-          imageUrl: getRealImage(), // Use real image URL
+          imageUrl: getActualImage(),
           publicId: faker.string.uuid(), // Added publicId field
           published: faker.datatype.boolean(),
         },
@@ -189,7 +190,7 @@ async function seedDrivers(count: number): Promise<void> {
           name: faker.person.fullName(),
           email: faker.internet.email(),
           phone: faker.phone.number(),
-          imageUrl: getRealImage(), // Use real image URL
+          imageUrl: getActualImage(),
         },
       });
       // Create location history for the driver
@@ -295,7 +296,8 @@ async function seedPromotions(count: number): Promise<void> {
         data: {
           title: faker.commerce.productName(),
           description: faker.commerce.productDescription(),
-          imageUrl: getRealImage(), // Use real image URL
+          imageUrl: faker.image.url(),
+
           active: faker.datatype.boolean(),
           productIds,
         },

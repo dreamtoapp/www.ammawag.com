@@ -1,8 +1,9 @@
-"use client";
-import React, { useEffect, useState } from "react";
+"use client"; // Mark as a Client Component
+
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { DollarSign, Check } from "lucide-react";
-import { FaCartPlus } from "react-icons/fa6";
+import { FaCartPlus, FaExpand, FaCompress } from "react-icons/fa6";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCartStore } from "@/store/cartStore";
 import { Product } from "@/types/product";
@@ -73,6 +74,9 @@ export default function ProductList({ products }: { products: Product[] }) {
   // State for simulating loading
   const [isLoading, setIsLoading] = useState(true);
 
+  // State for mobile view toggle
+  const [isSingleColumn, setIsSingleColumn] = useState(true);
+
   // Simulate loading for 2 seconds
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -113,121 +117,142 @@ export default function ProductList({ products }: { products: Product[] }) {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-6">
-      {products.map((product) => (
-        <Card
-          key={product.id}
-          className="rounded-2xl shadow-md overflow-hidden relative bg-card border-border"
+    <div className="container mx-auto p-4">
+      {/* Toggle View Button (Mobile Only) */}
+      <div className="sm:hidden flex justify-center mb-6">
+        <Button
+          onClick={() => setIsSingleColumn(!isSingleColumn)}
+          className="bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 shadow-md rounded-full flex items-center gap-2"
         >
-          {/* Persistent Checkmark */}
-          {cart[product.id] && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3 }}
-              className="absolute top-2 right-2 z-10 bg-green-500 text-white rounded-full p-2 shadow-lg"
-            >
-              <Check size={16} />
-            </motion.div>
-          )}
+          {isSingleColumn ? <FaExpand size={16} /> : <FaCompress size={16} />}
+          {isSingleColumn ? "عرض أكثر" : "عرض أقل"}
+        </Button>
+      </div>
 
-          {/* Temporary Notification */}
-          <AnimatePresence>
-            {notifications[product.id] && (
+      {/* Product Grid */}
+      <div
+        className={`grid gap-6 ${
+          isSingleColumn
+            ? "grid-cols-1" // One card per row on mobile
+            : "grid-cols-2" // Two cards per row on mobile
+        } sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4`} // Default for desktop
+      >
+        {products.map((product) => (
+          <Card
+            key={product.id}
+            className="rounded-2xl shadow-md overflow-hidden relative bg-card border-border hover:shadow-lg transition-shadow duration-300"
+          >
+            {/* Persistent Checkmark */}
+            {cart[product.id] && (
               <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.3 }}
-                className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-2 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200"
+                className="absolute top-2 right-2 z-10 bg-green-500 text-white rounded-full p-2 shadow-lg"
               >
-                <span className="text-sm font-medium">تمت الإضافة!</span>
-                <Check
-                  size={16}
-                  className="text-green-600 dark:text-green-400"
-                />
+                <Check size={16} />
               </motion.div>
             )}
-          </AnimatePresence>
 
-          {/* Product Image */}
-          <CardHeader className="p-0 relative">
-            <Image
-              src={product.imageUrl}
-              alt={product.name}
-              width={300}
-              height={200}
-              className="w-full h-40 object-cover rounded-t-2xl transition-transform duration-300 hover:scale-105"
-              priority
-            />
-          </CardHeader>
+            {/* Temporary Notification */}
+            <AnimatePresence>
+              {notifications[product.id] && (
+                <motion.div
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3 }}
+                  className="absolute top-0 left-0 right-0 z-10 flex items-center justify-between px-4 py-2 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200"
+                >
+                  <span className="text-sm font-medium">تمت الإضافة!</span>
+                  <Check
+                    size={16}
+                    className="text-green-600 dark:text-green-400"
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-          <CardContent className="space-y-2 p-4 text-center">
-            {/* Product Name */}
-            <CardTitle className="text-base font-bold text-foreground">
-              {product.name}
-            </CardTitle>
-            {/* Product Description */}
-            <CardDescription className="text-muted-foreground">
-              {product.details}
-            </CardDescription>
+            {/* Product Image */}
+            <CardHeader className="p-0 relative">
+              <Image
+                src={product.imageUrl}
+                alt={product.name}
+                width={300}
+                height={200}
+                className="w-full h-40 object-cover rounded-t-2xl transition-transform duration-300 hover:scale-105"
+                priority
+              />
+            </CardHeader>
 
-            {/* Price */}
-            <div className="flex justify-between items-center text-sm font-semibold text-foreground">
-              <div className="flex items-center gap-2">
-                <DollarSign size={16} className="text-amber-500" />
-                <span>{product.price.toFixed(2)} $</span>
+            <CardContent className="space-y-2 p-4 text-center">
+              {/* Product Name */}
+              <CardTitle className="text-base font-bold text-foreground">
+                {product.name}
+              </CardTitle>
+              {/* Product Description */}
+              <CardDescription className="text-muted-foreground">
+                {product.details}
+              </CardDescription>
+
+              {/* Price */}
+              <div className="flex justify-between items-center text-sm font-semibold text-foreground">
+                <div className="flex items-center gap-2">
+                  <DollarSign size={16} className="text-amber-500" />
+                  <span>{product.price.toFixed(2)} $</span>
+                </div>
               </div>
-            </div>
 
-            {/* Quantity Buttons */}
-            <div className="flex items-center justify-center gap-2 mt-2">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => updateQuantity(product.id, -1)}
-                className="w-8 h-8 text-sm border border-border hover:bg-accent transition-colors duration-200 rounded-full"
-              >
-                -
-              </Button>
-              <span className="text-sm font-medium text-foreground">
-                {quantities[product.id]}
-              </span>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => updateQuantity(product.id, 1)}
-                className="w-8 h-8 text-sm border border-border hover:bg-accent transition-colors duration-200 rounded-full"
-              >
-                +
-              </Button>
-            </div>
-
-            {/* Total Price */}
-            <div className="mt-2 bg-accent p-2 rounded-lg shadow-sm">
-              <div className="flex items-center justify-center gap-2 text-sm font-semibold text-foreground">
-                <span>الإجمالي:</span>
-                <span>
-                  ${(quantities[product.id] * product.price).toFixed(2)}
+              {/* Quantity Buttons */}
+              <div className="flex items-center justify-center gap-2 mt-2">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => updateQuantity(product.id, -1)}
+                  className="w-8 h-8 text-sm border border-border hover:bg-accent transition-colors duration-200 rounded-full"
+                >
+                  -
+                </Button>
+                <span className="text-sm font-medium text-foreground">
+                  {quantities[product.id]}
                 </span>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => updateQuantity(product.id, 1)}
+                  className="w-8 h-8 text-sm border border-border hover:bg-accent transition-colors duration-200 rounded-full"
+                >
+                  +
+                </Button>
               </div>
-            </div>
-          </CardContent>
 
-          {/* Add to Cart Button */}
-          <CardFooter className="p-4 flex justify-center items-center">
-            <Button
-              onClick={() =>
-                handleAddToCart(product.id, quantities[product.id], product)
-              }
-              className="bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 shadow-md rounded-full"
-            >
-              <FaCartPlus size={16} className="mr-2" />
-              أضف إلى السلة
-            </Button>
-          </CardFooter>
-        </Card>
-      ))}
+              {/* Total Price */}
+            </CardContent>
+
+            {/* Add to Cart Button */}
+            <CardFooter className="p-3 flex justify-evenly items-center  ">
+              <div className="   p-2 rounded-lg shadow-sm bg-secondary">
+                <div className="flex items-center justify-center gap-2 text-sm font-semibold text-foreground">
+                  <span className="hidden md:block">الإجمالي:</span>
+                  <span>
+                    ${(quantities[product.id] * product.price).toFixed(2)}
+                  </span>
+                </div>
+              </div>
+              <Button
+                onClick={() =>
+                  handleAddToCart(product.id, quantities[product.id], product)
+                }
+                className="bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 shadow-md rounded-full"
+              >
+                <FaCartPlus size={16} className="mr-2" />
+
+                <span className="hidden md:block">أضف إلى السلة</span>
+              </Button>
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }
