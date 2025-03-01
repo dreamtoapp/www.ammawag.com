@@ -5,6 +5,7 @@ import "./globals.css";
 import NextTopLoader from "nextjs-toploader";
 import { Directions } from "../constant/enums";
 import { ThemeProvider } from "../provider/theme-provider";
+import { NotificationsProvider } from "../provider/pusherContext";
 
 export default async function RootLayout({
   children,
@@ -22,16 +23,20 @@ export default async function RootLayout({
     <html lang={locale} dir={dir} suppressHydrationWarning>
       <body className={`min-h-screen bg-background antialiased ${fontClass}`}>
         {/* <NextIntlClientProvider locale={locale} messages={messages}> */}
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <NextTopLoader />
-          {children}
-          <Toaster position="top-right" />
-        </ThemeProvider>
+        <NotificationsProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <NextTopLoader />
+            <div className="container mx-auto px-4 py-3 flex justify-end"></div>
+            <main className="min-h-screen">{children}</main>
+            <Toaster position="top-center" />
+          </ThemeProvider>
+        </NotificationsProvider>
+
         {/* </NextIntlClientProvider> */}
       </body>
     </html>

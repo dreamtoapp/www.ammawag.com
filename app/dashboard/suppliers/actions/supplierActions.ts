@@ -71,6 +71,7 @@ export async function getSuppliers() {
         phone: true,
         address: true,
         logo: true,
+        type: true,
         publicId: true,
         _count: { select: { products: true } }, // Count of associated products
       },
@@ -95,7 +96,7 @@ export async function getSuppliers() {
 export async function createOrUpdateSupplier(
   id: string | null,
   data: any,
-  logoFile?: File
+  logoFile?: File | null
 ) {
   let logoUrl = data.logo; // Existing logo URL (if any)
   let publicId = data.publicId; // Existing public ID (if any)

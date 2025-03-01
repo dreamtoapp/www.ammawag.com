@@ -137,7 +137,7 @@ export async function createProduct(data: any, imageFile?: File) {
 export async function updateProduct(
   productId: string,
   data: any,
-  imageFile?: File
+  imageFile?: any
 ) {
   try {
     const productData = await prepareProductData(data, imageFile);

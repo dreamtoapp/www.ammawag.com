@@ -1,6 +1,7 @@
 // utils/orderNumber.ts
 "use server";
-import db from "../lib/prisma";
+
+import db from "../../../../lib/prisma";
 
 export async function generateOrderNumber(): Promise<string> {
   const today = new Date();

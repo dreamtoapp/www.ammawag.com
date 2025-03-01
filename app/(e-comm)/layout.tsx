@@ -1,8 +1,8 @@
 // app/(ecommerce)/layout.tsx
 import { TooltipProvider } from "../../components/ui/tooltip";
 import { companyInfo } from "./homepage/actions/companyDetail";
-import Fotter from "./homepage/component/Fotter/Fotter";
-import Header from "./homepage/component/Header/Header";
+import Fotter from "../../components/ecomm/Fotter/Fotter";
+import Header from "../../components/ecomm/Header/Header";
 
 // import Header from "./homepage/component/Header";
 

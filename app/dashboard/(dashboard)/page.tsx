@@ -16,7 +16,7 @@ export default async function DashboardPage({
     await fetchAnalytics();
 
   return (
-    <div className="space-y-6 font-cairo p-4">
+    <div className="relative space-y-6 font-cairo p-4 flex flex-col ">
       {/* Header */}
       <DashboardHeader
         initialFilter={statusFilter || "All"}

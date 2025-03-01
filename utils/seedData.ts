@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker/locale/ar"; // Use Arabic locale
 import db from "../lib/prisma";
-import { generateOrderNumber } from "../utils/orderNumber";
+import { generateOrderNumber } from "../app/(e-comm)/checkout/helpers/orderNumber";
 
 // Define an array of real image URLs (from Unsplash or Pexels)
 const realImages = [
@@ -159,19 +159,46 @@ async function seedProducts(count: number): Promise<void> {
   }
 }
 
-// Seed users (customers)
+// Seed users (customers) with unique phone numbers
 async function seedUsers(count: number): Promise<void> {
   try {
     log(`Generating ${count} fake users...`);
+    const usedPhones = new Set<string>(); // Track used phone numbers
+
     for (let i = 0; i < count; i++) {
-      await db.user.create({
-        data: {
-          name: faker.person.fullName(),
-          email: faker.internet.email(),
-          password: faker.internet.password(), // Remember: hash in production!
-          role: faker.helpers.arrayElement(["customer", "admin"]),
-        },
-      });
+      let phone: string;
+      let attempts = 0;
+
+      // Generate a unique phone number
+      do {
+        phone = faker.phone.number();
+        attempts++;
+        if (attempts > 100) {
+          throw new Error(
+            "Failed to generate a unique phone number after 100 attempts."
+          );
+        }
+      } while (usedPhones.has(phone));
+
+      usedPhones.add(phone); // Mark phone as used
+
+      try {
+        await db.user.create({
+          data: {
+            name: faker.person.fullName(),
+            email: faker.internet.email(),
+            phone, // Unique phone number
+            password: faker.internet.password(), // Remember: hash in production!
+            role: faker.helpers.arrayElement(["customer", "admin"]),
+          },
+        });
+      } catch (error) {
+        // if (error.code === "P2002" && error.meta?.target?.includes("phone")) {
+        //   log(`Duplicate phone number detected: ${phone}. Skipping...`);
+        //   continue; // Skip this user and continue seeding
+        // }
+        throw error; // Re-throw other errors
+      }
     }
     log(`Generated ${count} fake users.`);
   } catch (error) {
@@ -381,7 +408,7 @@ async function main(): Promise<void> {
     await seedCompany();
     await seedSuppliers(supplierCount);
     await seedProducts(productCount);
-    await seedUsers(userCount);
+    await seedUsers(userCount); // Updated function
     await seedDrivers(driverCount);
     await seedOrders(orderCount, dayShift, nightShift);
     await seedPromotions(promotionCount);

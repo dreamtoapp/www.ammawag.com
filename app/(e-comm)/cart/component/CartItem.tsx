@@ -4,13 +4,15 @@ import { formatCurrency } from "../helpers/formatCurrency";
 import { useCartStore } from "../../../../store/cartStore";
 import Image from "next/image";
 import DeleteItemDialog from "./DeleteItem";
-import { Trash2 } from "lucide-react";
+import { Trash2, Gift } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface CartItemProps {
   product: {
     id: string;
     name: string;
     price: number;
+    type: string;
     imageUrl: string;
     details: string | null;
   };
@@ -20,9 +22,27 @@ interface CartItemProps {
 const CartItem = ({ product, quantity }: CartItemProps) => {
   const { removeItem, updateQuantity } = useCartStore();
 
+  // Check if the product is an offer
+  const isOffer = product.type === "offer";
+
   return (
-    <Card className="p-4 transition-all hover:shadow-md dark:hover:shadow-gray-800/50 max-w-3xl border-2 border-gradient rounded-xl">
-      <div className="flex flex-col lg:flex-row gap-6 w-full">
+    <Card
+      className={`p-4 transition-all hover:shadow-md dark:hover:shadow-gray-800/50 max-w-3xl border-2 rounded-xl relative overflow-hidden ${
+        isOffer
+          ? "border-gradient bg-gradient-to-r from-primary/10 to-secondary/10" // Gradient background for offers
+          : "border-border bg-background" // Default background for regular products
+      }`}
+    >
+      {/* Offer Text in the Background */}
+      {isOffer && (
+        <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
+          <span className="text-6xl font-bold text-primary rotate-[-30deg]">
+            عرض
+          </span>
+        </div>
+      )}
+
+      <div className="flex flex-col lg:flex-row gap-6 w-full relative z-10">
         {/* Product Image */}
         <div className="relative w-full lg:w-32 aspect-square rounded-lg overflow-hidden">
           <Image
@@ -32,13 +52,25 @@ const CartItem = ({ product, quantity }: CartItemProps) => {
             className="object-cover"
             sizes="(max-width: 1024px) 50vw, 100px"
           />
+          {/* Offer Badge */}
+          {isOffer && (
+            <Badge className="absolute top-2 left-2 bg-red-500 text-white flex items-center gap-1">
+              {" "}
+              {/* Changed to red */}
+              <Gift size={14} /> عرض
+            </Badge>
+          )}
         </div>
 
         {/* Product Details */}
         <div className="flex-1 flex flex-col gap-4">
           <div className="space-y-2">
             {/* Product Name */}
-            <h3 className="text-lg font-semibold line-clamp-2 text-foreground">
+            <h3
+              className={`text-lg font-semibold line-clamp-2 ${
+                isOffer ? "text-primary" : "text-foreground"
+              }`}
+            >
               {product.name}
             </h3>
             {/* Product Details */}
@@ -56,11 +88,17 @@ const CartItem = ({ product, quantity }: CartItemProps) => {
           {/* Controls Section */}
           <div className="flex flex-col sm:flex-row lg:flex-row items-center gap-4 w-full">
             {/* Quantity Controls */}
-            <div className="flex items-center border rounded-lg border-gradient">
+            <div
+              className={`flex items-center border rounded-lg ${
+                isOffer ? "border-primary" : "border-border"
+              }`}
+            >
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-8 w-8 px-0 rounded-r-none hover:bg-primary/10"
+                className={`h-8 w-8 px-0 rounded-r-none ${
+                  isOffer ? "hover:bg-primary/20" : "hover:bg-primary/10"
+                }`}
                 onClick={() => updateQuantity(product.id, -1)}
                 disabled={quantity <= 1}
               >
@@ -72,7 +110,9 @@ const CartItem = ({ product, quantity }: CartItemProps) => {
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-8 w-8 px-0 rounded-l-none hover:bg-primary/10"
+                className={`h-8 w-8 px-0 rounded-l-none ${
+                  isOffer ? "hover:bg-primary/20" : "hover:bg-primary/10"
+                }`}
                 onClick={() => updateQuantity(product.id, 1)}
               >
                 +
@@ -80,7 +120,11 @@ const CartItem = ({ product, quantity }: CartItemProps) => {
             </div>
 
             {/* Total Price */}
-            <p className="text-lg font-semibold text-primary">
+            <p
+              className={`text-lg font-semibold ${
+                isOffer ? "text-primary" : "text-foreground"
+              }`}
+            >
               {formatCurrency(product.price * quantity)}
             </p>
 

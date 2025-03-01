@@ -14,6 +14,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Notification from "@/components/Notification";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
+// import { usePusher } from "../../../../provider/pusherContext";
 
 // Define the Submission type
 export type Submission = {
@@ -36,7 +37,7 @@ export default function RealTimeTable({
   const [submissions, setSubmissions] =
     useState<Submission[]>(initialSubmissions);
   const [notification, setNotification] = useState<string | null>(null);
-
+  // const { contacts } = usePusher();
   useEffect(() => {
     // Initialize Pusher
     const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
@@ -77,7 +78,8 @@ export default function RealTimeTable({
   return (
     <div className="p-6 relative bg-background text-foreground">
       {/* Notification */}
-      <AnimatePresence>
+
+      {/* <AnimatePresence>
         {notification && (
           <Notification
             key="notification"
@@ -85,7 +87,7 @@ export default function RealTimeTable({
             onClose={() => setNotification(null)}
           />
         )}
-      </AnimatePresence>
+      </AnimatePresence> */}
 
       {/* Title and Total Messages Count */}
       <div className="mb-4 text-right">

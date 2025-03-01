@@ -2,95 +2,92 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { Product } from "@/types/product";
 
-// Define the structure of a cart item, which includes a product and its quantity.
+// تعريف هيكل عنصر السلة، والذي يتكون من المنتج وكميته.
 interface CartItem {
-  product: Product; // The product object (includes details like id, name, price, etc.)
-  quantity: number; // The quantity of the product in the cart
+  product: Product; // المنتج (يتضمن تفاصيل مثل المعرف، الاسم، السعر، إلخ)
+  quantity: number; // كمية المنتج في السلة
 }
 
-// Define the state and actions for managing the shopping cart.
+// تعريف الحالة والإجراءات المتعلقة بسلة التسوق.
 interface CartState {
-  cart: Record<string, CartItem>; // A record where keys are product IDs and values are CartItems
-  addItem: (product: Product, quantity: number) => void; // Function to add or update a product in the cart
-  updateQuantity: (productId: string, delta: number) => void; // Function to update the quantity of a specific product
-  removeItem: (productId: string) => void; // Function to remove a product from the cart
-  clearCart: () => void; // ✅ Function to clear the entire cart
-  getTotalItems: () => number; // Function to calculate the total number of items in the cart
-  getTotalUniqueItems: () => number; // Function to calculate the total number of unique products in the cart
-  getTotalPrice: () => number; // Function to calculate the total price of all items in the cart
+  cart: Record<string, CartItem>; // سجل يحتوي على عناصر السلة (المفتاح هو معرف المنتج والقيمة هي العنصر)
+  addItem: (product: Product, quantity: number) => void; // دالة لإضافة أو تحديث منتج في السلة
+  updateQuantity: (productId: string, delta: number) => void; // دالة لتحديث كمية منتج معين
+  removeItem: (productId: string) => void; // دالة لإزالة منتج من السلة
+  clearCart: () => void; // دالة لتفريغ السلة بالكامل
+  getTotalItems: () => number; // دالة لحساب العدد الإجمالي للعناصر في السلة
+  getTotalUniqueItems: () => number; // دالة لحساب العدد الإجمالي للمنتجات الفريدة في السلة
+  getTotalPrice: () => number; // دالة لحساب السعر الإجمالي لجميع العناصر في السلة
 }
 
-// Create a Zustand store with persistence middleware to manage the shopping cart.
+// إنشاء متجر Zustand مع وسيط الاستمرارية لحفظ حالة السلة.
 export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
-      // Initialize the cart as an empty object.
+      // تهيئة السلة ككائن فارغ.
       cart: {},
 
-      // Add or update a product in the cart. If the product already exists, increase its quantity.
+      // دالة لإضافة منتج إلى السلة أو تحديث كميته إذا كان موجودًا بالفعل.
       addItem: (product, quantity) =>
         set((state) => {
-          const existingItem = state.cart[product.id]; // Check if the product is already in the cart
+          const existingItem = state.cart[product.id]; // التحقق مما إذا كان المنتج موجودًا بالفعل في السلة
           return {
             cart: {
               ...state.cart,
               [product.id]: {
                 product,
                 quantity: existingItem
-                  ? existingItem.quantity + quantity // Increment quantity if product exists
-                  : quantity, // Set initial quantity if product is new
+                  ? existingItem.quantity + quantity // زيادة الكمية إذا كان المنتج موجودًا
+                  : quantity, // تعيين الكمية الأولية إذا كان المنتج جديدًا
               },
             },
           };
         }),
 
-      // Update the quantity of a specific product in the cart. If the new quantity is zero, remove the product.
+      // دالة لتحديث كمية منتج معين في السلة.
       updateQuantity: (productId, delta) =>
         set((state) => {
-          const existingItem = state.cart[productId]; // Get the product from the cart
-          if (!existingItem) return state; // Do nothing if the product doesn't exist
-          const newQuantity = Math.max(0, existingItem.quantity + delta); // Ensure quantity doesn't go below zero
+          const existingItem = state.cart[productId]; // الحصول على المنتج من السلة
+          if (!existingItem) return state; // إذا لم يكن المنتج موجودًا، لا تفعل شيئًا
+          const newQuantity = Math.max(0, existingItem.quantity + delta); // التأكد من أن الكمية لا تقل عن الصفر
           if (newQuantity === 0) {
-            const newCart = { ...state.cart }; // Create a copy of the cart
-            delete newCart[productId]; // Remove the product if quantity is zero
+            const newCart = { ...state.cart }; // إنشاء نسخة من السلة
+            delete newCart[productId]; // إزالة المنتج إذا كانت الكمية صفر
             return { cart: newCart };
           }
           return {
             cart: {
               ...state.cart,
-              [productId]: { ...existingItem, quantity: newQuantity }, // Update the product's quantity
+              [productId]: { ...existingItem, quantity: newQuantity }, // تحديث كمية المنتج
             },
           };
         }),
 
-      // Remove a product from the cart by its ID.
+      // دالة لإزالة منتج من السلة باستخدام معرفه.
       removeItem: (productId) =>
         set((state) => {
-          const newCart = { ...state.cart }; // Create a copy of the cart
-          delete newCart[productId]; // Remove the product
+          const newCart = { ...state.cart }; // إنشاء نسخة من السلة
+          delete newCart[productId]; // إزالة المنتج
           return { cart: newCart };
         }),
 
-      // Clear the entire cart by resetting it to an empty object.
-      clearCart: () =>
-        set(() => ({
-          cart: {}, // ✅ Reset the cart to an empty object
-        })),
+      // دالة لتفريغ السلة بالكامل.
+      clearCart: () => set(() => ({ cart: {} })), // إعادة تعيين السلة إلى كائن فارغ
 
-      // Calculate the total number of items in the cart (sum of all quantities).
+      // دالة لحساب العدد الإجمالي للعناصر في السلة (مجموع الكميات).
       getTotalItems: () =>
         Object.values(get().cart).reduce((acc, item) => acc + item.quantity, 0),
 
-      // Calculate the total number of unique products in the cart (number of distinct products).
+      // دالة لحساب العدد الإجمالي للمنتجات الفريدة في السلة.
       getTotalUniqueItems: () => Object.keys(get().cart).length,
 
-      // Calculate the total price of all items in the cart (sum of quantity * price for each product).
+      // دالة لحساب السعر الإجمالي لجميع العناصر في السلة (مجموع الكمية * السعر لكل منتج).
       getTotalPrice: () =>
         Object.values(get().cart).reduce(
-          (acc, item) => acc + item.quantity * item.product.price, // Multiply quantity by price and sum
+          (acc, item) => acc + item.quantity * item.product.price, // ضرب الكمية بالسعر وجمعها
           0
         ),
     }),
-    { name: "cart-storage" } // Persist the cart state in local storage under the key "cart-storage"
+    { name: "cart-storage" } // حفظ حالة السلة في التخزين المحلي تحت المفتاح "cart-storage"
   )
 );

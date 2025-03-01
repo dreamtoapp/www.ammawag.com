@@ -33,7 +33,7 @@ export default function EditProductDialog({ product }: EditProductDialogProps) {
     size: product.size || "", // Default to empty string if size is null or undefined
     details: product.details || "", // Default to empty string if details is null or undefined
   });
-  const [imageFile, setImageFile] = useState<File | undefined>(undefined); // New image file (if uploaded)
+  const [imageFile, setImageFile] = useState<File | null>(null); // New image file (if uploaded)
   const [previewUrl, setPreviewUrl] = useState<string | null>(
     product.imageUrl || "/default-product.jpg" // Default to placeholder image if no imageUrl is provided
   );
@@ -52,15 +52,12 @@ export default function EditProductDialog({ product }: EditProductDialogProps) {
   };
 
   // Handle file input changes
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setImageFile(file);
-      setPreviewUrl(URL.createObjectURL(file)); // Update preview with the new image
-      setErrors((prevErrors) => ({ ...prevErrors, imageUrl: "" })); // Clear image error
+  const handleFileSelect = (file: File | null) => {
+    if (file) {
+      setImageFile(file); // Update the selected file in the parent state
+      setErrors((prevErrors) => ({ ...prevErrors, logo: "" })); // Clear logo error
     } else {
-      setImageFile(undefined);
-      setPreviewUrl(product.imageUrl || "/default-product.jpg"); // Revert to the existing image or placeholder
+      setImageFile(null); // Reset the selected file
     }
   };
 
@@ -152,7 +149,7 @@ export default function EditProductDialog({ product }: EditProductDialogProps) {
           <ImageUploadField
             label="صورة المنتج"
             previewUrl={previewUrl}
-            onChange={handleFileChange}
+            onFileSelect={handleFileSelect}
             error={errors.imageUrl}
           />
           {/* Submit Button with Loader */}

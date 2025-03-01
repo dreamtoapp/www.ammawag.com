@@ -12,13 +12,26 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { deleteSupplier, getSupplierDetails } from "../actions/supplierActions";
-import { Trash } from "lucide-react";
-import { Loader2 } from "lucide-react";
+import { Trash, Loader2 } from "lucide-react";
 import { Button } from "../../../../components/ui/button";
 
 interface DeleteSupplierAlertProps {
   supplierId: string;
 }
+
+// Centralized UI text
+const UI_TEXT = {
+  deleteButton: "حذف",
+  alertTitle: "هل أنت متأكد؟",
+  alertDescriptionWithProducts:
+    "هذا الشركة مرتبط بواحد أو أكثر من المنتجات. يرجى حذف المنتجات المرتبطة أولاً.",
+  alertDescriptionWithoutProducts:
+    "لا يمكن التراجع عن هذا الإجراء. سيتم حذف الشركة بشكل دائم.",
+  cancelButton: "إلغاء",
+  confirmDeleteButton: "حذف",
+  deleteInProgress: "جاري الحذف...",
+  errorMessage: "حدث خطأ أثناء حذف الشركة.",
+};
 
 export default function DeleteSupplierAlert({
   supplierId,
@@ -27,27 +40,32 @@ export default function DeleteSupplierAlert({
   const [isLoading, setIsLoading] = useState(false);
   const [hasProducts, setHasProducts] = useState<boolean>(false);
 
+  // Fetch supplier details to check if it has related products
   useEffect(() => {
-    // Fetch supplier details to check if it has related products
     const fetchSupplierDetails = async () => {
       try {
         const { hasProducts } = await getSupplierDetails(supplierId);
         setHasProducts(hasProducts);
-      } catch (error: any) {
-        console.error("Error fetching supplier details:", error.message);
+      } catch (error) {
+        console.error(
+          "Error fetching supplier details:",
+          error instanceof Error ? error.message : "Unknown error"
+        );
       }
     };
     fetchSupplierDetails();
   }, [supplierId]);
 
+  // Handle supplier deletion
   const handleDelete = async () => {
     setIsLoading(true);
     setMessage(null); // Clear previous messages
+
     try {
       await deleteSupplier(supplierId);
       window.location.reload(); // Refresh the page after successful deletion
-    } catch (error: any) {
-      setMessage(error.message || "حدث خطأ أثناء حذف المورد.");
+    } catch (error) {
+      setMessage(UI_TEXT.errorMessage); // Use centralized error message
     } finally {
       setIsLoading(false);
     }
@@ -56,24 +74,19 @@ export default function DeleteSupplierAlert({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant={"destructive"}>
-          <Trash className="h-4 w-4" />
+        <Button variant="ghost" className="w-full hover:bg-destructive">
+          <Trash className="h-4 w-4" /> {UI_TEXT.deleteButton}
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent className="bg-background text-foreground border-border shadow-lg">
         <AlertDialogHeader>
           <AlertDialogTitle className="text-lg font-semibold">
-            هل أنت متأكد؟
+            {UI_TEXT.alertTitle}
           </AlertDialogTitle>
           <AlertDialogDescription className="text-muted-foreground">
-            {hasProducts ? (
-              <>
-                هذا المورد مرتبط بواحد أو أكثر من المنتجات. يرجى حذف المنتجات
-                المرتبطة أولاً.
-              </>
-            ) : (
-              <>لا يمكن التراجع عن هذا الإجراء. سيتم حذف المورد بشكل دائم.</>
-            )}
+            {hasProducts
+              ? UI_TEXT.alertDescriptionWithProducts
+              : UI_TEXT.alertDescriptionWithoutProducts}
           </AlertDialogDescription>
           {message && (
             <p className="mt-2 text-sm text-destructive">{message}</p>
@@ -81,7 +94,7 @@ export default function DeleteSupplierAlert({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel className="border border-input bg-background hover:bg-accent">
-            إلغاء
+            {UI_TEXT.cancelButton}
           </AlertDialogCancel>
           {!hasProducts && (
             <AlertDialogAction
@@ -91,11 +104,11 @@ export default function DeleteSupplierAlert({
             >
               {isLoading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> جاري
-                  الحذف...
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
+                  {UI_TEXT.deleteInProgress}
                 </>
               ) : (
-                "حذف"
+                UI_TEXT.confirmDeleteButton
               )}
             </AlertDialogAction>
           )}

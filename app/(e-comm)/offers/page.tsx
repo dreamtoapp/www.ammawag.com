@@ -1,9 +1,9 @@
 import React from "react";
-import { fetchPromotions } from "../../dashboard/promotions/actions/Actions";
-import ClientOfferCard from "./component/ClientOfferCard";
+// import { fetchPromotions } from "../../dashboard/promotions/actions/Actions";
+// import ClientOfferCard from "./component/ClientOfferCard";
 
 export default async function AdminOffersPage() {
-  const promotions = await fetchPromotions(); // Fetch promotions on the server
+  // const promotions = await fetchPromotions(); // Fetch promotions on the server
 
   return (
     <div className="container mx-auto p-6">
@@ -13,9 +13,9 @@ export default async function AdminOffersPage() {
 
       {/* Promotions List */}
       <div className="space-y-6">
-        {promotions.map((promotion) => (
+        {/* {promotions.map((promotion) => (
           <ClientOfferCard key={promotion.id} promotion={promotion} />
-        ))}
+        ))} */}
       </div>
     </div>
   );

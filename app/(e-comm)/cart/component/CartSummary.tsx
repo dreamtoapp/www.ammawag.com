@@ -1,17 +1,51 @@
+"use client";
+
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useCartStore } from "@/store/cartStore";
 import { formatCurrency } from "../helpers/formatCurrency";
 import { ShoppingCart, Tag, DollarSign, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 
 const CartSummary = () => {
+  const [isClient, setIsClient] = useState(false); // Track if the component is on the client
   const { getTotalPrice, getTotalItems } = useCartStore();
-  const totalPrice = getTotalPrice();
-  const totalWithTax = totalPrice * 1.15; // 15% tax
   const router = useRouter();
 
+  // Ensure this logic only runs on the client
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // Memoize calculations to avoid unnecessary re-renders
+  const totalPrice = useMemo(
+    () => (isClient ? getTotalPrice() : 0),
+    [getTotalPrice, isClient]
+  );
+  const totalWithTax = useMemo(() => totalPrice * 1.15, [totalPrice]); // 15% tax
+  const totalItems = useMemo(
+    () => (isClient ? getTotalItems() : 0),
+    [getTotalItems, isClient]
+  );
+
+  // Memoize the onClick handler
+  const handleContinueShopping = useCallback(() => {
+    router.push("/");
+  }, [router]);
+
+  // Render nothing on the server
+  if (!isClient) {
+    return null;
+  }
+
   return (
-    <div className="bg-card text-foreground p-6 rounded-xl shadow-lg dark:shadow-gray-800/50 border border-gray-200 dark:border-gray-700 w-full max-w-sm">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="bg-card text-foreground p-6 rounded-xl shadow-lg dark:shadow-gray-800/50 border border-gray-200 dark:border-gray-700 w-full max-w-sm"
+    >
       {/* Header */}
       <div className="flex flex-row-reverse items-center justify-between mb-6">
         <h2 className="text-xl font-semibold flex items-center">
@@ -19,7 +53,7 @@ const CartSummary = () => {
           <ShoppingCart className="mr-2 h-5 w-5 text-primary" />
         </h2>
         <div className="bg-primary/10 text-primary rounded-full px-3 py-1 text-sm">
-          {getTotalItems()} منتج
+          {totalItems} منتج
         </div>
       </div>
 
@@ -41,7 +75,7 @@ const CartSummary = () => {
             <span>الضريبة (15%)</span>
           </div>
           <span className="font-medium">
-            {formatCurrency(totalPrice * 0.15)}
+            {formatCurrency(totalWithTax - totalPrice)}
           </span>
         </div>
 
@@ -60,12 +94,12 @@ const CartSummary = () => {
         <Button
           className="w-full mt-6 h-12 text-lg font-semibold bg-primary hover:bg-primary/90 transition-all duration-200"
           size="lg"
-          onClick={() => router.push("/")}
+          onClick={handleContinueShopping}
         >
           متابعة التسوق
         </Button>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

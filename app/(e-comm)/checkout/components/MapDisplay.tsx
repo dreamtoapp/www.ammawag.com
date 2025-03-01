@@ -1,11 +1,17 @@
-// components/MapDisplay.tsx
 "use client";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
-export default function MapDisplay({
-  coordinates,
-}: {
-  coordinates: { lat: number | null; lng: number | null };
-}) {
+interface MapDisplayProps {
+  coordinates: { lat: number; lng: number };
+}
+
+const MapDisplay = ({ coordinates }: MapDisplayProps) => {
   if (!coordinates.lat || !coordinates.lng) {
     return (
       <p className="text-red-500 text-sm text-center mt-2">
@@ -14,13 +20,29 @@ export default function MapDisplay({
     );
   }
 
+  // Construct the Google Maps URL without an API key
+  const mapUrl = `https://maps.google.com/maps?q=${coordinates.lat},${coordinates.lng}&z=18&output=embed`;
+
   return (
-    <iframe
-      src={`https://www.google.com/maps?q=${coordinates.lat},${coordinates.lng}&output=embed&z=18&maptype=satellite`}
-      width="100%"
-      height="250"
-      className="rounded-lg mt-3 border border-gray-300 shadow-sm"
-      allowFullScreen
-    ></iframe>
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline" className="w-full mt-3">
+          عرض الخريطة
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[600px]">
+        <DialogTitle> الموقع علي الخريطة</DialogTitle>
+        <iframe
+          src={mapUrl}
+          width="100%"
+          height="400"
+          className="rounded-lg border"
+          allowFullScreen
+          title="موقعك الحالي"
+        />
+      </DialogContent>
+    </Dialog>
   );
-}
+};
+
+export default MapDisplay;

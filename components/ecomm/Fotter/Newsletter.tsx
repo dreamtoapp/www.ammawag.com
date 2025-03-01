@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner"; // Import Sonner for toast notifications
-import { subscribeToNewsletter } from "../../actions/newsletter"; // Import the server action
+import { subscribeToNewsletter } from "../../../app/(e-comm)/homepage/actions/newsletter"; // Import the server action
 
 const Newsletter = () => {
   const [isLoading, setIsLoading] = useState(false); // State to handle loading state

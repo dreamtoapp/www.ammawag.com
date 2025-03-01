@@ -1,21 +1,38 @@
 "use client";
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogDescription, // Add this import
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Pencil } from "lucide-react";
+import { Pencil, Loader2 } from "lucide-react";
 import { createOrUpdateSupplier } from "../actions/supplierActions";
-import { z } from "zod"; // Import Zod
+import { z } from "zod";
 import { supplierSchema } from "../logic/validation";
-import InputField from "@/components/InputField"; // Reusable InputField
-import ImageUploadField from "@/components/ImageUploadField"; // Reusable ImageUploadField
-import { Loader2 } from "lucide-react"; // Import a loading spinner icon
+import InputField from "@/components/InputField";
+import ImageUploadField from "@/components/ImageUploadField";
+import { toast } from "sonner";
+
+// Centralized UI text for localization
+const UI_TEXT = {
+  editButton: "تعديل",
+  dialogTitle: "تعديل الشركة",
+  dialogDescription: "قم بتعديل تفاصيل الشركة هنا.", // Add a description
+  companyName: "اسم الشركة",
+  companyNamePlaceholder: "أدخل اسم الشركة",
+  logoLabel: "الشعار",
+  logoRequiredError: "الشعار مطلوب.",
+  saveChanges: "حفظ التغييرات",
+  saving: "جاري الحفظ...",
+  successToast: "تم التحديث بنجاح",
+  successDescription: "تم تحديث بيانات الشركة بنجاح.",
+  errorToast: "حدث خطأ",
+  errorDescription: "فشل تحديث بيانات الشركة. يرجى المحاولة مرة أخرى.",
+};
 
 interface EditSupplierDialogProps {
   supplier: {
@@ -24,8 +41,8 @@ interface EditSupplierDialogProps {
     email: string;
     phone: string;
     address: string;
-    logo: string | null; // Logo URL (optional)
-    publicId: string | null; // Public ID (optional)
+    logo: string | null;
+    publicId: string | null;
   };
 }
 
@@ -38,192 +55,169 @@ export default function EditSupplierDialog({
     phone: supplier.phone,
     address: supplier.address,
   });
-  const [logoFile, setLogoFile] = useState<File | undefined>(undefined);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(
     supplier.logo || null
   );
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [imageLoading, setImageLoading] = useState(false); // State for image loading
-  const [submitLoading, setSubmitLoading] = useState(false); // State for form submission
+  const [imageLoading, setImageLoading] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
+
+  // Debug: Log the supplier logo URL when the component mounts
+  useEffect(() => {
+    console.log("Supplier logo URL:", supplier.logo);
+    console.log("Preview URL state:", previewUrl);
+  }, [supplier.logo, previewUrl]);
 
   // Handle changes in input fields
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-    setErrors((prevErrors) => ({ ...prevErrors, [name]: "" })); // Clear errors
-  };
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: "" }));
+  }, []);
 
   // Handle file upload
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setImageLoading(true); // Start image loading
+  const handleFileSelect = useCallback((file: File | null) => {
+    if (file) {
+      console.log("Selected file:", file);
       setLogoFile(file);
-      // Simulate image loading delay (optional, for better UX)
-      setTimeout(() => {
-        setPreviewUrl(URL.createObjectURL(file)); // Preview the uploaded image
-        setImageLoading(false); // Stop image loading
-      }, 500);
-      setErrors((prevErrors) => ({ ...prevErrors, logo: "" })); // Clear logo error
+      setErrors((prevErrors) => ({ ...prevErrors, logo: "" }));
+
+      const filePreviewUrl = URL.createObjectURL(file);
+      console.log("Generated preview URL:", filePreviewUrl);
+      setPreviewUrl(filePreviewUrl);
     } else {
-      setLogoFile(undefined);
-      setPreviewUrl(supplier.logo || null); // Reset to the original logo
+      setLogoFile(null);
+      setPreviewUrl(null);
     }
-  };
+  }, []);
 
   // Handle form submission
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     try {
-      setSubmitLoading(true); // Start loading
-      // Validate form data using Zod
+      setSubmitLoading(true);
+
       supplierSchema.parse(formData);
-      // Ensure a logo file is provided
+
       if (!logoFile && !supplier.logo) {
         setErrors((prevErrors) => ({
           ...prevErrors,
-          logo: "Logo is required.",
+          logo: UI_TEXT.logoRequiredError,
         }));
-        setSubmitLoading(false); // Stop loading if validation fails
+        setSubmitLoading(false);
         return;
       }
-      // If validation passes, submit the form
+
       await createOrUpdateSupplier(supplier.id, formData, logoFile);
-      window.location.reload(); // Refresh the page after updating
+
+      toast.success(UI_TEXT.successToast, {
+        description: UI_TEXT.successDescription,
+      });
+
+      window.location.reload();
     } catch (error: any) {
       if (error instanceof z.ZodError) {
-        // Map Zod errors to a key-value object
         const fieldErrors: { [key: string]: string } = {};
         error.errors.forEach((err: z.ZodIssue) => {
           fieldErrors[err.path[0]] = err.message;
         });
-        // Find the first error and display it
-        const firstErrorKey = Object.keys(fieldErrors)[0];
-        setErrors({ [firstErrorKey]: fieldErrors[firstErrorKey] });
+        setErrors(fieldErrors);
       } else {
+        toast.error(UI_TEXT.errorToast, {
+          description: UI_TEXT.errorDescription,
+        });
         console.error("Error updating supplier:", error.message);
       }
-      setSubmitLoading(false); // Stop loading if there's an error
+      setSubmitLoading(false);
     }
-  };
+  }, [formData, logoFile, supplier.id, supplier.logo]);
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline">
-          <Pencil className="h-4 w-4" />
+        <Button
+          variant="ghost"
+          className="w-full"
+          aria-label={UI_TEXT.editButton}
+        >
+          <Pencil className="h-4 w-4" /> {UI_TEXT.editButton}
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px] min-h-[500px] bg-background text-foreground border-border shadow-lg">
+      <DialogContent
+        className="sm:max-w-[425px] min-h-[500px] bg-background text-foreground border-border shadow-lg"
+        // aria-describedby="dialog-description" // Add aria-describedby
+      >
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold text-foreground">
-            تعديل المورد
+            {UI_TEXT.dialogTitle}
           </DialogTitle>
+          {/* Add DialogDescription here */}
+          <DialogDescription id="dialog-description">
+            {UI_TEXT.dialogDescription}
+          </DialogDescription>
         </DialogHeader>
 
-        {/* Tabs */}
-        <Tabs defaultValue="details" className="w-full">
-          {/* Fixed Tabs List */}
-          <TabsList className="grid w-full grid-cols-2 sticky top-0 bg-background z-10 border-b border-border">
-            <TabsTrigger
-              value="details"
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-            >
-              تفاصيل المورد
-            </TabsTrigger>
-            <TabsTrigger
-              value="logo"
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-            >
-              رفع الشعار
-            </TabsTrigger>
-          </TabsList>
-
-          {/* Scrollable Content */}
-          <div className="overflow-y-auto max-h-[350px] mt-4 space-y-4 p-4">
-            {/* Supplier Details Tab */}
-            <TabsContent value="details">
-              <div className="space-y-4">
-                <InputField
-                  name="name"
-                  label="اسم المورد"
-                  placeholder="أدخل اسم المورد"
-                  value={formData.name}
-                  onChange={handleChange}
-                  error={errors.name}
-                />
-                <InputField
-                  name="email"
-                  label="البريد الإلكتروني"
-                  placeholder="أدخل البريد الإلكتروني"
-                  value={formData.email}
-                  onChange={handleChange}
-                  error={errors.email}
-                />
-                <InputField
-                  name="phone"
-                  label="رقم الهاتف"
-                  placeholder="أدخل رقم الهاتف"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  error={errors.phone}
-                />
-                <InputField
-                  name="address"
-                  label="العنوان"
-                  placeholder="أدخل العنوان"
-                  value={formData.address}
-                  onChange={handleChange}
-                  error={errors.address}
-                />
-              </div>
-            </TabsContent>
-
-            {/* Logo Upload Tab */}
-            <TabsContent value="logo">
-              <div className="flex flex-col h-full">
-                <ImageUploadField
-                  label="الشعار"
-                  previewUrl={previewUrl}
-                  onChange={handleFileChange}
-                  error={errors.logo}
-                />
-                {imageLoading && (
-                  <div className="flex justify-center items-center mt-4">
-                    <Loader2 className="animate-spin h-5 w-5 text-muted-foreground" />
-                  </div>
-                )}
-              </div>
-            </TabsContent>
+        {/* Scrollable Content */}
+        <div className="overflow-y-auto max-h-[350px] mt-4 space-y-4 p-4">
+          {/* Supplier Details */}
+          <div className="space-y-4">
+            <InputField
+              name="name"
+              label={UI_TEXT.companyName}
+              placeholder={UI_TEXT.companyNamePlaceholder}
+              value={formData.name}
+              onChange={handleChange}
+              error={errors.name}
+            />
           </div>
 
-          {/* Single Error Message */}
-          <div className="mt-4 px-4">
+          {/* Logo Upload */}
+          <div className="flex flex-col h-full">
+            <ImageUploadField
+              label={UI_TEXT.logoLabel}
+              onFileSelect={handleFileSelect}
+              error={errors.logo}
+              width={200}
+              height={200}
+              previewUrl={previewUrl}
+            />
+            {imageLoading && (
+              <div className="flex justify-center items-center mt-4">
+                <Loader2 className="animate-spin h-5 w-5 text-muted-foreground" />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Error Messages */}
+        {Object.keys(errors).length > 0 && (
+          <div className="mt-4 px-4 space-y-2">
             {Object.entries(errors).map(([field, message]) => (
               <p key={field} className="text-sm text-destructive">
                 {message}
               </p>
             ))}
           </div>
+        )}
 
-          {/* Fixed Submit Button */}
-          <div className="w-full bg-background py-4 border-t border-border">
-            <Button
-              type="button"
-              onClick={handleSubmit}
-              disabled={submitLoading} // Disable button while loading
-              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
-            >
-              {submitLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> جاري
-                  الحفظ...
-                </>
-              ) : (
-                "حفظ التغييرات"
-              )}
-            </Button>
-          </div>
-        </Tabs>
+        {/* Fixed Submit Button */}
+        <div className="w-full bg-background py-4 border-t border-border">
+          <Button
+            type="button"
+            onClick={handleSubmit}
+            disabled={submitLoading}
+            className="w-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+          >
+            {submitLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
+                {UI_TEXT.saving}
+              </>
+            ) : (
+              UI_TEXT.saveChanges
+            )}
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

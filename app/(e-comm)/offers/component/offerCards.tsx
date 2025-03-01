@@ -23,7 +23,6 @@ interface Offer {
 }
 
 const ShowAllOffer = ({ id, title, description, link, imageUrl }: Offer) => {
-  console.log(imageUrl);
   return (
     <div className="h-full flex items-center justify-center relative">
       {/* Image background */}

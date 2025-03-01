@@ -7,8 +7,6 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import Image from "next/image";
 import Text from "@/components/Text";
 import {
   Home,
@@ -24,96 +22,139 @@ import {
   Newspaper,
   Sun,
   Moon,
+  FileText,
+  File,
+  User2,
+  User2Icon,
+  UserCheck,
 } from "lucide-react";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, memo } from "react";
+import ThemeToggle from "../../../../components/ThemeToggle";
 
-// Define navigation groups as data
-const NAVIGATION_GROUPS = [
-  {
-    title: "الرئسية",
-    links: [
-      {
-        label: "الطلبيات",
-        href: "/dashboard",
-        icon: <ListOrdered className="h-5 w-5 text-muted-foreground ml-2" />,
-      },
-      {
-        label: "الموردين",
-        href: "/dashboard/suppliers",
-        icon: <ShoppingBasket className="h-5 w-5 text-muted-foreground ml-2" />,
-      },
-      {
-        label: "المنتجات",
-        href: "/dashboard/porductmangment",
-        icon: <Package className="h-5 w-5 text-muted-foreground ml-2" />,
-      },
-      {
-        label: "تواصل العملاء",
-        href: "/dashboard/clientsubmission",
-        icon: <Users className="h-5 w-5 text-muted-foreground ml-2" />,
-      },
-      {
-        label: "النشرة الاخبارية",
-        href: "/dashboard/clientnews",
-        icon: <Newspaper className="h-5 w-5 text-muted-foreground ml-2" />,
-      },
-    ],
+// Centralized UI text for localization
+const UI_TEXT = {
+  header: {
+    logoAlt: "امواج للمياة الصحية",
   },
-  {
-    title: "اداري",
-    links: [
-      {
-        label: "السواقين",
-        href: "/dashboard/drivers",
-        icon: <Truck className="h-5 w-5 text-muted-foreground ml-2" />,
-      },
-      {
-        label: "العروض",
-        href: "/dashboard/promotions",
-        icon: <Percent className="h-5 w-5 text-muted-foreground ml-2" />,
-      },
-      {
-        label: "الوردبات",
-        href: "/dashboard/shifts",
-        icon: <Timer className="h-5 w-5 text-muted-foreground ml-2" />,
-      },
-      {
-        label: "الاعدادت",
-        href: "/dashboard/setting",
-        icon: <Settings className="h-5 w-5 text-muted-foreground ml-2" />,
-      },
-    ],
+  navigationGroups: [
+    {
+      title: "الرئسية",
+      links: [
+        {
+          label: "ادارة الطلبيات",
+          href: "/dashboard",
+          icon: <ListOrdered className="h-5 w-5 text-muted-foreground ml-2" />,
+        },
+        {
+          label: "ادارة الشركات",
+          href: "/dashboard/suppliers",
+          icon: (
+            <ShoppingBasket className="h-5 w-5 text-muted-foreground ml-2" />
+          ),
+        },
+        {
+          label: "ادارة المنتجات",
+          href: "/dashboard/porductmangment",
+          icon: <Package className="h-5 w-5 text-muted-foreground ml-2" />,
+        },
+        {
+          label: "مراسلات العملاء",
+          href: "/dashboard/clientsubmission",
+          icon: <Users className="h-5 w-5 text-muted-foreground ml-2" />,
+        },
+        {
+          label: "النشرة الاخبارية",
+          href: "/dashboard/clientnews",
+          icon: <Newspaper className="h-5 w-5 text-muted-foreground ml-2" />,
+        },
+      ],
+    },
+    {
+      title: "اداري",
+      links: [
+        {
+          label: "ادارة السواقين ",
+          href: "/dashboard/drivers",
+          icon: <Truck className="h-5 w-5 text-muted-foreground ml-2" />,
+        },
+        {
+          label: "ادارة العروض",
+          href: "/dashboard/promotions",
+          icon: <Percent className="h-5 w-5 text-muted-foreground ml-2" />,
+        },
+
+        {
+          label: "المستخدمين",
+          href: "/dashboard/users",
+          icon: (
+            <User2 className="h-5 w-5 text-muted-foreground ml-2 border-b border-red-500" />
+          ),
+        },
+      ],
+    },
+    {
+      title: "اعدادات المتجر",
+      links: [
+        {
+          label: "الوردبات",
+          href: "/dashboard/shifts",
+          icon: <Timer className="h-5 w-5 text-muted-foreground ml-2" />,
+        },
+        {
+          label: "الشروظ والاحطام",
+          href: "/dashboard/rulesandcondtions",
+          icon: <FileText className="h-5 w-5 text-muted-foreground ml-2" />,
+        },
+        {
+          label: "الاعدادت",
+          href: "/dashboard/setting",
+          icon: <Settings className="h-5 w-5 text-muted-foreground ml-2" />,
+        },
+      ],
+    },
+  ],
+  footer: {
+    logout: "تسجيل الخروج",
+    toggleTheme: {
+      light: "تبديل إلى الوضع النهاري",
+      dark: "تبديل إلى الوضع الليلي",
+    },
   },
-];
+};
 
 // Reusable Navigation Link Component
-function NavItem({
-  href,
-  label,
-  icon,
-}: {
-  href: string;
-  label: string;
-  icon: React.ReactNode;
-}) {
-  return (
-    <Link
-      href={href}
-      className="flex items-center w-full py-2 px-3 text-sm rounded-md hover:bg-blue-400 hover:text-white transition-colors"
-    >
-      {/* Icon */}
-      <span className="mr-2">{icon}</span>
-      {/* Label */}
-      <Text variant="p" locale="ar" className="font-cairo">
-        {label}
-      </Text>
-    </Link>
-  );
-}
+const NavItem = memo(
+  ({
+    href,
+    label,
+    icon,
+  }: {
+    href: string;
+    label: string;
+    icon: React.ReactNode;
+  }) => {
+    return (
+      <Link
+        href={href}
+        className="flex items-center w-full py-1.5 px-3 text-sm rounded-md hover:bg-blue-400 hover:text-white transition-colors"
+        aria-label={label} // Add ARIA label for accessibility
+      >
+        {/* Icon */}
+        <span className="mr-2">{icon}</span>
+        {/* Label */}
+        <Text variant="p" locale="ar" className="font-cairo text-sm ">
+          {label}
+        </Text>
+      </Link>
+    );
+  }
+);
+
+NavItem.displayName = "NavItem"; // Required for React.memo with TypeScript
 
 export function AppSidebar() {
-  const { theme, setTheme } = useTheme(); // Use the useTheme hook
+  const { resolvedTheme, setTheme } = useTheme(); // Use resolvedTheme from next-themes
   const [mounted, setMounted] = useState(false); // Track if the component is mounted
 
   // Ensure the component is mounted before accessing client-side APIs
@@ -126,27 +167,16 @@ export function AppSidebar() {
     return null;
   }
 
-  const isDark = theme === "dark"; // Determine if the theme is dark
+  // Use resolvedTheme to determine if the theme is dark
 
   return (
     <Sidebar side="right">
-      {/* Header */}
-      <SidebarHeader className="bg-blue-600 p-4 flex justify-center items-center border-b">
-        <Image
-          src="/assets/logo.png"
-          alt="امواج للمياة الصحية"
-          width={180}
-          height={100}
-          priority
-        />
-      </SidebarHeader>
-      {/* Content */}
-      <SidebarContent className="p-4 space-y-2">
-        {NAVIGATION_GROUPS.map((group, index) => (
+      <SidebarContent className="p-2 ">
+        {UI_TEXT.navigationGroups.map((group, index) => (
           <SidebarGroup key={index}>
             {/* Group Title */}
             <Text
-              className="font-semibold text-sm mb-2"
+              className="font-semibold text-sm mb-1"
               variant="p"
               locale="ar"
               cairoFont
@@ -168,33 +198,16 @@ export function AppSidebar() {
         ))}
       </SidebarContent>
       {/* Footer */}
-      <SidebarFooter className="p-4 border-t">
-        <Button
-          variant="outline"
-          className="w-full flex items-center justify-center"
-        >
-          {/* Logout Icon */}
-          <LogOut className="mr-2 h-4 w-4" />
-          <Text
-            className="font-semibold text-sm"
-            variant="p"
-            locale="ar"
-            cairoFont
-          >
-            تسجيل الخروج
-          </Text>
-        </Button>
-        <button
-          onClick={() => setTheme(isDark ? "light" : "dark")} // Toggle theme
-          className="flex items-center gap-2 w-full mt-2"
-        >
-          {/* Render both icons initially to avoid hydration mismatch */}
-          <Sun size={16} className={`${isDark ? "hidden" : "text-primary"}`} />
-          <Moon size={16} className={`${isDark ? "text-primary" : "hidden"}`} />
-          <span className="mr-2">
-            {isDark ? "تبديل إلى الوضع النهاري" : "تبديل إلى الوضع الليلي"}
-          </span>
-        </button>
+      <SidebarFooter className="p-4 border-t flex items-center flex-row justify-around">
+        <Link href={"/"}>
+          <LogOut size={16} />
+        </Link>
+
+        <Link href={"/users"}>
+          <File size={16} />
+        </Link>
+
+        <ThemeToggle />
       </SidebarFooter>
     </Sidebar>
   );

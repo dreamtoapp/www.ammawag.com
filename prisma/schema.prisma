@@ -16,6 +16,7 @@ model Supplier {
   email     String     @default("")
   phone     String     @default("")
   address   String     @default("")
+  type      String @default("company")
   products  Product[] // Explicit many-to-many relationship
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -31,23 +32,29 @@ model Product {
   imageUrl    String?
   publicId  String?   // Public ID of the image in Cloudinary (optional)
   supplierId  String   @db.ObjectId
+  type         String  @default("product")
   supplier    Supplier @relation(fields: [supplierId], references: [id])
+  
   published   Boolean  @default(false) // Add this field
+  outOfStock Boolean @default(false) // Add this field
+  
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
 
 model User {
   id       String   @id @default(auto()) @map("_id") @db.ObjectId // Explicitly define as ObjectId
-  phone    String  @default("")
+  phone    String   @unique
 
   latitude String  @default("")
   longitude String  @default("")
  
   name     String   @default("")
-  email    String   @unique
+  email    String?   @default("")
+  address  String?   @default("")
   password String  @default("")
   role     String  @default("")
+  isOtp    Boolean @default(false)
   orders   Order[]  // List of orders associated with the user
 }
 
@@ -58,10 +65,12 @@ model Order {
   customer    User     @relation(fields: [customerId], references: [id]) // Relation to the User model
   customerName String?
   driverId    String?
-  status      String  @default("")
+  latitude   String?
+  longitude   String?
+  status      String  @default("Pending")
   amount      Float     @default(0)
   items       OrderItem[]
- shiftId     String   @db.ObjectId // Ensure this matches Shift.id's native type
+  shiftId     String   @db.ObjectId // Ensure this matches Shift.id's native type
   shift       Shift    @relation(fields: [shiftId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -175,4 +184,21 @@ model Reply {
   sentAt              DateTime @default(now()) // Timestamp for when the reply was sent
   contactSubmissionId String   @db.ObjectId // Ensure this matches the native type of ContactSubmission.id
   contactSubmission   ContactSubmission @relation(fields: [contactSubmissionId], references: [id])
+}
+
+model Changelog{
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  subject   String
+  createdAt DateTime @default(now())
+    updatedAt     DateTime @updatedAt // Timestamp of last update
+
+}
+
+model Term {
+ id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  content     String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("terms")
 }

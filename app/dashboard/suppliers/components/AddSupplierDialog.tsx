@@ -8,7 +8,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { createOrUpdateSupplier } from "../actions/supplierActions";
 import { z } from "zod"; // Import Zod
 import { supplierSchema } from "../logic/validation";
@@ -22,29 +21,32 @@ export default function AddSupplierDialog() {
     email: "",
     phone: "",
     address: "",
+    type: "supplier", // Default type is "supplier"
   });
-  const [logoFile, setLogoFile] = useState<File | undefined>(undefined);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [loading, setLoading] = useState(false); // State to track loading
 
   // Handle changes in input fields
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    const { name, value, type, checked } = e.target;
+    // Handle checkbox separately
+    if (type === "checkbox") {
+      setFormData({ ...formData, [name]: checked ? "offer" : "company" });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
     setErrors((prevErrors) => ({ ...prevErrors, [name]: "" })); // Clear errors
   };
 
   // Handle file upload
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setLogoFile(file);
-      setPreviewUrl(URL.createObjectURL(file)); // Preview the uploaded image
+  const handleFileSelect = (file: File | null) => {
+    if (file) {
+      setLogoFile(file); // Update the selected file in the parent state
       setErrors((prevErrors) => ({ ...prevErrors, logo: "" })); // Clear logo error
     } else {
-      setLogoFile(undefined);
-      setPreviewUrl(null);
+      setLogoFile(null); // Reset the selected file
     }
   };
 
@@ -72,8 +74,9 @@ export default function AddSupplierDialog() {
         email: "",
         phone: "",
         address: "",
+        type: "supplier", // Reset type to default
       });
-      setLogoFile(undefined);
+      setLogoFile(null);
       setPreviewUrl(null);
       setErrors({});
     } catch (error: any) {
@@ -100,109 +103,83 @@ export default function AddSupplierDialog() {
     <Dialog>
       <DialogTrigger asChild>
         <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
-          إضافة مورد
+          إضافة شركة
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px] min-h-[500px] bg-background text-foreground border-border shadow-lg">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold text-foreground">
-            إضافة مورد جديد
+            إضافة شركة جديد
           </DialogTitle>
         </DialogHeader>
-        <Tabs defaultValue="details" className="w-full">
-          {/* Fixed Tabs List */}
-          <TabsList className="grid w-full grid-cols-2 sticky top-0 bg-background z-10 border-b border-border">
-            <TabsTrigger
-              value="details"
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-            >
-              تفاصيل المورد
-            </TabsTrigger>
-            <TabsTrigger
-              value="logo"
-              className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-            >
-              رفع الشعار
-            </TabsTrigger>
-          </TabsList>
-          {/* Form Content */}
-          <form className="space-y-4 p-4 overflow-y-auto max-h-[350px]">
-            {/* Supplier Details Tab */}
-            <TabsContent value="details">
-              <div className="space-y-4">
-                <InputField
-                  name="name"
-                  label="اسم المورد"
-                  placeholder="أدخل اسم المورد"
-                  value={formData.name}
-                  onChange={handleChange}
-                  error={errors.name}
-                />
-                <InputField
-                  name="email"
-                  label="البريد الإلكتروني"
-                  placeholder="أدخل البريد الإلكتروني"
-                  value={formData.email}
-                  onChange={handleChange}
-                  error={errors.email}
-                />
-                <InputField
-                  name="phone"
-                  label="رقم الهاتف"
-                  placeholder="أدخل رقم الهاتف"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  error={errors.phone}
-                />
-                <InputField
-                  name="address"
-                  label="العنوان"
-                  placeholder="أدخل العنوان"
-                  value={formData.address}
-                  onChange={handleChange}
-                  error={errors.address}
-                />
-              </div>
-            </TabsContent>
-            {/* Logo Upload Tab */}
-            <TabsContent value="logo">
-              <div className="flex flex-col h-full">
-                <ImageUploadField
-                  label="الشعار"
-                  previewUrl={previewUrl}
-                  onChange={handleFileChange}
-                  error={errors.logo}
-                />
-              </div>
-            </TabsContent>
-          </form>
-          {/* Single Error Message */}
-          <div className="mt-4 px-4">
-            {Object.entries(errors).map(([field, message]) => (
-              <p key={field} className="text-sm text-destructive">
-                {message}
-              </p>
-            ))}
+        {/* Fixed Tabs List */}
+
+        {/* Form Content */}
+        <form className="space-y-4 p-4 overflow-y-auto max-h-[350px]">
+          {/* Supplier Details Tab */}
+
+          <div className="space-y-4">
+            <InputField
+              name="name"
+              label="اسم الشركة"
+              placeholder="أدخل اسم الشركة"
+              value={formData.name}
+              onChange={handleChange}
+              error={errors.name}
+            />
+
+            {/* Checkbox for Offer Type */}
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                name="type"
+                id="type"
+                checked={formData.type === "offer"}
+                onChange={handleChange}
+                className="w-4 h-4 text-primary rounded border-border focus:ring-primary"
+              />
+              <label htmlFor="type" className="text-sm text-foreground">
+                هذا المورد هو عرض
+              </label>
+            </div>
+            <div className="flex flex-col h-full">
+              <ImageUploadField
+                label="الصورة"
+                onFileSelect={handleFileSelect} // Pass the callback to receive the selected file
+                error={errors.logo} // Pass any validation error
+                width={200}
+                height={200}
+              />
+            </div>
           </div>
-          {/* Submit Button with Loader */}
-          <div className="w-full bg-background py-4 border-t border-border">
-            <Button
-              type="button"
-              onClick={handleSubmit}
-              disabled={loading} // Disable button while loading
-              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> جاري
-                  الحفظ...
-                </>
-              ) : (
-                "حفظ المورد"
-              )}
-            </Button>
-          </div>
-        </Tabs>
+
+          {/* Logo Upload Tab */}
+        </form>
+        {/* Single Error Message */}
+        <div className="mt-4 px-4">
+          {Object.entries(errors).map(([field, message]) => (
+            <p key={field} className="text-sm text-destructive">
+              {message}
+            </p>
+          ))}
+        </div>
+        {/* Submit Button with Loader */}
+        <div className="w-full bg-background py-4 border-t border-border">
+          <Button
+            type="button"
+            onClick={handleSubmit}
+            disabled={loading} // Disable button while loading
+            className="w-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> جاري الحفظ...
+              </>
+            ) : (
+              "حفظ الشركة"
+            )}
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

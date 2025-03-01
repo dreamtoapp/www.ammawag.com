@@ -1,180 +1,143 @@
-// pages/checkout.tsx
 "use client";
-import { useState, useEffect } from "react";
-import AddressSelection from "./components/AddressSelection";
-import OtpVerification from "./components/OtpVerification";
-import TermsDialog from "./components/TermsDialog";
-import UserForm from "./components/UserForm";
-import MapDisplay from "./components/MapDisplay";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useGeolocated } from "react-geolocated";
-import dynamic from "next/dynamic";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import { useState } from "react";
+import { checkUserExists } from "./actions/userActions";
+import Step1Phone from "./components/Step1Phone";
+import Step2Address from "./components/Step2Address";
+import MiniCartSummary from "./components/MiniCartSummary";
+import { motion, AnimatePresence } from "framer-motion";
+import { Loader2 } from "lucide-react";
 
-const CartSummary = dynamic(() => import("../cart/component/CartSummary"), {
-  ssr: false,
-});
-
-export default function CheckoutPage() {
-  const [isClient, setIsClient] = useState(false);
-  const [isLogin, setIsLogin] = useState(false);
-  const [userName, setUserName] = useState("");
-  const [userPhone, setUserPhone] = useState("");
-  const [selectedAddress, setSelectedAddress] = useState<string | null>(null);
-  const [savedAddress, setSavedAddress] = useState<string | null>(null);
-  const [showAddressDialog, setShowAddressDialog] = useState(false);
-  const [showOtpDialog, setShowOtpDialog] = useState(false);
-  const [showTermsDialog, setShowTermsDialog] = useState(false);
-  const [otp, setOtp] = useState("");
-  const [otpVerified, setOtpVerified] = useState(false);
-  const [agreeToTerms, setAgreeToTerms] = useState(false);
-
-  const { coords } = useGeolocated({
-    positionOptions: { enableHighAccuracy: true },
+const MultiStepForm = () => {
+  const [step, setStep] = useState(1);
+  const [phone, setPhone] = useState("");
+  const [userExists, setUserExists] = useState(false);
+  const [userData, setUserData] = useState({
+    id: "",
+    phone: "",
+    name: "",
+    address: "",
+    latitude: "",
+    longitude: "",
   });
-  const [coordinates, setCoordinates] = useState<{
-    lat: number | null;
-    lng: number | null;
-  }>({ lat: null, lng: null });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  useEffect(() => {
-    setIsClient(true);
-    if (isLogin) {
-      setSavedAddress("123 شارع الملك فهد، الرياض، السعودية");
-      setSelectedAddress("123 شارع الملك فهد، الرياض، السعودية");
-      setUserName("أحمد");
-    }
-  }, [isLogin]);
+  const handlePhoneSubmit = async (phone: string) => {
+    setLoading(true);
+    setError("");
 
-  useEffect(() => {
-    if (isClient && !isLogin && coords) {
-      setCoordinates({ lat: coords.latitude, lng: coords.longitude });
-      setSelectedAddress(
-        `خط العرض: ${coords.latitude}, خط الطول: ${coords.longitude}`
-      );
-    }
-  }, [isClient, coords, isLogin]);
+    try {
+      const result = await checkUserExists(phone);
 
-  const handleSelectAddress = (address: string) => {
-    setSelectedAddress(address);
-    setShowAddressDialog(false);
-  };
+      if (result.exists && result.data) {
+        setUserExists(true);
+        setUserData({
+          id: result.data.id,
+          phone: phone,
+          name: result.data.name as string,
+          address: result.data.address as string,
+          latitude: result.data.latitude,
+          longitude: result.data.longitude,
+        });
+      } else {
+        setUserExists(false);
+        setUserData({
+          id: "",
+          phone: phone,
+          name: "",
+          address: "",
+          latitude: "",
+          longitude: "",
+        });
+      }
 
-  const handleCheckout = () => {
-    if (!selectedAddress) {
-      alert("يرجى اختيار عنوان التوصيل قبل المتابعة.");
-      return;
+      setPhone(phone);
+      setStep(2);
+    } catch (err) {
+      setError("حدث خطأ أثناء التحقق من رقم الهاتف. يرجى المحاولة مرة أخرى.");
+    } finally {
+      setLoading(false);
     }
-    if (!isLogin && (!userName || !userPhone)) {
-      alert("يرجى إدخال الاسم ورقم الهاتف للمتابعة.");
-      return;
-    }
-    if (!isLogin && !otpVerified) {
-      setShowOtpDialog(true);
-      return;
-    }
-    alert(`تم تأكيد الطلب! العنوان المختار: ${selectedAddress}`);
   };
 
   return (
-    <div className="flex flex-col justify-center items-center min-h-screen bg-background p-4">
-      <Card className="w-full max-w-md lg:max-w-3xl shadow-lg rounded-lg border border-border">
-        <CardHeader>
-          <CardTitle className="text-2xl font-semibold text-center text-foreground">
-            تأكيد الطلب
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-6 pb-20">
-          {!isLogin && (
-            <UserForm
-              userName={userName}
-              setUserName={setUserName}
-              userPhone={userPhone}
-              setUserPhone={setUserPhone}
-              setIsLogin={setIsLogin}
-            />
-          )}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <CartSummary />
-            <div>
-              <Label className="font-medium text-foreground">
-                عنوان التوصيل:
-              </Label>
-              <div className="p-4 bg-muted border rounded-lg mb-4">
-                <p className="text-muted-foreground">
-                  {selectedAddress || "لم يتم تحديد عنوان بعد"}
-                </p>
-                <Button
-                  variant="outline"
-                  onClick={() => setShowAddressDialog(true)}
-                  className="mt-2 w-full"
-                >
-                  اختيار عنوان مختلف
-                </Button>
+    <div className="min-h-screen flex flex-col md:flex-row items-center md:items-start justify-center bg-background p-4 gap-4">
+      {/* Form Container */}
+      <div className="w-full max-w-md bg-background rounded-xl shadow-lg p-6 border border-muted">
+        {/* Progress Indicator */}
+        <div className="flex justify-center mb-6 gap-4">
+          {[
+            { step: 1, title: "رقم الجوال" }, // Step 1: Phone Number
+            { step: 2, title: "العنوان" }, // Step 2: Address
+          ].map(({ step: s, title }) => (
+            <div key={s} className="flex flex-col items-center gap-2">
+              {/* Step Number */}
+              <div
+                className={`w-8 h-8 rounded-full flex items-center justify-center text-foreground ${
+                  step >= s ? "bg-primary" : "bg-secondary"
+                }`}
+              >
+                {s}
               </div>
-              <MapDisplay coordinates={coordinates} />
+              {/* Step Title */}
+              <span className="text-sm text-muted">{title}</span>
             </div>
+          ))}
+        </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-4 p-3 bg-error/10 text-error rounded-lg text-sm">
+            {error}
           </div>
-          {!isLogin && (
-            <div className="mt-4">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="terms"
-                  checked={agreeToTerms}
-                  onCheckedChange={(checked) => setAgreeToTerms(!!checked)}
-                />
-                <Label
-                  htmlFor="terms"
-                  className="text-sm text-muted-foreground"
-                >
-                  أوافق على{" "}
-                  <a
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setShowTermsDialog(true);
-                    }}
-                    className="text-primary underline"
-                  >
-                    الشروط والأحكام
-                  </a>{" "}
-                  وسياسة الخصوصية.
-                </Label>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
-      <div className="fixed bottom-0 left-0 w-full bg-background p-5 shadow-md flex flex-col items-center border-t border-border">
-        <Button
-          onClick={handleCheckout}
-          disabled={!isLogin && !agreeToTerms}
-          className="w-full max-w-md lg:max-w-3xl py-3 font-medium text-lg"
-        >
-          المتابعة إلى الدفع
-        </Button>
+        )}
+
+        {/* Form Steps */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={step}
+            initial={{ opacity: 0, x: step === 1 ? -50 : 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: step === 1 ? -50 : 50 }}
+            transition={{ duration: 0.3 }}
+          >
+            {step === 1 && (
+              <Step1Phone
+                onNext={handlePhoneSubmit}
+                loading={loading} // Pass loading state
+              />
+            )}
+
+            {step === 2 && (
+              <Step2Address
+                phone={phone}
+                userExists={userExists}
+                userData={userData}
+                setUserData={setUserData}
+                onNext={() => setStep(3)}
+                onPrevious={() => setStep(1)}
+              />
+            )}
+
+            {/* {step === 3 && (
+              <Step3Complete />
+            )} */}
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Loading Spinner */}
+        {loading && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
+            <Loader2 className="h-12 w-12 text-background animate-spin" />
+          </div>
+        )}
       </div>
-      <AddressSelection
-        showAddressDialog={showAddressDialog}
-        setShowAddressDialog={setShowAddressDialog}
-        savedAddress={savedAddress}
-        coordinates={coordinates}
-        handleSelectAddress={handleSelectAddress}
-      />
-      <OtpVerification
-        showOtpDialog={showOtpDialog}
-        setShowOtpDialog={setShowOtpDialog}
-        otp={otp}
-        setOtp={setOtp}
-        handleVerifyOtp={() => setOtpVerified(true)}
-      />
-      <TermsDialog
-        showTermsDialog={showTermsDialog}
-        setShowTermsDialog={setShowTermsDialog}
-      />
+      {/* Cart Summary */}
+      <div className="w-full md:w-1/3 lg:w-1/4 mb-8 md:mb-0 md:mr-8">
+        <MiniCartSummary />
+      </div>
     </div>
   );
-}
+};
+
+export default MultiStepForm;

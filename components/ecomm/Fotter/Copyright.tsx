@@ -1,5 +1,5 @@
 import React from "react";
-import packageJson from "../../../../../package.json"; // Import package.json
+import packageJson from "../../../package.json"; // Import package.json
 const Copyright = () => {
   return (
     <div className="text-center text-sm text-muted-foreground mt-6">

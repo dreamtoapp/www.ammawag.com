@@ -9,64 +9,111 @@
 
 @layer base {
   :root {
-    /* Light Theme */
-    --background: 0 0% 98%; /* Soft white */
-    --foreground: 222.2 84% 12%; /* Dark text */
-    --card: 0 0% 100%; /* Pure white */
-    --card-foreground: 222.2 84% 12%; /* Dark text for cards */
-    --popover: 0 0% 100%; /* Pure white for popovers */
-    --popover-foreground: 222.2 84% 12%; /* Dark text for popovers */
-    --primary: 210 80% 50%; /* Modern blue */
-    --primary-foreground: 210 40% 98%; /* Light text on primary buttons */
-    --secondary: 220 14% 96%; /* Light gray */
-    --secondary-foreground: 222.2 47.4% 11.2%; /* Dark text on secondary elements */
-    --muted: 220 14% 96%; /* Light gray for muted elements */
-    --muted-foreground: 215.4 16.3% 46.9%; /* Gray text for muted elements */
-    --accent: 210 80% 50%; /* Modern blue for accents */
-    --accent-foreground: 210 40% 98%; /* Light text on accents */
-    --destructive: 0 84.2% 60.2%; /* Red for destructive actions */
-    --destructive-foreground: 210 40% 98%; /* Light text on destructive buttons */
-    --border: 220 14% 90%; /* Light gray for borders */
-    --input: 220 14% 90%; /* Light gray for input fields */
-    --ring: 210 80% 50%; /* Modern blue for focus rings */
-    --radius: 0.5rem; /* Rounded corners */
-    --chart-1: 12 76% 61%; /* Coral for charts */
-    --chart-2: 173 58% 39%; /* Teal for charts */
-    --chart-3: 197 37% 24%; /* Dark teal for charts */
-    --chart-4: 43 74% 66%; /* Gold for charts */
-    --chart-5: 27 87% 67%; /* Orange for charts */
+    /* الوضع النهاري */
+    --background: 0 0% 98%; /* خلفية فاتحة جدًا */
+    --foreground: 222.2 84% 10%; /* نص داكن للتباين الجيد */
+
+    /* البطاقات والنوافذ المنبثقة */
+    --card: 0 0% 100%; /* خلفية بيضاء للبطاقات */
+    --card-foreground: 222.2 84% 10%; /* نص داكن للبطاقات */
+    --popover: 0 0% 100%; /* خلفية بيضاء للنوافذ المنبثقة */
+    --popover-foreground: 222.2 84% 10%; /* نص داكن للنوافذ المنبثقة */
+
+    /* الألوان الأساسية */
+    --primary: 210 80% 50%; /* لون أساسي (أزرق) */
+    --primary-foreground: 0 0% 100%; /* نص أبيض على الأزرار الأساسية */
+
+    /* الألوان الثانوية */
+    --secondary: 220 14% 94%; /* لون ثانوي (رمادي فاتح) */
+    --secondary-foreground: 222.2 84% 10%; /* نص داكن على العناصر الثانوية */
+
+    /* العناصر الخافتة */
+    --muted: 220 14% 90%; /* لون خافت (رمادي فاتح) */
+    --muted-foreground: 220 14% 45%; /* نص رمادي للعناصر الخافتة */
+
+    /* الألوان المميزة */
+    --accent: 210 80% 50%; /* لون مميز (أزرق) */
+    --accent-foreground: 0 0% 100%; /* نص أبيض على العناصر المميزة */
+
+    /* الألوان التدميرية */
+    --destructive: 0 84.2% 60.2%; /* لون تدميري (أحمر) */
+    --destructive-foreground: 0 0% 100%; /* نص أبيض على الأزرار التدميرية */
+
+    /* الحدود وحقول الإدخال */
+    --border: 220 90% 80%; /* لون الحدود (رمادي فاتح - تم تعديله ليكون أغمق قليلاً) */
+    --input: 220 30% 90%; /* لون حقول الإدخال (رمادي فاتح) */
+
+    /* حلقة التركيز */
+    --ring: 210 80% 50%; /* لون حلقة التركيز (أزرق) */
+
+    /* زوايا مدورة */
+    --radius: 0.5rem;
+
+    /* ألوان الرسوم البيانية */
+    --chart-1: 12 76% 61%; /* ألوان للرسوم البيانية */
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
   }
 
   .dark {
-    /* Dark Theme */
-    --background: 222.2 84% 6%; /* Darker background */
-    --foreground: 210 40% 98%; /* Light text */
-    --card: 222.2 84% 8%; /* Slightly lighter dark for cards */
-    --card-foreground: 210 40% 98%; /* Light text for cards */
-    --popover: 222.2 84% 8%; /* Slightly lighter dark for popovers */
-    --popover-foreground: 210 40% 98%; /* Light text for popovers */
-    --primary: 210 80% 50%; /* Modern blue */
-    --primary-foreground: 210 40% 98%; /* Light text on primary buttons */
-    --secondary: 217.2 32.6% 17.5%; /* Dark gray */
-    --secondary-foreground: 210 40% 98%; /* Light text on secondary elements */
-    --muted: 217.2 32.6% 17.5%; /* Dark gray for muted elements */
-    --muted-foreground: 215 20.2% 65.1%; /* Light gray text for muted elements */
-    --accent: 210 80% 50%; /* Modern blue for accents */
-    --accent-foreground: 210 40% 98%; /* Light text on accents */
-    --destructive: 0 62.8% 30.6%; /* Dark red for destructive actions */
-    --destructive-foreground: 210 40% 98%; /* Light text on destructive buttons */
-    --border: 217.2 32.6% 20%; /* Dark gray for borders */
-    --input: 217.2 32.6% 20%; /* Dark gray for input fields */
-    --ring: 210 80% 50%; /* Modern blue for focus rings */
-    --chart-1: 220 70% 50%; /* Blue for charts */
-    --chart-2: 160 60% 45%; /* Teal for charts */
-    --chart-3: 30 80% 55%; /* Orange for charts */
-    --chart-4: 280 65% 60%; /* Purple for charts */
-    --chart-5: 340 75% 55%; /* Pink for charts */
+    /* الوضع الليلي */
+    --background: 222.2 84% 4%; /* خلفية داكنة جدًا */
+    --foreground: 210 40% 98%; /* نص فاتح للتباين الجيد */
+
+    /* البطاقات والنوافذ المنبثقة */
+    --card: 222.2 84% 8%; /* خلفية داكنة للبطاقات (أفتح قليلاً من الخلفية) */
+    --card-foreground: 210 40% 98%; /* نص فاتح للبطاقات */
+    --popover: 222.2 84% 8%; /* خلفية داكنة للنوافذ المنبثقة */
+    --popover-foreground: 210 40% 98%; /* نص فاتح للنوافذ المنبثقة */
+
+    /* الألوان الأساسية */
+    --primary: 210 80% 50%; /* لون أساسي (أزرق) */
+    --primary-foreground: 0 0% 100%; /* نص أبيض على الأزرار الأساسية */
+
+    /* الألوان الثانوية */
+    --secondary: 217.2 32.6% 15%; /* لون ثانوي (رمادي داكن) */
+    --secondary-foreground: 210 40% 98%; /* نص فاتح على العناصر الثانوية */
+
+    /* العناصر الخافتة */
+    --muted: 217.2 32.6% 15%; /* لون خافت (رمادي داكن) */
+    --muted-foreground: 215 20.2% 70%; /* نص رمادي فاتح للعناصر الخافتة */
+
+    /* الألوان المميزة */
+    --accent: 210 80% 50%; /* لون مميز (أزرق) */
+    --accent-foreground: 0 0% 100%; /* نص أبيض على العناصر المميزة */
+
+    /* الألوان التدميرية */
+    --destructive: 0 62.8% 40%; /* لون تدميري (أحمر داكن) */
+    --destructive-foreground: 0 0% 100%; /* نص أبيض على الأزرار التدميرية */
+
+    /* الحدود وحقول الإدخال */
+    --border: 217.2 32.6% 25%; /* لون الحدود (رمادي داكن - تم تعديله ليكون أفتح) */
+    --input: 217.2 32.6% 20%; /* لون حقول الإدخال (رمادي داكن) */
+
+    /* حلقة التركيز */
+    --ring: 210 80% 50%; /* لون حلقة التركيز (أزرق) */
+
+    /* ألوان الرسوم البيانية */
+    --chart-1: 220 70% 50%; /* أزرق */
+    --chart-2: 160 60% 45%; /* أخضر مزرق */
+    --chart-3: 30 80% 55%; /* برتقالي */
+    --chart-4: 280 65% 60%; /* بنفسجي */
+    --chart-5: 340 75% 55%; /* وردي */
   }
 }
 
 .border-gradient {
   border-image: linear-gradient(to right, #3b82f6, #9333ea);
   border-image-slice: 1;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }

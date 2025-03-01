@@ -1,8 +1,8 @@
-// app/contact/action/contact.ts
 "use server";
 import { revalidatePath } from "next/cache";
-import db from "../../../../lib/prisma";
-import { pusher } from "../../../../lib/pusher";
+import db from "@/lib/prisma";
+import { pusher } from "@/lib/pusher";
+import { Notification } from "@/types/notification";
 
 export type SubmitFormState = {
   success: boolean;
@@ -14,43 +14,51 @@ export async function submitContactForm(
   formData: FormData
 ): Promise<SubmitFormState> {
   try {
-    const name = formData.get("name") as string;
-    const email = formData.get("email") as string;
-    const subject = formData.get("subject") as string;
-    const message = formData.get("message") as string;
+    const name = formData.get("name")?.toString() || "";
+    const email = formData.get("email")?.toString() || "";
+    const subject = formData.get("subject")?.toString() || "";
+    const message = formData.get("message")?.toString() || "";
 
-    // Save data to the database using Prisma
+    if (!name || !email || !subject || !message) {
+      return {
+        success: false,
+        message: "جميع الحقول مطلوبة",
+      };
+    }
+
     const submission = await db.contactSubmission.create({
-      data: {
-        name,
-        email,
-        subject,
-        message,
-      },
+      data: { name, email, subject, message },
     });
 
-    // Trigger a Pusher event
-    await pusher.trigger("contact-submissions", "new-submission", {
+    const notification: Notification = {
       id: submission.id,
-      name: submission.name,
-      email: submission.email,
-      subject: submission.subject,
-      message: submission.message,
-      createdAt: submission.createdAt.toISOString(),
-    });
+      type: "message",
+      title: `رسالة جديدة من ${name}`,
+      content: subject,
+      read: false,
+      metadata: {
+        email,
+        fullMessage: message,
+      },
+    };
 
-    // Revalidate the dashboard path
+    await pusher.trigger(
+      "admin-notifications",
+      "new-notification",
+      notification
+    );
+
     revalidatePath("/dashboard/contact");
 
     return {
       success: true,
-      message: "تم إرسال الرسالة بنجاح!",
+      message: "تم إرسال الرسالة بنجاح ✅",
     };
   } catch (error) {
-    console.error("خطأ في إرسال نموذج الاتصال:", error);
+    console.error("Submission error:", error);
     return {
       success: false,
-      message: "فشل في إرسال الرسالة. حاول مرة أخرى.",
+      message: "حدث خطأ أثناء الإرسال ⚠️",
     };
   }
 }

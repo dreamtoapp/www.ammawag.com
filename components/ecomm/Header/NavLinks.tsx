@@ -1,6 +1,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Info, Phone, TagsIcon } from "lucide-react";
+import {
+  Home,
+  Info,
+  Phone,
+  ShoppingBagIcon,
+  Store,
+  TagsIcon,
+} from "lucide-react";
 
 // Define the NavLink type
 interface NavLink {
@@ -14,15 +21,15 @@ export default function NavLinks() {
 
   const navLinks: NavLink[] = [
     {
-      name: "الرئيسية",
+      name: "المتجر",
       href: "/",
-      icon: <Home size={20} />, // No className here
+      icon: <Store size={20} />, // No className here
     },
-    {
-      name: "عروضنا",
-      href: "/offers",
-      icon: <TagsIcon size={20} />, // No className here
-    },
+    // {
+    //   name: "عروضنا",
+    //   href: "/offers",
+    //   icon: <TagsIcon size={20} />, // No className here
+    // },
     {
       name: "من نحن",
       href: "/about",

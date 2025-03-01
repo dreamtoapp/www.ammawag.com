@@ -15,6 +15,8 @@ export async function fetchOrders(status?: string) {
         driverId: true,
         status: true,
         amount: true,
+        createdAt: true,
+        updatedAt: true,
         items: {
           select: {
             productId: true,
@@ -22,9 +24,20 @@ export async function fetchOrders(status?: string) {
             price: true,
           },
         },
+        customer: {
+          select: {
+            phone: true,
+            name: true,
+            address: true,
+            latitude: true,
+            longitude: true,
+          },
+        },
         shift: { select: { name: true } },
       },
+      orderBy: { createdAt: "desc" }, // Order by creation date in descending order
     });
+    console.log(orders);
     return orders;
   } catch (error: any) {
     console.error("Error fetching orders:", error);
