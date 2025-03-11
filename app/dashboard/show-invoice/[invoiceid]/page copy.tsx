@@ -35,7 +35,6 @@ export default function InvoicePage() {
 
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
-  console.log({ invoiceno });
   useEffect(() => {
     async function loadOrder() {
       setLoading(true);

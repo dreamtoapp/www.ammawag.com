@@ -117,3 +117,20 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Add to your global CSS */
+/* Hide print source content on screen */
+.print-source {
+  display: none !important;
+}
+
+/* Print button styling */
+.print-button {
+  margin: 1rem 0;
+}
+
+@media print {
+  .print-button {
+    display: none;
+  }
+}

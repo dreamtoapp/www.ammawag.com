@@ -18,4 +18,5 @@ export const UI_TEXT = {
   cancelButton: "إلغاء",
   termsAgreement: "أوافق على الشروط والأحكام",
   termsLink: "الشروط والأحكام",
+  loadingButton: "جاري إرسال الطلب...",
 };

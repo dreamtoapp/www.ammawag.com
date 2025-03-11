@@ -48,8 +48,8 @@ export async function createOffer(formData: FormData) {
       },
     });
 
-    revalidatePath("/offers");
-    redirect(`/offers/${newOffer.id}`);
+    // revalidatePath("/offers");
+    // redirect(`/offers/${newOffer.id}`);
   } catch (error) {
     console.error("Error creating offer:", error);
     return { message: "حدث خطأ أثناء إنشاء العرض. يرجى المحاولة مرة أخرى." };

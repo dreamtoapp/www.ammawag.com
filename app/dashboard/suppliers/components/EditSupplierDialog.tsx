@@ -64,10 +64,6 @@ export default function EditSupplierDialog({
   const [submitLoading, setSubmitLoading] = useState(false);
 
   // Debug: Log the supplier logo URL when the component mounts
-  useEffect(() => {
-    console.log("Supplier logo URL:", supplier.logo);
-    console.log("Preview URL state:", previewUrl);
-  }, [supplier.logo, previewUrl]);
 
   // Handle changes in input fields
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,12 +75,10 @@ export default function EditSupplierDialog({
   // Handle file upload
   const handleFileSelect = useCallback((file: File | null) => {
     if (file) {
-      console.log("Selected file:", file);
       setLogoFile(file);
       setErrors((prevErrors) => ({ ...prevErrors, logo: "" }));
 
       const filePreviewUrl = URL.createObjectURL(file);
-      console.log("Generated preview URL:", filePreviewUrl);
       setPreviewUrl(filePreviewUrl);
     } else {
       setLogoFile(null);

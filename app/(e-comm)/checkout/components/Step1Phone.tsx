@@ -30,7 +30,7 @@ interface Step1PhoneProps {
 }
 
 const Step1Phone = ({ onNext, loading }: Step1PhoneProps) => {
-  const [phone, setPhone] = useState("0545642264");
+  const [phone, setPhone] = useState("");
   const [error, setError] = useState("");
 
   const handleSubmit = () => {
@@ -43,10 +43,10 @@ const Step1Phone = ({ onNext, loading }: Step1PhoneProps) => {
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto p-4 bg-background text-foreground rounded-lg shadow-sm border border-muted">
+    <Card className="w-full max-w-md mx-auto p-4 bg-border text-foreground rounded-lg shadow-sm border border-muted">
       <CardHeader>
-        <CardTitle className="text-xl font-bold">{UI_TEXT.title}</CardTitle>
-        <CardDescription className="text-muted">
+        <CardTitle className="text-xl font-bold ">{UI_TEXT.title}</CardTitle>
+        <CardDescription className="text-muted-foreground">
           {UI_TEXT.description}
         </CardDescription>
       </CardHeader>
@@ -60,8 +60,8 @@ const Step1Phone = ({ onNext, loading }: Step1PhoneProps) => {
           autoFocus
           className="bg-background text-foreground border-muted focus-visible:ring-primary"
         />
-        {error && <p className="text-error text-sm">{error}</p>}
-        <p className="text-xs text-muted animate-pulse">
+        {error && <p className="text-destructive text-sm">{error}</p>}
+        <p className="text-xs text-muted-foreground animate-pulse">
           {UI_TEXT.noteForNewUsers}
         </p>
       </CardContent>

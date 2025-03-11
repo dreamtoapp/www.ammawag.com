@@ -50,7 +50,7 @@ export default function NavLinks() {
         return (
           <Link
             key={index}
-            href={link.href}
+            href={{ pathname: link.href }}
             aria-label={link.name}
             className={`flex items-center gap-2 px-3 py-1 text-base font-medium transition-colors duration-300 rounded-lg ${
               isActive

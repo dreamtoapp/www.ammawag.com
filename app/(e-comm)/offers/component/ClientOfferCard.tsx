@@ -24,7 +24,6 @@ export default function ClientOfferCard({
   };
 
   const handleConfirmOffer = () => {
-    console.log("Confirmed Offer ID:", promotion.id);
     setIsConfirmationOpen(false); // Close the dialog
   };
 

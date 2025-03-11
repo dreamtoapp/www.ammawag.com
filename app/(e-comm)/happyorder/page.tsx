@@ -54,7 +54,6 @@ export default function OrderConfirmation() {
   // Use useSearchParams to get query parameters
   const searchParams = useSearchParams();
   const orderId = searchParams.get("orderid");
-  console.log(orderId);
 
   useEffect(() => {
     if (!orderId) {

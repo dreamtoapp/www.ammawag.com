@@ -35,7 +35,7 @@ export const ShiftSelector = ({
 
   return (
     <Select value={selectedShiftId} onValueChange={onShiftSelect}>
-      <SelectTrigger className="w-full">
+      <SelectTrigger className="w-full bg-input">
         <SelectValue placeholder="Select delivery time" />
       </SelectTrigger>
       <SelectContent>

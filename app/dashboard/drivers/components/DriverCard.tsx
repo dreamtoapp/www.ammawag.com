@@ -16,7 +16,8 @@ interface DriverCardProps {
     id: string;
     name: string;
     email: string;
-    phone: string;
+    phone: string | null;
+    password?: string | null;
     imageUrl?: string | null;
   };
 }

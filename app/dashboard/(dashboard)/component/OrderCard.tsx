@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardHeader,
@@ -34,95 +35,21 @@ import {
   Phone,
   Calendar,
   RefreshCw,
+  Timer,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FaFileInvoice } from "react-icons/fa";
 import { formatDistanceToNow } from "date-fns";
-import { OrderCartItem } from "../../../../types/order";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ar } from "date-fns/locale";
 
-// Define the Order interface
-interface Order {
-  id: string;
-  orderNumber: string;
-  customerName: string | null;
-  status: string;
-  amount: number;
-  shift: { name: string };
-  createdAt: string;
-  updatedAt: string;
-  items: OrderCartItem[];
-  customer: {
-    phone: string;
-    name: string;
-    address: string;
-    latitude: string;
-    longitude: string;
-  };
-}
+import { Order } from "../helper/cardType";
+import { STATUS_STYLES, STATUS_TRANSLATIONS } from "../helper/helper";
 
-// Status styles with enhanced light and dark mode support
-const STATUS_STYLES: Record<
-  string,
-  {
-    border: string;
-    bgLight: string;
-    bgDark: string;
-    textLight: string;
-    textDark: string;
-  }
-> = {
-  Pending: {
-    border: "border-l-4 border-yellow-500",
-    bgLight: "bg-yellow-50",
-    bgDark: "dark:bg-yellow-900/30",
-    textLight: "text-yellow-800",
-    textDark: "dark:text-yellow-200",
-  },
-  Delivered: {
-    border: "border-l-4 border-green-500",
-    bgLight: "bg-green-50",
-    bgDark: "dark:bg-green-900/30",
-    textLight: "text-green-800",
-    textDark: "dark:text-green-200",
-  },
-  "In Transit": {
-    border: "border-l-4 border-blue-500",
-    bgLight: "bg-blue-50",
-    bgDark: "dark:bg-blue-900/30",
-    textLight: "text-blue-800",
-    textDark: "dark:text-blue-200",
-  },
-  Cancelled: {
-    border: "border-l-4 border-red-500",
-    bgLight: "bg-red-50",
-    bgDark: "dark:bg-red-900/30",
-    textLight: "text-red-800",
-    textDark: "dark:text-red-200",
-  },
-  Default: {
-    border: "border-l-4 border-gray-300",
-    bgLight: "bg-gray-50",
-    bgDark: "dark:bg-gray-800",
-    textLight: "text-gray-800",
-    textDark: "dark:text-gray-200",
-  },
-};
-
-// StatusIcon component for displaying status-specific icons
 const StatusIcon = ({ status }: { status: string }) => {
   const icons: Record<string, React.ReactNode> = {
-    Pending: <AlertCircle className="text-yellow-500 h-4 w-4" />,
+    Pending: <Timer className="text-yellow-500 h-4 w-4" />,
     Delivered: <CheckCircle className="text-green-500 h-4 w-4" />,
-    "In Transit": <Truck className="text-blue-500 h-4 w-4" />,
+    InWay: <Truck className="text-blue-500 h-4 w-4" />,
     Cancelled: <XCircle className="text-red-500 h-4 w-4" />,
   };
   return icons[status] || <Info className="text-gray-500 h-4 w-4" />;
@@ -153,7 +80,7 @@ const OrderTableRow = ({
       </TableCell>
       <TableCell>
         <Badge
-          className={`bg-opacity-75 ${statusStyle.bgLight} ${statusStyle.bgDark} ${statusStyle.textLight} ${statusStyle.textDark}`}
+          className={`bg-opacity-75 ${statusStyle.bgLight}   ${statusStyle.bgDark} ${statusStyle.textLight} ${statusStyle.textDark}`}
         >
           <StatusIcon status={order.status} /> {order.status}
         </Badge>
@@ -177,27 +104,36 @@ const OrderTableRow = ({
         >
           <Info className="h-4 w-4" />
         </Button>
-        {order.status === "In Transit" && (
-          <Link href={`/dashboard/orders/${order.orderNumber}/track`}>
+        {order.status === "InWay" && (
+          <Link
+            href={{ pathname: `/dashboard/orders/${order.orderNumber}/track` }}
+          >
             <Button variant="default" size="sm" aria-label="Track Order">
               <MapPin className="h-4 w-4" />
             </Button>
           </Link>
         )}
         {order.status === "Pending" && (
-          <Link href={`/dashboard/orders/${order.orderNumber}/track`}>
-            <Button
-              variant="default"
-              size="sm"
-              className="bg-yellow-500 hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700 text-white"
-              aria-label="Ship Order"
-            >
-              <TruckIcon className="h-4 w-4" />
-            </Button>
+          <Link
+            href={`/dashboard/ship-order/${order.id}`}
+            className={buttonVariants({
+              variant: "default",
+              className:
+                "bg-yellow-500 hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700 text-white w-full",
+            })}
+          >
+            <TruckIcon className="h-4 w-4 mr-2" /> Ship
           </Link>
         )}
         {order.status === "Delivered" && (
-          <Link href={`/dashboard/orders/${order.orderNumber}/invoice`}>
+          <Link
+            href={`/dashboard/ship-order/${order.id}`}
+            className={buttonVariants({
+              variant: "default",
+              className:
+                "bg-yellow-500 hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700 text-white w-full",
+            })}
+          >
             <Button
               variant="default"
               size="sm"
@@ -216,11 +152,12 @@ const OrderTableRow = ({
 // OrderCard component for card view
 const OrderCard = ({
   order,
-  openDialog,
 }: {
   order: Order;
   openDialog: (order: Order) => void;
 }) => {
+  // Arabic status translations
+
   const statusStyle = STATUS_STYLES[order.status] || STATUS_STYLES.Default;
 
   return (
@@ -228,25 +165,48 @@ const OrderCard = ({
       className={`shadow-md rounded-lg ${statusStyle.border} ${statusStyle.bgLight} ${statusStyle.bgDark} ${statusStyle.textLight} ${statusStyle.textDark}`}
     >
       <CardHeader className="flex flex-col gap-2">
-        <div className="text-sm text-muted-foreground flex items-center justify-between">
+        <div className="flex items-center justify-between">
+          <Badge
+            className={`bg-opacity-75 flex items-center justify-center gap-2 ${statusStyle.bgLight} ${statusStyle.bgDark} ${statusStyle.textLight} ${statusStyle.textDark}`}
+          >
+            <StatusIcon status={order.status} />
+            {STATUS_TRANSLATIONS[
+              order.status as
+                | "Delivered"
+                | "canceled"
+                | "Returned"
+                | "InWay"
+                | "Pending"
+            ] || STATUS_TRANSLATIONS.Default}
+          </Badge>
+          <Link
+            href={`/dashboard/ship-order/${order.id}`}
+            className="flex items-center gap-2    rounded-sm justify-center p-1 text-white"
+          >
+            <Info className="h-5 w-5" />
+          </Link>
+        </div>
+        <div className="text-sm text-muted-foreground flex items-center justify-between flex-wrap">
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4 text-muted-foreground" />
-            <p>
+            <p className="text-xs">
               {formatDistanceToNow(new Date(order.createdAt), {
                 addSuffix: true,
+                locale: ar,
               })}
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <RefreshCw className="h-4 w-4 text-muted-foreground" />
-            <p>
+            <RefreshCw className="h-3 w-3 text-muted-foreground" />
+            <p className="text-xs">
               {formatDistanceToNow(new Date(order.updatedAt), {
                 addSuffix: true,
+                locale: ar,
               })}
             </p>
           </div>
         </div>
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center flex-wrap">
           <CardTitle className="text-sm flex items-center gap-2">
             <List className="h-4 w-4 text-muted-foreground" />
             {order.orderNumber}
@@ -254,55 +214,50 @@ const OrderCard = ({
           <CardTitle className="text-lg font-semibold">
             {order.amount.toFixed(2)} SAR
           </CardTitle>
+          <CardTitle className="text-xs flex items-center gap-2 justify-end w-full">
+            <Truck size={16} /> {order.driver?.name || "Unknown Driver"}
+          </CardTitle>
         </div>
       </CardHeader>
       <CardContent className="space-y-2">
         <CardDescription className="text-sm flex items-center gap-2">
           <User className="h-4 w-4 text-muted-foreground" />
-          {order.customer.name || "Unknown Customer"}
+          {order.customer?.name || "Unknown Customer"}
         </CardDescription>
         <CardDescription className="text-sm flex items-center gap-2">
           <Phone className="h-4 w-4 text-muted-foreground" />
           {order.customer.phone || "No phone provided"}
         </CardDescription>
+
+        {order.status === "canceled" && (
+          <p className="text-sm bg-red-500 p-2 rounded ">
+            السبب : {order.resonOfcancel}
+          </p>
+        )}
       </CardContent>
       <CardFooter className="flex flex-col items-end gap-2">
-        <Badge
-          className={`bg-opacity-75 ${statusStyle.bgLight} ${statusStyle.bgDark} ${statusStyle.textLight} ${statusStyle.textDark}`}
-        >
-          <StatusIcon status={order.status} /> {order.status}
-        </Badge>
-        <div className="flex gap-2 justify-end w-full">
-          <Button variant="outline" size="sm" onClick={() => openDialog(order)}>
-            <Info className="h-4 w-4" /> Details
-          </Button>
-          {order.status === "In Transit" && (
-            <Link href={`/dashboard/orders/${order.orderNumber}/track`}>
-              <Button variant="default" size="sm">
-                <MapPin className="h-4 w-4" /> Track
-              </Button>
-            </Link>
+        <div className="flex items-center justify-between gap-2 w-full">
+          {order.status === "InWay" && order.isTripStart && (
+            <Button
+              variant="default"
+              onClick={() => alert("Track order")}
+              className="w-full"
+            >
+              <MapPin className="h-4 w-4" /> تتبع الطلبية
+            </Button>
+            // </Link>
           )}
+
           {order.status === "Pending" && (
-            <Link href={`/dashboard/orders/${order.orderNumber}/track`}>
-              <Button
-                variant="default"
-                size="sm"
-                className="bg-yellow-500 hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700 text-white"
-              >
-                <TruckIcon className="h-4 w-4" /> Ship
-              </Button>
-            </Link>
-          )}
-          {order.status === "Delivered" && (
-            <Link href={`/dashboard/orders/${order.orderNumber}/invoice`}>
-              <Button
-                variant="default"
-                size="sm"
-                className="bg-green-500 hover:bg-green-600 dark:bg-green-700 dark:hover:bg-green-800 text-white"
-              >
-                <FaFileInvoice className="h-4 w-4" /> Invoice
-              </Button>
+            <Link
+              href={`/dashboard/ship-order/${order.id}`}
+              className={buttonVariants({
+                variant: "default",
+                className:
+                  "bg-yellow-500 hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700 text-white w-full",
+              })}
+            >
+              <TruckIcon className="h-4 w-4 mr-2" /> شحن الطلبية
             </Link>
           )}
         </div>
@@ -358,88 +313,6 @@ export default function OrderList({ orders }: { orders: Order[] }) {
   const openDialog = (order: Order) => {
     setSelectedOrder(order);
     setIsDialogOpen(true);
-  };
-
-  // Close the dialog
-  const closeDialog = () => {
-    setIsDialogOpen(false);
-    setSelectedOrder(null);
-  };
-
-  // Handle print for driver
-  const handlePrint = () => {
-    if (!selectedOrder) return;
-
-    const printContent = `
-      <html>
-        <head>
-          <title>Order ${selectedOrder.orderNumber} - Print</title>
-          <style>
-            body {
-              font-family: Arial, sans-serif;
-              margin: 20px;
-              color: #000;
-            }
-            table {
-              width: 100%;
-              border-collapse: collapse;
-              margin-top: 10px;
-            }
-            th, td {
-              border: 1px solid #ddd;
-              padding: 8px;
-              text-align: left;
-            }
-            th {
-              background-color: #f2f2f2;
-            }
-          </style>
-        </head>
-        <body>
-          <h1>Delivery Note</h1>
-          <p><strong>Order Number:</strong> ${selectedOrder.orderNumber}</p>
-          <p><strong>Customer:</strong> ${selectedOrder.customer.name}</p>
-          <p><strong>Address:</strong> ${selectedOrder.customer.address}</p>
-          <p><strong>Phone:</strong> ${selectedOrder.customer.phone}</p>
-          <h2>Items</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>Item</th>
-                <th>Quantity</th>
-                <th>Price</th>
-                <th>Subtotal</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${selectedOrder.items
-                .map(
-                  (item) => `
-                    <tr>
-                      <td>${item.name}</td>
-                      <td>${item.quantity}</td>
-                      <td>${item.price.toFixed(2)} SAR</td>
-                      <td>${(item.quantity * item.price).toFixed(2)} SAR</td>
-                    </tr>
-                  `
-                )
-                .join("")}
-            </tbody>
-          </table>
-          <p><strong>Total Amount:</strong> ${selectedOrder.amount.toFixed(
-            2
-          )} SAR</p>
-        </body>
-      </html>
-    `;
-
-    const printWindow = window.open("", "_blank");
-    if (printWindow) {
-      printWindow.document.write(printContent);
-      printWindow.document.close();
-      printWindow.print();
-      printWindow.onafterprint = () => printWindow.close();
-    }
   };
 
   // Loading state with skeleton placeholders
@@ -556,88 +429,6 @@ export default function OrderList({ orders }: { orders: Order[] }) {
           </div>
         </AnimatePresence>
       )}
-
-      {/* Dialog for Order Details */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-3xl">
-          <DialogHeader>
-            <DialogTitle>
-              Order Details - {selectedOrder?.orderNumber}
-            </DialogTitle>
-            <DialogDescription>
-              Status: {selectedOrder?.status} • Shift:{" "}
-              {selectedOrder?.shift.name}
-            </DialogDescription>
-          </DialogHeader>
-          <ScrollArea className="max-h-[70vh] overflow-y-auto">
-            {selectedOrder && (
-              <div className="space-y-6 p-4">
-                {/* Customer Information */}
-                <div>
-                  <h3 className="text-lg font-semibold">
-                    Customer Information
-                  </h3>
-                  <div className="mt-2 space-y-1">
-                    <p>
-                      <strong>Name:</strong>{" "}
-                      {selectedOrder.customer.name || "Unknown"}
-                    </p>
-                    <p>
-                      <strong>Phone:</strong>{" "}
-                      {selectedOrder.customer.phone || "Not provided"}
-                    </p>
-                    <p>
-                      <strong>Address:</strong>{" "}
-                      {selectedOrder.customer.address || "Not provided"}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Order Items */}
-                <div>
-                  <h3 className="text-lg font-semibold">Order Items</h3>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Item</TableHead>
-                        <TableHead>Quantity</TableHead>
-                        <TableHead>Price</TableHead>
-                        <TableHead>Subtotal</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {selectedOrder.items.map((item, index) => (
-                        <TableRow key={crypto.randomUUID() + index}>
-                          <TableCell>{item.name}</TableCell>
-                          <TableCell>{item.quantity}</TableCell>
-                          <TableCell>{item.price.toFixed(2)} SAR</TableCell>
-                          <TableCell>
-                            {(item.quantity * item.price).toFixed(2)} SAR
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-
-                {/* Totals */}
-                <div>
-                  <h3 className="text-lg font-semibold">Totals</h3>
-                  <div className="mt-2 space-y-1">
-                    <p>
-                      <strong>Total Amount:</strong>{" "}
-                      {selectedOrder.amount.toFixed(2)} SAR
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-          </ScrollArea>
-          <DialogFooter>
-            <Button onClick={handlePrint}>Print for Driver</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

@@ -136,7 +136,7 @@ const NavItem = memo(
   }) => {
     return (
       <Link
-        href={href}
+        href={{ pathname: href }}
         className="flex items-center w-full py-1.5 px-3 text-sm rounded-md hover:bg-blue-400 hover:text-white transition-colors"
         aria-label={label} // Add ARIA label for accessibility
       >
@@ -203,7 +203,7 @@ export function AppSidebar() {
           <LogOut size={16} />
         </Link>
 
-        <Link href={"/users"}>
+        <Link href={{ pathname: "/users" }}>
           <File size={16} />
         </Link>
 

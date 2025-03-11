@@ -24,6 +24,8 @@ export default function AddDriverDialog({
     name: "",
     email: "",
     phone: "",
+    address: "",
+    password: "",
     imageFile: null as File | null, // File for image upload
   });
   const [imagePreview, setImagePreview] = useState<string | null>(null); // State for image preview
@@ -93,6 +95,12 @@ export default function AddDriverDialog({
             name="phone"
             placeholder="Phone Number"
             value={formData.phone}
+            onChange={handleChange}
+          />
+          <Input
+            name="password"
+            placeholder="password"
+            value={formData.password}
             onChange={handleChange}
           />
 

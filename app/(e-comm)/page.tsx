@@ -4,6 +4,7 @@ import {
   getSuppliersWithProducts,
 } from "@/app/(e-comm)/homepage/actions/fetchProducts";
 import dynamic from "next/dynamic";
+import CheckIsLogin from "./homepage/component/CheckIsLogin";
 
 // Lazy load components
 const ProductList = dynamic(() => import("./homepage/component/ProductList"));

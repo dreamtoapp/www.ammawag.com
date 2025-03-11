@@ -285,7 +285,8 @@ async function seedOrders(
           status: faker.helpers.arrayElement([
             "Pending",
             "Delivered",
-            "In Transit",
+            "InWay",
+            "canceled",
           ]),
           amount: totalAmount,
           shiftId: faker.helpers.arrayElement([dayShift.id, nightShift.id]),

@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useGeolocated } from "react-geolocated";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -21,6 +20,7 @@ import { useRouter } from "next/navigation";
 import { CreateOrderInDb } from "../actions/creatOrder";
 import { Checkbox } from "../../../../components/ui/checkbox";
 import TermsDialog from "./TermsDialog";
+import { FaSpinner } from "react-icons/fa";
 
 interface UserData {
   id: string;
@@ -53,19 +53,27 @@ const Step2Address = ({
   const [otp, setOtp] = useState("");
   const [otpError, setOtpError] = useState("");
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [coordinates, setCoordinates] = useState<{ lat: string; lng: string }>({
     lat: userData.latitude || "",
     lng: userData.longitude || "",
   });
+  const [locationLoading, setLocationLoading] = useState(false);
   const router = useRouter();
-  const [selectedShiftId, setSelectedShiftId] = useState<string>(""); // State for selected shift
+  const [selectedShiftId, setSelectedShiftId] = useState<string>("");
 
   const { cart, getTotalPrice, getTotalItems } = useCartStore();
-  const { coords, isGeolocationAvailable, isGeolocationEnabled } =
-    useGeolocated({
-      positionOptions: { enableHighAccuracy: true },
-      userDecisionTimeout: 5000,
-    });
+  const { coords, isGeolocationAvailable } = useGeolocated({
+    positionOptions: { enableHighAccuracy: true },
+    userDecisionTimeout: 5000,
+  });
+
+  useEffect(() => {
+    const storedPhone = localStorage.getItem("phone");
+    if (phone && !storedPhone) {
+      localStorage.setItem("phone", phone);
+    }
+  }, [phone]);
 
   useEffect(() => {
     if (userExists) {
@@ -78,27 +86,45 @@ const Step2Address = ({
     }
   }, [userData, userExists]);
 
-  const handleGetCurrentLocation = () => {
-    if (!isGeolocationAvailable) {
-      alert("المتصفح لا يدعم تحديد الموقع");
-      return;
-    }
-    if (!isGeolocationEnabled) {
-      alert("يرجى تفعيل خدمة الموقع في المتصفح");
-      return;
-    }
-    if (coords) {
+  const handleGetCurrentLocation = async () => {
+    setLocationLoading(true);
+
+    try {
+      if (!isGeolocationAvailable) {
+        throw new Error("Geolocation not supported");
+      }
+
+      const permissionStatus = await navigator.permissions.query({
+        name: "geolocation",
+      });
+
+      if (permissionStatus.state === "denied") {
+        throw new Error("Location permission denied");
+      }
+
+      if (!coords) {
+        throw new Error("Unable to retrieve coordinates");
+      }
+
       setCoordinates({
         lat: coords.latitude.toString(),
         lng: coords.longitude.toString(),
       });
+    } catch (error) {
+      console.error(
+        "Location error:",
+        error instanceof Error ? error.message : error
+      );
+      // alert(`Error: ${error.message || "Failed to get location"}`);
+    } finally {
+      setLocationLoading(false);
     }
   };
 
   const handleSubmit = async () => {
+    setIsLoading(true);
     try {
       if (!userExists) {
-        // Create new user
         const newUser = await createUser(
           phone,
           name,
@@ -111,23 +137,16 @@ const Step2Address = ({
           throw new Error("Failed to create user account");
         }
 
-        // Update state with new user ID before proceeding
         setUserData((prev) => ({ ...prev, id: newUser.id }));
-
-        // Show OTP dialog for verification flow
         setShowOtpDialog(true);
-
-        // Create order with the new user ID
         await createOrder(newUser.id);
         return;
       }
 
-      // Handle existing user flow
       if (!userData?.id) {
         throw new Error("Existing user ID not found");
       }
 
-      // Create order with existing user ID
       await createOrder(userData.id);
     } catch (error) {
       console.error("Submission error:", error);
@@ -136,6 +155,8 @@ const Step2Address = ({
           error instanceof Error ? error.message : "Unknown error"
         }`
       );
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -157,19 +178,17 @@ const Step2Address = ({
       cart: formattedCart,
       totalAmount: getTotalPrice(),
       totalItems: getTotalItems(),
-      shiftId: selectedShiftId, // Use selectedShiftId from state
+      shiftId: selectedShiftId,
     };
 
     const orderResult = await CreateOrderInDb(orderData);
     if (orderResult) {
       router.push(`/happyorder?orderid=${orderResult}`);
-      return;
     }
-    console.log("Order created:", orderResult);
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto p-4 bg-background text-foreground rounded-lg shadow-sm">
+    <Card className="w-full max-w-md mx-auto p-4 bg-border text-foreground rounded-lg shadow-sm">
       <CardHeader>
         <CardTitle className="text-xl font-bold">{UI_TEXT.title}</CardTitle>
         <CardDescription className="text-muted-foreground">
@@ -179,8 +198,8 @@ const Step2Address = ({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex flex-col">
+        <div className="flex items-start gap-2 flex-col">
+          <div className="flex flex-col gap-1">
             <p>{UI_TEXT.phoneLabel}</p>
             <Input
               placeholder={UI_TEXT.namePlaceholder}
@@ -190,9 +209,8 @@ const Step2Address = ({
               className="bg-background text-foreground border-border focus-visible:ring-primary"
             />
           </div>
-          <div className="flex flex-col">
+          <div className="flex flex-col w-full ">
             <p>موعد التسليم</p>
-
             <ShiftSelector
               selectedShiftId={selectedShiftId}
               onShiftSelect={(id) => setSelectedShiftId(id)}
@@ -228,15 +246,19 @@ const Step2Address = ({
               </p>
             </div>
           )}
-          {!coordinates.lat || !coordinates.lng ? (
-            <Button
-              onClick={handleGetCurrentLocation}
-              variant="outline"
-              className="w-full hover:bg-muted transition-colors"
-            >
-              {UI_TEXT.fetchLocationButton}
-            </Button>
-          ) : (
+          <Button
+            onClick={handleGetCurrentLocation}
+            variant="outline"
+            className="w-full hover:bg-muted transition-colors"
+            disabled={locationLoading || isLoading}
+          >
+            {locationLoading ? (
+              <FaSpinner className="animate-spin mr-2" />
+            ) : (
+              UI_TEXT.fetchLocationButton
+            )}
+          </Button>
+          {coordinates.lat && coordinates.lng && (
             <MapDisplay
               coordinates={{
                 lat: parseFloat(coordinates.lat),
@@ -247,7 +269,6 @@ const Step2Address = ({
         </div>
       </CardContent>
       <CardFooter className="flex flex-col gap-4">
-        {/* Terms Agreement Checkbox */}
         <div className="flex items-center w-full gap-1">
           <Checkbox
             id="terms"
@@ -264,7 +285,6 @@ const Step2Address = ({
           <TermsDialog />
         </div>
 
-        {/* Buttons Container */}
         <div className="flex justify-between items-center gap-4 w-full">
           <Button
             onClick={onPrevious}
@@ -279,11 +299,19 @@ const Step2Address = ({
             className="w-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
             disabled={
               (!userExists && (!name.trim() || !address.trim())) ||
-              !agreedToTerms || // Added agreement check
-              !selectedShiftId // Existing shift selection check
+              !agreedToTerms ||
+              !selectedShiftId ||
+              isLoading
             }
           >
-            {UI_TEXT.nextButton}
+            {isLoading ? (
+              <div className="flex items-center gap-2">
+                <FaSpinner className="animate-spin" />
+                {UI_TEXT.loadingButton}
+              </div>
+            ) : (
+              UI_TEXT.nextButton
+            )}
           </Button>
         </div>
       </CardFooter>

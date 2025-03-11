@@ -1,7 +1,7 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
-import { AlertCircle, CheckCircle, Package, X } from "lucide-react";
+import { AlertCircle, CheckCircle, Package, Truck, X } from "lucide-react";
 import Link from "next/link";
 
 interface DashboardHeaderProps {
@@ -9,6 +9,8 @@ interface DashboardHeaderProps {
   totalOrders: number;
   pendingOrders: number;
   deliveredOrders: number;
+  inWayOrders: number;
+  cancelOrders: number;
 }
 
 export default function DashboardHeader({
@@ -16,6 +18,8 @@ export default function DashboardHeader({
   totalOrders,
   pendingOrders,
   deliveredOrders,
+  inWayOrders,
+  cancelOrders,
 }: DashboardHeaderProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -31,32 +35,26 @@ export default function DashboardHeader({
     router.push(`?${params.toString()}`);
   };
 
+  const cardStyle =
+    "flex flex-col md:flex-row items-center justify-center gap-2 p-2";
   return (
     <div className="sticky top-0 z-2 bg-secondary  shadow-md p-4 flex items-center justify-center w-full">
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-        {/* Title */}
-        <div className="flex flex-row items-center gap-2">
-          <Package className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold text-foreground">الطلبيات</h1>
-        </div>
-
+      <div className="flex flex-col  justify-between items-center gap-4">
         {/* Analytics Section */}
         <div className="flex flex-wrap gap-4 items-center justify-center">
           {/* Total Orders */}
           <Link href="/dashboard">
             <Card
-              className={`w-40 transition-all hover:scale-105 hover:shadow-md border border-input bg-background cursor-pointer ${
+              className={`w-fit transition-all hover:scale-105 hover:shadow-md border border-input bg-background cursor-pointer ${
                 initialFilter === "All" ? "border-primary shadow-md" : ""
               }`}
             >
-              <CardContent className="flex flex-col items-center justify-center gap-2 p-4">
-                <div className="flex flex-row items-center gap-2">
-                  <Package className="h-6 w-6 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">الطلبيات</p>
-                  <p className="text-lg font-semibold text-foreground">
-                    {totalOrders}
-                  </p>
-                </div>
+              <CardContent className={cardStyle}>
+                <Package className="h-4 w-5 text-muted-foreground" />
+                <p className="text-sm text-muted-foreground">الطلبيات</p>
+                <p className="text-lg font-semibold text-foreground">
+                  {totalOrders}
+                </p>
               </CardContent>
             </Card>
           </Link>
@@ -64,18 +62,32 @@ export default function DashboardHeader({
           {/* Pending Orders */}
           <Link href="?status=Pending">
             <Card
-              className={`w-40 transition-all hover:scale-105 hover:shadow-md border border-input bg-background cursor-pointer ${
+              className={`w-fit transition-all hover:scale-105 hover:shadow-md border border-input bg-background cursor-pointer ${
                 initialFilter === "Pending" ? "border-yellow-500 shadow-md" : ""
               }`}
             >
-              <CardContent className="flex flex-col items-center justify-center gap-2 p-4">
-                <div className="flex flex-row items-center gap-2">
-                  <AlertCircle className="h-6 w-6 text-yellow-500" />
-                  <p className="text-sm text-yellow-500">قيد الانتظار</p>
-                  <p className="text-lg font-semibold text-foreground">
-                    {pendingOrders}
-                  </p>
-                </div>
+              <CardContent className={cardStyle}>
+                <AlertCircle className="h-4 w-5 text-yellow-500" />
+                <p className="text-sm text-yellow-500">قيد الانتظار</p>
+                <p className="text-lg font-semibold text-foreground">
+                  {pendingOrders}
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
+          {/* InWay Orders */}
+          <Link href="?status=InWay">
+            <Card
+              className={`w-fit transition-all hover:scale-105 hover:shadow-md border border-input bg-background cursor-pointer ${
+                initialFilter === "InWay" ? "border-purple-500 shadow-md" : ""
+              }`}
+            >
+              <CardContent className={cardStyle}>
+                <Truck className="h-4 w-5 text-purple-500" />
+                <p className="text-sm text-purple-500">في الطريق</p>
+                <p className="text-lg font-semibold text-purple-500">
+                  {inWayOrders}
+                </p>
               </CardContent>
             </Card>
           </Link>
@@ -83,37 +95,35 @@ export default function DashboardHeader({
           {/* Delivered Orders */}
           <Link href="?status=Delivered">
             <Card
-              className={`w-40 transition-all hover:scale-105 hover:shadow-md border border-input bg-background cursor-pointer ${
+              className={`w-fit transition-all hover:scale-105 hover:shadow-md border border-input bg-background cursor-pointer ${
                 initialFilter === "Delivered"
                   ? "border-green-500 shadow-md"
                   : ""
               }`}
             >
-              <CardContent className="flex flex-col items-center justify-center gap-2 p-4">
-                <div className="flex flex-row items-center gap-2">
-                  <CheckCircle className="h-6 w-6 text-green-500" />
-                  <p className="text-sm text-green-500">تم التسليم</p>
-                  <p className="text-lg font-semibold text-foreground">
-                    {deliveredOrders}
-                  </p>
-                </div>
+              <CardContent className={cardStyle}>
+                <CheckCircle className="h-5 w-5 text-green-500" />
+                <p className="text-sm text-green-500">تم التسليم</p>
+                <p className="text-lg font-semibold text-foreground">
+                  {deliveredOrders}
+                </p>
               </CardContent>
             </Card>
           </Link>
 
           {/* Cancelled Orders */}
-          <Link href="?status=Cancelled">
+          <Link href="?status=canceled">
             <Card
-              className={`w-40 transition-all hover:scale-105 hover:shadow-md border border-input bg-background cursor-pointer ${
+              className={`w-fit transition-all hover:scale-105 hover:shadow-md border border-input bg-background cursor-pointer ${
                 initialFilter === "Cancelled" ? "border-red-500 shadow-md" : ""
               }`}
             >
-              <CardContent className="flex flex-col items-center justify-center gap-2 p-4">
-                <div className="flex flex-row items-center gap-2">
-                  <X className="h-6 w-6 text-red-500" />
-                  <p className="text-sm text-red-500">ملغي</p>
-                  <p className="text-lg font-semibold text-foreground">0</p>
-                </div>
+              <CardContent className={cardStyle}>
+                <X className="h-4 w-5 text-red-500" />
+                <p className="text-sm text-red-500">ملغي</p>
+                <p className="text-lg font-semibold text-foreground">
+                  {cancelOrders}
+                </p>
               </CardContent>
             </Card>
           </Link>

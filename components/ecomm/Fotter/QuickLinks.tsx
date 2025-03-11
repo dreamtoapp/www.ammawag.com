@@ -9,11 +9,11 @@ const QuickLinks = () => {
       href: "/",
       icon: <Home size={16} className="inline-block mr-2" />,
     },
-    {
-      name: "عروضنا",
-      href: "/offers",
-      icon: <Tag size={16} className="inline-block mr-2" />,
-    },
+    // {
+    //   name: "عروضنا",
+    //   href: "/offers",
+    //   icon: <Tag size={16} className="inline-block mr-2" />,
+    // },
     {
       name: "من نحن",
       href: "/about",
@@ -33,7 +33,7 @@ const QuickLinks = () => {
         {links.map((link) => (
           <li key={link.name}>
             <Link
-              href={link.href}
+              href={{ pathname: link.href }}
               className="hover:text-primary transition-colors duration-300 flex items-center gap-2"
               aria-label={link.name}
             >

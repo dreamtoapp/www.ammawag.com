@@ -79,7 +79,7 @@ const ProductCategory = ({ suppliers }: ProductCategoryProps) => {
     setLoadingSupplierId(supplier.id);
     const cleanSupplierName = supplier.name.replace(/\s+/g, "-");
     const encodedSupplierName = encodeURIComponent(cleanSupplierName);
-    const newUrl = `?name=${encodedSupplierName}&sid=${supplier.id}`;
+    const newUrl = `?name=${encodedSupplierName}&sid=${supplier.id}` as const;
     await new Promise((resolve) => setTimeout(resolve, 1000));
     router.push(newUrl);
     setSelectedSupplier(supplier);

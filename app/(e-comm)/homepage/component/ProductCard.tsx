@@ -64,26 +64,23 @@ const ProductCard = ({
             <DollarSign size={16} className="text-amber-500" />
             <span>{product.price.toFixed(2)} $</span>
           </div>
+          <TotalPrice quantity={quantity} price={product.price} />
         </div>
 
         <QuantityControls
           quantity={quantity}
           onDecrease={() => {
-            console.log("Decreasing quantity for product:", product.name);
             onQuantityChange(product.id, -1);
           }}
           onIncrease={() => {
-            console.log("Increasing quantity for product:", product.name);
             onQuantityChange(product.id, 1);
           }}
         />
       </CardContent>
 
       <CardFooter className="flex justify-evenly items-center flex-col gap-2">
-        <TotalPrice quantity={quantity} price={product.price} />
         <AddToCartButton
           onClick={() => {
-            console.log("Adding to cart:", product.name, "Quantity:", quantity);
             onAddToCart(product.id, quantity, product);
           }}
         />
@@ -99,16 +96,10 @@ const TotalPrice = ({
   quantity: number;
   price: number;
 }) => {
-  console.log(
-    "Calculating total price for quantity:",
-    quantity,
-    "and price:",
-    price
-  );
   return (
     <div className="p-2 rounded-lg shadow-sm bg-secondary">
       <div className="flex items-center justify-center gap-2 text-sm font-semibold text-foreground">
-        <span className="hidden md:block">الإجمالي:</span>
+        <span className="md:block">الإجمالي:</span>
         <span>${(quantity * price).toFixed(2)}</span>
       </div>
     </div>
@@ -122,7 +113,7 @@ const AddToCartButton = ({ onClick }: { onClick: () => void }) => {
       className="bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 shadow-md rounded-full"
     >
       <FaCartPlus size={16} className="mr-2" />
-      <span className="hidden md:block">أضف إلى السلة</span>
+      <span>أضف إلى السلة</span>
     </Button>
   );
 };

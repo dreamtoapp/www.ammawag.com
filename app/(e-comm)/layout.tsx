@@ -16,7 +16,7 @@ export default async function EcommerceLayout({
     <TooltipProvider>
       {/* Header is shared across all e-commerce pages */}
       <Header />
-      <main className="container mx-auto p-4">{children}</main>
+      <main className="container mx-auto p-4 min-h-screen">{children}</main>
       <Fotter
         aboutus={companyData?.bio}
         email={companyData?.email}

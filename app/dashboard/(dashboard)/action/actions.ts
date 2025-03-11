@@ -14,6 +14,9 @@ export async function fetchOrders(status?: string) {
         customerName: true,
         driverId: true,
         status: true,
+        resonOfcancel: true,
+        isTripStart: true,
+
         amount: true,
         createdAt: true,
         updatedAt: true,
@@ -33,11 +36,17 @@ export async function fetchOrders(status?: string) {
             longitude: true,
           },
         },
+        driver: {
+          select: {
+            id: true,
+            name: true,
+            phone: true,
+          },
+        },
         shift: { select: { name: true } },
       },
-      orderBy: { createdAt: "desc" }, // Order by creation date in descending order
+      orderBy: { updatedAt: "desc" }, // Order by creation date in descending order
     });
-    console.log(orders);
     return orders;
   } catch (error: any) {
     console.error("Error fetching orders:", error);
@@ -60,11 +69,19 @@ export async function fetchAnalytics() {
     const deliveredOrders = allOrders.filter(
       (order) => order.status === "Delivered"
     ).length;
+    const inWaydOrders = allOrders.filter(
+      (order) => order.status === "InWay"
+    ).length;
+    const canceledOrders = allOrders.filter(
+      (order) => order.status === "canceled"
+    ).length;
 
     return {
       totalOrders,
       pendingOrders,
       deliveredOrders,
+      inWaydOrders,
+      canceledOrders,
     };
   } catch (error: any) {
     console.error("Error fetching analytics:", error);

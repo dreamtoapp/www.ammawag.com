@@ -5,7 +5,6 @@
 
 // // Utility logging function with timestamps
 // const log = (message: string): void => {
-//   console.log(`[${new Date().toISOString()}] ${message}`);
 // };
 
 // // Helper: Parse command-line arguments with default values
@@ -245,7 +244,7 @@
 //           status: faker.helpers.arrayElement([
 //             "Pending",
 //             "Delivered",
-//             "In Transit",
+//             "InWay",
 //           ]),
 //           amount: totalAmount,
 //           shiftId: faker.helpers.arrayElement([dayShift.id, nightShift.id]),

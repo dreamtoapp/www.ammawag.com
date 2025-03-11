@@ -74,20 +74,22 @@ const MultiStepForm = () => {
               {/* Step Number */}
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-foreground ${
-                  step >= s ? "bg-primary" : "bg-secondary"
+                  step >= s
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-secondary text-secondary-foreground"
                 }`}
               >
                 {s}
               </div>
               {/* Step Title */}
-              <span className="text-sm text-muted">{title}</span>
+              <span className="text-sm text-muted-foreground">{title}</span>
             </div>
           ))}
         </div>
 
         {/* Error Message */}
         {error && (
-          <div className="mb-4 p-3 bg-error/10 text-error rounded-lg text-sm">
+          <div className="mb-4 p-3 bg-error/10 text-destructive rounded-lg text-sm">
             {error}
           </div>
         )}

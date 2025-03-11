@@ -12,8 +12,13 @@ export default async function DashboardPage({
   const statusFilter = resolvedSearchParams.status;
 
   const filteredOrders = await fetchOrders(statusFilter);
-  const { totalOrders, pendingOrders, deliveredOrders } =
-    await fetchAnalytics();
+  const {
+    totalOrders,
+    pendingOrders,
+    deliveredOrders,
+    inWaydOrders,
+    canceledOrders,
+  } = await fetchAnalytics();
 
   return (
     <div className="relative space-y-6 font-cairo p-4 flex flex-col ">
@@ -23,6 +28,8 @@ export default async function DashboardPage({
         totalOrders={totalOrders}
         pendingOrders={pendingOrders}
         deliveredOrders={deliveredOrders}
+        inWayOrders={inWaydOrders}
+        cancelOrders={canceledOrders}
       />
 
       {/* Pass all orders to OrderCard */}

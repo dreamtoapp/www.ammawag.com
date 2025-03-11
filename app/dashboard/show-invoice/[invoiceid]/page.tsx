@@ -111,13 +111,13 @@ export default function InvoicePage() {
   const handleShipOrder = async () => {
     toast.info("Updating order status...");
     try {
-      // Simulate updating the order status to "In Transit"
+      // Simulate updating the order status to "InWay"
       // Replace this with your actual API call to update the order status
-      // Example: await updateOrderStatus(order.id, "In Transit");
+      // Example: await updateOrderStatus(order.id, "InWay");
       toast.success("Order shipped successfully!");
       setOrder((prevOrder) => {
         if (!prevOrder) return null;
-        return { ...prevOrder, status: "In Transit" };
+        return { ...prevOrder, status: "InWay" };
       });
     } catch (error) {
       console.error("Error updating order status:", error);

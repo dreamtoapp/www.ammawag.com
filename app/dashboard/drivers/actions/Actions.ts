@@ -8,6 +8,7 @@ export async function createDriver(data: {
   name: string;
   email: string;
   phone: string;
+  password: string;
   imageFile?: File | null; // Allow both undefined and null
 }) {
   try {
@@ -32,6 +33,7 @@ export async function createDriver(data: {
         name: data.name,
         email: data.email,
         phone: data.phone,
+        password: data.password,
         imageUrl: imageUrl,
       },
     });
@@ -61,6 +63,7 @@ export async function updateDriver(
     name?: string;
     email?: string;
     phone?: string;
+    password?: string;
     imageFile?: File | null; // Allow both undefined and null
   }
 ) {
@@ -87,6 +90,7 @@ export async function updateDriver(
         name: data.name,
         email: data.email,
         phone: data.phone,
+        password: data.password,
         imageUrl: imageUrl || undefined, // Use undefined to avoid overwriting with null
       },
     });

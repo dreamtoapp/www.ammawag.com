@@ -20,7 +20,8 @@ interface EditDriverDialogProps {
     id: string;
     name: string;
     email: string;
-    phone: string;
+    phone: any;
+    password?: any;
     imageUrl?: string | null;
   };
   children: React.ReactNode;
@@ -34,6 +35,7 @@ export default function EditDriverDialog({
     name: driver.name,
     email: driver.email,
     phone: driver.phone,
+    password: driver.password || "",
     imageFile: null as File | null, // File for image upload
   });
   const [loading, setLoading] = useState(false);
@@ -100,6 +102,12 @@ export default function EditDriverDialog({
             name="phone"
             placeholder="Phone Number"
             value={formData.phone}
+            onChange={handleChange}
+          />
+          <Input
+            name="password"
+            placeholder="password "
+            value={formData.password}
             onChange={handleChange}
           />
 

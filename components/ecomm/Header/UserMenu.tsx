@@ -1,5 +1,4 @@
-"use client"; // Mark this as a Client Component
-
+"use client";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -20,9 +19,9 @@ import {
   Moon,
 } from "lucide-react";
 import Link from "next/link";
-import { useTheme } from "next-themes"; // Import useTheme
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
-// Define the UserMenuProps type
 interface UserMenuProps {
   isLoggedIn: boolean;
   user: { name: string; avatar?: string };
@@ -36,11 +35,27 @@ export default function UserMenu({
   isArabic,
   toggleLanguage,
 }: UserMenuProps) {
-  const { theme, setTheme } = useTheme(); // Use the useTheme hook
-  const isDark = theme === "dark"; // Determine if the theme is dark
+  const { theme, setTheme } = useTheme();
+  const isDark = theme === "dark";
+  const [hasPhone, setHasPhone] = useState(false);
+
+  useEffect(() => {
+    const checkPhone = () => {
+      const storedPhone = localStorage.getItem("phone");
+      setHasPhone(!!storedPhone);
+    };
+
+    checkPhone();
+    window.addEventListener("storage", checkPhone);
+    return () => window.removeEventListener("storage", checkPhone);
+  }, []);
 
   const handleDisabledClick = () => {
-    alert("يجب تسجيل الدخول لاستخدام هذه الميزة.");
+    alert("يجب تسجيل الدخول أو إدخال رقم الهاتف لاستخدام هذه الميزة.");
+  };
+
+  const getDisabledState = () => {
+    return !isLoggedIn && !hasPhone;
   };
 
   return (
@@ -64,27 +79,28 @@ export default function UserMenu({
         align="end"
         className="w-48 bg-background border border-border"
       >
-        {/* ملف المستخدم */}
+        {/* Profile */}
         <DropdownMenuItem
-          disabled={!isLoggedIn}
-          onClick={!isLoggedIn ? handleDisabledClick : undefined}
+          disabled={getDisabledState()}
+          onClick={getDisabledState() ? handleDisabledClick : undefined}
         >
-          <Link
-            href={isLoggedIn ? "/profile" : "#"}
+          {/* <Link
+            href={isLoggedIn || hasPhone ? "/profile" : "#"}
             className="flex items-center gap-2 w-full"
           >
             <UserIcon size={16} />
             <span>ملفي الشخصي</span>
-          </Link>
+          </Link> */}
         </DropdownMenuItem>
-
-        {/* الطلبات */}
+        {/* Orders */}
         <DropdownMenuItem
-          disabled={!isLoggedIn}
-          onClick={!isLoggedIn ? handleDisabledClick : undefined}
+          disabled={getDisabledState()}
+          onClick={getDisabledState() ? handleDisabledClick : undefined}
         >
           <Link
-            href={isLoggedIn ? "/orders" : "#"}
+            href={{
+              pathname: isLoggedIn || hasPhone ? "/orders" : "/",
+            }}
             className="flex items-center gap-2 w-full"
           >
             <ShoppingCart size={16} />
@@ -92,41 +108,26 @@ export default function UserMenu({
           </Link>
         </DropdownMenuItem>
 
-        {/* المفضلة */}
         <DropdownMenuItem
-          disabled={!isLoggedIn}
-          onClick={!isLoggedIn ? handleDisabledClick : undefined}
+          disabled={getDisabledState()}
+          onClick={getDisabledState() ? handleDisabledClick : undefined}
         >
           <Link
-            href={isLoggedIn ? "/favorites" : "#"}
-            className="flex items-center gap-2 w-full"
-          >
-            <Heart size={16} />
-            <span>المفضلة</span>
-          </Link>
-        </DropdownMenuItem>
-
-        {/* عرض الحركات */}
-        <DropdownMenuItem
-          disabled={!isLoggedIn}
-          onClick={!isLoggedIn ? handleDisabledClick : undefined}
-        >
-          <Link
-            href={isLoggedIn ? "/activity" : "#"}
+            href={{
+              pathname: isLoggedIn || hasPhone ? "/activity" : "/",
+            }}
             className="flex items-center gap-2 w-full"
           >
             <Activity size={16} />
             <span>عرض الحركات</span>
           </Link>
         </DropdownMenuItem>
-
-        {/* فاصل */}
+        {/* Rest of the menu items remain the same */}
         <DropdownMenuSeparator />
-
-        {/* تغيير الثيم */}
+        {/* Theme Toggle */}
         <DropdownMenuItem>
           <button
-            onClick={() => setTheme(isDark ? "light" : "dark")} // Toggle theme
+            onClick={() => setTheme(isDark ? "light" : "dark")}
             className="flex items-center gap-2 w-full"
           >
             {isDark ? (
@@ -139,8 +140,7 @@ export default function UserMenu({
             </span>
           </button>
         </DropdownMenuItem>
-
-        {/* تغيير اللغة */}
+        {/* Language Toggle */}
         <DropdownMenuItem>
           <button
             onClick={toggleLanguage}
@@ -150,12 +150,9 @@ export default function UserMenu({
             <span>{isArabic ? "English" : "العربية"}</span>
           </button>
         </DropdownMenuItem>
-
-        {/* فاصل */}
         <DropdownMenuSeparator />
-
-        {/* تسجيل الخروج أو تسجيل الدخول */}
-        {isLoggedIn ? (
+        {/* // check if the use login */}
+        {hasPhone ? (
           <DropdownMenuItem>
             <button
               onClick={() => alert("تسجيل الخروج")}
@@ -167,17 +164,21 @@ export default function UserMenu({
           </DropdownMenuItem>
         ) : (
           <>
-            {/* تسجيل الدخول */}
             <DropdownMenuItem>
-              <Link href="/login" className="flex items-center gap-2 w-full">
+              <Link
+                href={{ pathname: "/login" }}
+                className="flex items-center gap-2 w-full"
+              >
                 <LogIn size={16} />
                 <span>تسجيل الدخول</span>
               </Link>
             </DropdownMenuItem>
 
-            {/* التسجيل */}
             <DropdownMenuItem>
-              <Link href="/register" className="flex items-center gap-2 w-full">
+              <Link
+                href={{ pathname: "/register" }}
+                className="flex items-center gap-2 w-full"
+              >
                 <UserPlus size={16} />
                 <span>التسجيل</span>
               </Link>

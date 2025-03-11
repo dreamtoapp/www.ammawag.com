@@ -1,5 +1,3 @@
-import { NextIntlClientProvider } from "next-intl";
-import { getLocale, getMessages } from "next-intl/server";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 import NextTopLoader from "nextjs-toploader";
@@ -7,13 +5,24 @@ import { Directions } from "../constant/enums";
 import { ThemeProvider } from "../provider/theme-provider";
 import { NotificationsProvider } from "../provider/pusherContext";
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "amwag",
+  manifest: "/manifest.webmanifest", // Automatically mapped
+  // themeColor: "#2196f3",
+  appleWebApp: {
+    capable: true,
+    title: "amwag",
+    statusBarStyle: "black-translucent",
+  },
+};
+
 export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // const messages = await getMessages();
-  // const locale = await getLocale();
   const locale = "ar"; // Hardcoded for now
   const dir = Directions.RTL; // Set direction dynamically later
 
@@ -22,7 +31,6 @@ export default async function RootLayout({
   return (
     <html lang={locale} dir={dir} suppressHydrationWarning>
       <body className={`min-h-screen bg-background antialiased ${fontClass}`}>
-        {/* <NextIntlClientProvider locale={locale} messages={messages}> */}
         <NotificationsProvider>
           <ThemeProvider
             attribute="class"
@@ -36,8 +44,6 @@ export default async function RootLayout({
             <Toaster position="top-center" />
           </ThemeProvider>
         </NotificationsProvider>
-
-        {/* </NextIntlClientProvider> */}
       </body>
     </html>
   );
