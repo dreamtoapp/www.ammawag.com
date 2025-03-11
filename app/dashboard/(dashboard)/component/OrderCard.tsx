@@ -238,13 +238,13 @@ const OrderCard = ({
       <CardFooter className="flex flex-col items-end gap-2">
         <div className="flex items-center justify-between gap-2 w-full">
           {order.status === "InWay" && order.isTripStart && (
-            <Button
-              variant="default"
-              onClick={() => alert("Track order")}
-              className="w-full"
+            <Link
+              href={{ pathname: `/dashboard/track/${order.id}` }}
+              className="w-full flex items-center justify-center bg-primary/80 p-2 rounded-md text-white gap-2"
             >
-              <MapPin className="h-4 w-4" /> تتبع الطلبية
-            </Button>
+              <MapPin className="h-4 w-4" />
+              <p> تتبع الطلبية</p>
+            </Link>
             // </Link>
           )}
 
