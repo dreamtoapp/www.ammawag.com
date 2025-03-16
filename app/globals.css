@@ -134,3 +134,30 @@
     display: none;
   }
 }
+
+@keyframes seamlessMarquee {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-seamless-marquee {
+  display: flex;
+  animation: seamlessMarquee 150s linear infinite;
+  width: max-content; /* Ensures the content width drives the animation */
+  will-change: transform; /* Improves performance */
+  backface-visibility: hidden; /* Prevents flickering */
+}
+
+/* Pause on hover */
+.animate-seamless-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* Ensure consistent rendering */
+.animate-seamless-marquee > * {
+  flex: 0 0 auto;
+}
