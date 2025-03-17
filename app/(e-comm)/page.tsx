@@ -5,6 +5,7 @@ import {
 } from "@/app/(e-comm)/homepage/actions/fetchProducts";
 import dynamic from "next/dynamic";
 import CheckIsLogin from "./homepage/component/CheckIsLogin";
+import { generatePageMetadata } from "../../lib/seo-utils";
 
 // Lazy load components
 const ProductList = dynamic(() => import("./homepage/component/ProductList"));
@@ -20,18 +21,8 @@ const WhatsAppButton = dynamic(
 type SearchParams = { [key: string]: string | string[] | undefined };
 
 // Generate metadata dynamically
-export async function generateMetadata({
-  searchParams,
-}: {
-  searchParams: Promise<SearchParams>;
-}) {
-  const resolvedSearchParams = await searchParams;
-  const { sid } = resolvedSearchParams;
-
-  return {
-    title: `Supplier ${sid} - My E-Commerce Site`,
-    description: `Details for supplier with ID ${sid}`,
-  };
+export async function generateMetadata() {
+  return generatePageMetadata("ecomm");
 }
 
 // Main page component

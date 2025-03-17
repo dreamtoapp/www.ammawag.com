@@ -9,6 +9,19 @@ import {
   User,
 } from "lucide-react";
 import Link from "next/link";
+import type { Metadata, ResolvingMetadata } from "next";
+import { getSEOData } from "./action/actions";
+import { generatePageMetadata } from "../../../lib/seo-utils";
+type Props = {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
+
+// app/about-us/page.tsx
+
+export async function generateMetadata() {
+  return generatePageMetadata("about-us");
+}
 
 const AboutUs = () => {
   const testimonials = [

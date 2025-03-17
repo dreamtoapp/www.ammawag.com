@@ -226,3 +226,122 @@ model Term {
 
   @@map("terms")
 }
+
+// seo Support 
+/// نموذج SEO العام لإدارة تحسين محركات البحث عبر مختلف الصناعات
+model GlobalSEO {
+  /// المُعرِّف الفريد للصفحة (يتم توليده تلقائيًا)
+  id              String          @id @default(auto()) @map("_id") @db.ObjectId
+  
+  /// رقم تعريف المحتوى الفريد (مرتبط بالنموذج الرئيسي)
+  entityId        String          @unique
+  
+  /// نوع الصناعة (مياه، أغذية، ملابس...)
+  industryType    IndustryType    @default(WATER)
+  
+  // ---------------------------
+  // أساسيات SEO
+  // ---------------------------
+  /// عنوان الصفحة (الحد الأقصى 120 حرفًا)
+  metaTitle       String          @default("")
+  
+  /// وصف الصفحة (الحد الأقصى 320 حرفًا)
+  metaDescription String          @default("")
+  
+  /// الرابط الأساسي للصفحة (Canonical URL)
+  canonicalUrl    String?
+  
+  /// إعدادات روبوتات البحث (مثال: noindex, nofollow)
+  robots          String          @default("index, follow")
+  
+  /// الكلمات المفتاحية للصفحة
+  keywords        String[]
+  
+  // ---------------------------
+  // بيانات مدمجة (Embedded Documents)
+  // ---------------------------
+  /// إعدادات وسائل التواصل الاجتماعي
+  socialMedia     SocialMedia
+  
+  /// إعدادات SEO التقنية
+  technicalSEO    TechnicalSEO
+  
+  /// إعدادات الترجمة واللغات
+  localization    Localization
+  
+  /// بيانات schema.org (JSON-LD)
+  schemaOrg       Json?
+  
+  // ---------------------------
+  // بيانات خاصة بالصناعة
+  // ---------------------------
+  /// بيانات مخصصة لكل صناعة (JSON مرن)
+  industryData    Json?           @db.Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("seo_entries")
+}
+
+// ---------------------------
+// أنواع البيانات المدمجة
+// ---------------------------
+
+/// إعدادات وسائل التواصل الاجتماعي
+type SocialMedia {
+  /// عنوان Open Graph
+  openGraphTitle     String?
+  
+  /// صور Open Graph (مصفوفة JSON)
+  openGraphImages    Json?
+  
+  /// نوع بطاقة تويتر
+  twitterCardType    String?
+  
+  /// صور تويتر (مصفوفة JSON)
+  twitterImages      Json?
+}
+
+/// إعدادات SEO التقنية
+type TechnicalSEO {
+  /// عنواين الأمان (مثال: X-Content-Type-Options)
+  securityHeaders    String[]       @default(["X-Content-Type-Options: nosniff"])
+  
+  /// أصول يتم تحميلها مسبقًا
+  preloadAssets      String[]
+  
+  /// إعدادات HTTP-Equiv
+  httpEquiv          String[]       @default(["content-language: ar-SA"])
+}
+
+/// إعدادات الترجمة واللغات
+type Localization {
+  /// روابط hreflang (JSON)
+  hreflang          Json?
+  
+  /// اللغة الافتراضية
+  defaultLanguage   String         @default("ar-SA")
+  
+  /// اللغات المدعومة
+  supportedLanguages String[]
+}
+
+// ---------------------------
+// أنواع الصناعات (Enum)
+// ---------------------------
+enum IndustryType {
+  /// شركات المياه
+  WATER
+  
+  /// شركات الأغذية
+  FOOD
+  
+  /// شركات الملابس
+  CLOTHING
+  
+  /// شركات الإلكترونيات
+  ELECTRONICS
+  
+  /// صناعات أخرى
+  OTHER
+}
