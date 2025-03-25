@@ -40,9 +40,10 @@ export default async function Page({
     getSuppliersWithProducts(),
     getPromotions(),
   ]);
+  console.log(promotions);
 
   return (
-    <div className="container mx-auto bg-background text-foreground">
+    <div className="container mx-auto bg-background text-foreground flex flex-col gap-4">
       <OfferSection offers={promotions} />
       <ProducCategory suppliers={supplierWithItems} />
       <ProductList products={products} />

@@ -123,22 +123,30 @@ const ProductCategory = ({ suppliers }: ProductCategoryProps) => {
 
   return (
     <Card className="w-full max-w-screen-lg mx-auto rtl text-right shadow-lg dark:bg-gray-900 dark:border-gray-800">
-      <CardHeader className="border-b p-2 dark:border-gray-800">
+      {/* <CardHeader className="border-b p-2 dark:border-gray-800">
         <CardTitle className="text-lg font-bold text-foreground dark:text-gray-100">
           الفئات
         </CardTitle>
-      </CardHeader>
+      </CardHeader> */}
 
       <CardContent className="p-4">
         {/* صف الفلاتر وزر المسح */}
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <div className="flex gap-2 flex-1 min-w-[300px]">
-            <Button
+            {/* <Button
               variant={filterType === "all" ? "default" : "outline"}
               onClick={() => setFilterType("all")}
               className="flex-1 text-sm px-3"
             >
               الكل ({allCount})
+            </Button> */}
+
+            <Button
+              variant={filterType === "company" ? "default" : "outline"}
+              onClick={() => setFilterType("company")}
+              className="flex-1 text-sm px-3"
+            >
+              الشركات ({companyCount})
             </Button>
             <Button
               variant={filterType === "offer" ? "default" : "outline"}
@@ -146,13 +154,6 @@ const ProductCategory = ({ suppliers }: ProductCategoryProps) => {
               className="flex-1 text-sm px-3"
             >
               العروض ({offerCount})
-            </Button>
-            <Button
-              variant={filterType === "company" ? "default" : "outline"}
-              onClick={() => setFilterType("company")}
-              className="flex-1 text-sm px-3"
-            >
-              الشركات ({companyCount})
             </Button>
           </div>
 
@@ -188,37 +189,28 @@ const ProductCategory = ({ suppliers }: ProductCategoryProps) => {
 
         {filteredSuppliers.length === 0 ? (
           <div className="text-center py-4 text-muted-foreground dark:text-gray-400">
-            لا توجد شركات في هذه الفئة
+            غير متوفر حاليا
           </div>
         ) : (
           <div className="relative">
-            <Button
-              variant="outline"
-              size="icon"
-              className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-background/80 dark:bg-gray-800/80"
-              onClick={scrollLeft}
-            >
-              <FaChevronLeft className="h-4 w-4" />
-            </Button>
+
 
             <ScrollArea
               ref={scrollRef}
-              className="w-full rounded-lg border shadow-sm dark:border-gray-800"
+              className="w-full rounded-lg  shadow-sm "
             >
               <div className="flex space-x-4 p-4">
                 {filteredSuppliers.map((supplier) => (
                   <Tooltip key={supplier.id}>
                     <TooltipTrigger asChild>
                       <div
-                        className={`relative cursor-pointer rounded-lg p-4 transition-all flex-shrink-0 w-36 h-36 flex flex-col justify-center items-center hover:bg-accent/50 border ${
-                          selectedSupplier?.id === supplier.id
-                            ? "border-2 border-primary shadow-lg dark:border-blue-600"
-                            : "border-muted hover:border-primary dark:border-gray-700 dark:hover:border-blue-600"
-                        } ${
-                          supplier.type === "offer"
+                        className={`relative cursor-pointer rounded-lg p-4 transition-all flex-shrink-0 w-36 h-36 flex flex-col justify-center items-center hover:bg-accent/50 border ${selectedSupplier?.id === supplier.id
+                          ? "border-2 border-primary shadow-lg dark:border-blue-600"
+                          : "border-muted hover:border-primary dark:border-gray-700 dark:hover:border-blue-600"
+                          } ${supplier.type === "offer"
                             ? "bg-red-100 dark:bg-red-900/50"
                             : "bg-background dark:bg-gray-800"
-                        }`}
+                          }`}
                         onClick={() =>
                           !loadingSupplierId && handleSelectSupplier(supplier)
                         }
@@ -289,14 +281,7 @@ const ProductCategory = ({ suppliers }: ProductCategoryProps) => {
               />
             </ScrollArea>
 
-            <Button
-              variant="outline"
-              size="icon"
-              className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-background/80 dark:bg-gray-800/80"
-              onClick={scrollRight}
-            >
-              <FaChevronRight className="h-4 w-4" />
-            </Button>
+
           </div>
         )}
       </CardContent>

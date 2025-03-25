@@ -27,6 +27,7 @@ import {
   User2,
   User2Icon,
   UserCheck,
+  Drama,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState, useCallback, memo } from "react";
@@ -78,11 +79,7 @@ const UI_TEXT = {
           href: "/dashboard/drivers",
           icon: <Truck className="h-5 w-5 text-muted-foreground ml-2" />,
         },
-        {
-          label: "ادارة العروض",
-          href: "/dashboard/promotions",
-          icon: <Percent className="h-5 w-5 text-muted-foreground ml-2" />,
-        },
+       
 
         {
           label: "المستخدمين",
@@ -100,6 +97,11 @@ const UI_TEXT = {
           label: "الوردبات",
           href: "/dashboard/shifts",
           icon: <Timer className="h-5 w-5 text-muted-foreground ml-2" />,
+        },
+        {
+          label: "الترويسة",
+          href: "/dashboard/promotions",
+          icon: <Drama className="h-5 w-5 text-muted-foreground ml-2" />,
         },
         {
           label: "الشروظ والاحطام",

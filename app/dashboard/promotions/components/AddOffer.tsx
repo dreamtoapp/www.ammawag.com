@@ -15,7 +15,7 @@ import { createOffer } from "../actions/Actions";
 
 // Centralized UI text for localization
 const UI_TEXT = {
-  title: "إضافة عرض جديد",
+  title: "إضافة ترويسة جديدة",
   fields: {
     name: "اسم العرض",
     actualPrice: "سعر العرض",
@@ -32,9 +32,9 @@ const UI_TEXT = {
     supplier: "اختر نوع العرض",
   },
   buttons: {
-    submit: "إضافة العرض",
+    submit: "إضافة الترويسة",
     submitting: "جاري الحفظ...",
-    showOffers: "مشاهدة العروض",
+    showOffers: "مشاهدة الترويسات",
     fetchingOffers: "جاري جلب البيانات...",
   },
   errors: {
@@ -65,7 +65,6 @@ export default function AddOfferForm({ suppliers }: AddOfferFormProps) {
       const { name, value } = e.target;
       const parsedValue =
         name === "actualPrice" ? parseFloat(value) || 0 : value;
-
       setFormData((prev) => ({ ...prev, [name]: parsedValue }));
       setErrors((prev) => ({ ...prev, [name]: "" }));
     },
@@ -89,11 +88,11 @@ export default function AddOfferForm({ suppliers }: AddOfferFormProps) {
     setLoading(true);
     try {
       // Validate required fields
-      if (!formData.supplierId) {
-        setErrors((prev) => ({ ...prev, supplierId: "فئة العرض مطلوب" }));
-        setLoading(false);
-        return;
-      }
+      // if (!formData.supplierId) {
+      //   setErrors((prev) => ({ ...prev, supplierId: "فئة العرض مطلوب" }));
+      //   setLoading(false);
+      //   return;
+      // }
 
       // Validate image file
       if (!imageFile) {
@@ -130,15 +129,15 @@ export default function AddOfferForm({ suppliers }: AddOfferFormProps) {
       <header className="text-center mb-4">
         <h2 className="text-3xl font-bold text-primary">{UI_TEXT.title}</h2>
         <p className="text-muted-foreground mt-1 text-sm">
-          قم بإضافة عرض جديد إلى المتجر الخاص بك
+          قم بإضافة ترويسة جديده إلى المتجر الخاص بك
         </p>
         {/* Supplier Select in Header */}
         <div className="mt-4 flex justify-center">
           <div className="w-full max-w-md">
-            <label className="text-sm font-medium text-foreground">
+            {/* <label className="text-sm font-medium text-foreground">
               {UI_TEXT.fields.supplier}
-            </label>
-            <Select
+            </label> */}
+            {/* <Select
               onValueChange={handleSupplierChange}
               value={formData.supplierId}
             >
@@ -152,7 +151,7 @@ export default function AddOfferForm({ suppliers }: AddOfferFormProps) {
                   </SelectItem>
                 ))}
               </SelectContent>
-            </Select>
+            </Select> */}
             {errors.supplierId && (
               <p className="text-sm text-destructive mt-1">
                 {errors.supplierId}
@@ -165,17 +164,17 @@ export default function AddOfferForm({ suppliers }: AddOfferFormProps) {
       {/* Form Fields */}
       <form className="space-y-4">
         {/* Name Field */}
-        <InputField
+        {/* <InputField
           name="name"
           label={UI_TEXT.fields.name}
           placeholder={UI_TEXT.placeholders.name}
           value={formData.name}
           onChange={handleChange}
           error={errors.name}
-        />
+        /> */}
 
         {/* Size and Actual Price Fields */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border p-2 rounded-md">
+        {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border p-2 rounded-md">
           <InputField
             name="size"
             label={UI_TEXT.fields.size}
@@ -193,17 +192,17 @@ export default function AddOfferForm({ suppliers }: AddOfferFormProps) {
             error={errors.actualPrice}
             type="number"
           />
-        </div>
+        </div> */}
 
         {/* Details Field */}
-        <InputField
+        {/* <InputField
           name="details"
           label={UI_TEXT.fields.details}
           placeholder={UI_TEXT.placeholders.details}
           value={formData.details}
           onChange={handleChange}
           error={errors.details}
-        />
+        /> */}
 
         {/* Image Upload Field with Buttons */}
         <div className="flex flex-col md:flex-row items-start gap-4">

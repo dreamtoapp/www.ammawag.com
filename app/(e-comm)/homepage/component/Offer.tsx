@@ -1,166 +1,124 @@
 "use client";
-import React, { useState } from "react";
+import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination, Autoplay, EffectFade } from "swiper/modules";
+import { Autoplay, Pagination, EffectCoverflow } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
-import "swiper/css/effect-fade";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import "swiper/css/effect-coverflow";
 import Image from "next/image";
-import {
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-} from "@/components/ui/tooltip";
 
-// Define the Offer type
 interface Offer {
   id: string;
-  createdAt: Date;
-  updatedAt: Date;
-  imageUrl: string | null;
   title: string;
-  description: string;
-  active: boolean;
-  productIds: string[];
-  buttonText?: string;
-  link?: string;
+  imageUrl: string | null;
 }
 
-// Define the props for OfferSlider
 interface OfferSliderProps {
   offers: Offer[];
 }
 
-// Helper Component for Image with Error Handling
-const ImageWithErrorHandling = ({ src, alt }: { src: string; alt: string }) => {
-  const [imageError, setImageError] = React.useState(false);
-
-  return (
-    <div className="relative w-full h-full">
-      {imageError ? (
-        // Fallback Image if External Image Fails
-        <Image
-          src="/fallback-image.jpg"
-          alt={alt}
-          fill
-          className="object-cover"
-          loading="lazy"
-        />
-      ) : (
-        // External Image
-        <Image
-          src={src}
-          alt={alt}
-          fill
-          className="object-cover"
-          quality={80}
-          priority={true}
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          onError={() => setImageError(true)}
-        />
-      )}
-    </div>
-  );
-};
-
 const OfferSlider: React.FC<OfferSliderProps> = ({ offers }) => {
   return (
-    <div className="relative h-[80vh] min-h-[500px] overflow-hidden">
-      {/* Swiper Component */}
-      <Swiper
-        modules={[Pagination, Autoplay, EffectFade]}
-        spaceBetween={0}
-        slidesPerView={1}
-        pagination={{ clickable: true }}
-        autoplay={{
-          delay: 5000,
-          disableOnInteraction: false,
-          pauseOnMouseEnter: true,
-        }}
-        effect="fade"
-        fadeEffect={{ crossFade: true }}
-        className="h-full"
-      >
-        {offers.map((offer) => (
-          <SwiperSlide key={offer.id}>
-            <div className="h-full flex items-center justify-center relative">
-              {/* Background Image with Error Handling */}
-              <div className="absolute inset-0">
-                <ImageWithErrorHandling
-                  src={offer.imageUrl || "/fallback-image.jpg"}
-                  alt={`Background image for ${offer.title}`}
-                />
-              </div>
-
-              {/* Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent"></div>
-
-              {/* Content Box */}
-              <Card className="relative w-full max-w-3xl mx-auto text-center p-8 md:p-12 rounded-xl shadow-2xl bg-gradient-to-br from-white/90 to-white/70 backdrop-blur-md z-10 border border-white/30">
-                <CardHeader>
-                  <CardTitle className="text-5xl md:text-6xl font-extrabold text-primary mb-4 tracking-tight">
-                    {offer.title}
-                  </CardTitle>
-                  <CardDescription className="text-xl md:text-2xl text-gray-800 mb-6 leading-relaxed">
-                    {offer.description}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        className="w-full md:w-auto bg-primary hover:bg-primary-dark text-white px-10 py-5 text-xl md:text-2xl font-semibold rounded-xl transition duration-300 shadow-lg hover:shadow-xl"
-                        aria-label={`Order ${offer.title} now`}
-                        onClick={() => {
-                          if (offer.link) {
-                            window.location.href = offer.link;
-                          }
-                        }}
-                      >
-                        {offer.buttonText || "Order Now"}
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Click to order {offer.title}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </CardContent>
-              </Card>
+    <Swiper
+      modules={[Autoplay, Pagination, EffectCoverflow]}
+      effect="coverflow"
+      grabCursor={true}
+      centeredSlides={true}
+      coverflowEffect={{
+        rotate: 15,
+        stretch: 0,
+        depth: 300,
+        modifier: 1,
+        slideShadows: false,
+      }}
+      autoplay={{
+        delay: 3000,
+        disableOnInteraction: false,
+        pauseOnMouseEnter: true,
+      }}
+      // pagination={{
+      //   clickable: true,
+      //   bulletClass: "swiper-pagination-bullet bg-gray-400 hover:bg-gray-600",
+      //   bulletActiveClass: "swiper-pagination-bullet-active !bg-primary",
+      // }}
+      loop={true}
+      speed={1000}
+      slidesPerView={1}
+      spaceBetween={30}
+      breakpoints={{
+        640: {
+          slidesPerView: 1.5,
+          coverflowEffect: {
+            rotate: 10,
+            depth: 200,
+          },
+        },
+        768: {
+          slidesPerView: 3,
+          coverflowEffect: {
+            rotate: 0,
+            stretch: -30,
+            depth: 100,
+            modifier: 2.5,
+          },
+        },
+      }}
+      className="w-full h-full pb-16"
+    >
+      {offers.map((offer) => (
+        <SwiperSlide key={offer.id} className="!h-auto !flex items-center">
+          <div className="relative w-full max-w-[720px] aspect-[720/550] mx-auto rounded-xl overflow-hidden group transform transition-transform duration-300 hover:scale-105 shadow-xl">
+            <div className="absolute inset-0 w-full h-full">
+              <Image
+                src={offer.imageUrl || "/fallback-image.jpg"}
+                alt={offer.title}
+                fill
+                className="object-cover object-center"
+                priority
+                sizes="(max-width: 768px) 90vw, 720px"
+                quality={90}
+              />
             </div>
-          </SwiperSlide>
-        ))}
-      </Swiper>
-    </div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent flex items-end p-6">
+              <h3 className="text-white text-xl font-bold">{offer.title}</h3>
+            </div>
+          </div>
+        </SwiperSlide>
+      ))}
+
+      <style jsx global>{`
+        .swiper-pagination {
+          bottom: 30px !important;
+        }
+        .swiper-slide {
+          transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        .swiper-slide-active {
+          transform: translate3d(0, 0, 0) scale(1) !important;
+          z-index: 1;
+        }
+        .swiper-slide-next,
+        .swiper-slide-prev {
+          transform: translate3d(0, 0, -100px) rotateX(20deg) scale(0.9) !important;
+          opacity: 0.7;
+        }
+        @media (max-width: 768px) {
+          .swiper-slide-next,
+          .swiper-slide-prev {
+            transform: translate3d(0, 0, -50px) rotateX(30deg) scale(0.85) !important;
+          }
+        }
+      `}</style>
+    </Swiper>
   );
 };
 
-// Main Component with Toggle
 const OfferSection: React.FC<OfferSliderProps> = ({ offers }) => {
-  const [showOffers, setShowOffers] = useState(true);
-
-  const toggleOffers = () => {
-    setShowOffers((prev) => !prev);
-  };
-
   return (
-    <section className="relative">
-      <div className="flex justify-end mb-4">
-        <Button
-          onClick={toggleOffers}
-          className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition duration-300"
-        >
-          {showOffers ? "اخفاء" : "عرض"}
-        </Button>
+    <section className="relative py-12 px-4 bg-gray-100 dark:bg-gray-800">
+      <div className="container mx-auto">
+        <OfferSlider offers={offers} />
       </div>
-      {showOffers && <OfferSlider offers={offers} />}
     </section>
   );
 };

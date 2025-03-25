@@ -7,9 +7,9 @@ async function page() {
   const offerCategory = await getOfferCategory();
 
   return (
-    <div>
+   
       <AddOfferForm suppliers={offerCategory} />
-    </div>
+     
   );
 }
 
