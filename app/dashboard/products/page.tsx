@@ -72,15 +72,15 @@ export default async function ProductsPage({
 
         {/* Supplier Details */}
         <div className="flex-grow">
-          <h2 className="text-xl font-semibold text-foreground">
+          <h2 className="text-xl font-semibold text-foreground mr-4">
             {supplier.name}
           </h2>
-          <p className="text-sm text-muted-foreground">
+          {/* <p className="text-sm text-muted-foreground">
             <strong>Email:</strong> {supplier.email}
           </p>
           <p className="text-sm text-muted-foreground">
             <strong>Phone:</strong> {supplier.phone}
-          </p>
+          </p> */}
         </div>
       </div>
 

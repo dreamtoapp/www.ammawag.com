@@ -1,8 +1,8 @@
 // app/dashboard/suppliers/actions/supplierActions.ts
 "use server";
 import db from "@/lib/prisma";
-import { uploadImageToCloudinary } from "@/lib/cloudinary";
 import { revalidatePath } from "next/cache";
+import { ImageToCloudinary } from "../../../../lib/uploadImageToCloudinary";
 
 // Create or Update Supplier
 export async function updateSupplier(id: string, data: any) {
@@ -104,10 +104,18 @@ export async function createOrUpdateSupplier(
   // Upload the logo to Cloudinary if a file is provided
   if (logoFile) {
     try {
-      const cloudinaryResponse = await uploadImageToCloudinary(
+      // const cloudinaryResponse = await uploadImageToCloudinary(
+      //   logoFile,
+      //   process.env.CLOUDINARY_UPLOAD_PRESET_SUPPLIER || ""
+      // );
+      const cloudinaryResponse = await ImageToCloudinary(
         logoFile,
         process.env.CLOUDINARY_UPLOAD_PRESET_SUPPLIER || ""
       );
+
+      
+
+      
       logoUrl = cloudinaryResponse.secure_url; // Save the secure URL
       publicId = cloudinaryResponse.public_id; // Save the public ID directly
     } catch (error: any) {

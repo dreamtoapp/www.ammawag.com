@@ -21,7 +21,7 @@ export default function AddSupplierDialog() {
     email: "",
     phone: "",
     address: "",
-    type: "supplier", // Default type is "supplier"
+    type: "company", // Default type is "supplier"
   });
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -74,7 +74,7 @@ export default function AddSupplierDialog() {
         email: "",
         phone: "",
         address: "",
-        type: "supplier", // Reset type to default
+        type: "company", // Reset type to default
       });
       setLogoFile(null);
       setPreviewUrl(null);

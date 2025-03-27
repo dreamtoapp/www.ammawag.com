@@ -18,6 +18,9 @@ export default async function SuppliersPage() {
   // Fetch suppliers on the server side
   const suppliers = await getSuppliers();
 
+
+
+
   return (
     <div className="flex flex-col bg-background min-h-screen">
       {/* Enhanced Sticky Header */}

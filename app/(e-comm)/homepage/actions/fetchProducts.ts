@@ -38,11 +38,11 @@ export async function getSuppliersWithProducts(sid?: string) {
     const suppliersWithProducts = await db.supplier.findMany({
       where: {
         id: sid ? sid : undefined, // Filter by supplierId if sid is provided
-        products: {
-          some: {
-            published: true, // Ensure the supplier has at least one published product
-          },
-        },
+        // products: {
+        //   some: {
+        //     published: true, // Ensure the supplier has at least one published product
+        //   },
+        // },
       },
       include: {
         _count: {
@@ -56,6 +56,7 @@ export async function getSuppliersWithProducts(sid?: string) {
         },
       },
     });
+      console.log(suppliersWithProducts)
 
     return suppliersWithProducts;
   } catch (error) {

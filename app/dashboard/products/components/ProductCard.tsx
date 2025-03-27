@@ -6,11 +6,10 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import CardImage from "../../../../components/CardImage"; // Import the enhanced CardImage component
 import EditProductDialog from "./EditProductDialog";
-import { Trash2, Eye } from "lucide-react"; // Import icons for delete and view transactions
-import { cn } from "@/lib/utils"; // Utility for combining class names
+import { Eye } from "lucide-react"; // Import icons for delete and view transactions
+import Link from "next/link";
 
 interface ProductCardProps {
   product: {
@@ -62,18 +61,17 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
       </CardContent>
 
-      {/* Card Footer */}
       <CardFooter className="p-4 flex justify-between items-center border-t border-border bg-card">
-        {/* Edit Button */}
-        <EditProductDialog product={product} />
-        {/* Delete Button */}
-        <Button variant="destructive" size="icon" className="ml-2">
-          <Trash2 className="h-4 w-4" />
-        </Button>
-        {/* View Transactions Button */}
-        <Button variant="secondary" size="icon" className="ml-2">
+        {/* <EditProductDialog product={product} /> */}
+        <Link
+          href={`/dashboard/porductmangment/itemdetail/${product.id}`}
+          className="flex bg-primary w-full items-center justify-center gap-2   hover:bg-primary/10 p-2 rounded-md text-primary-foreground transition-colors"
+          aria-label="عرض التفاصيل"
+          onClick={() => console.log("View product details:", product.id)}
+        >
           <Eye className="h-4 w-4" />
-        </Button>
+          <span className="truncate">عرض التفاصيل</span>
+        </Link>
       </CardFooter>
     </Card>
   );

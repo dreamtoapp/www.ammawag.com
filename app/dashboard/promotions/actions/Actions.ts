@@ -32,7 +32,6 @@ export async function createOffer(formData: FormData) {
 
     // Upload image to Cloudinary
     const imageUrl = await uploadImage(image);
-    console.log("imageUrl", imageUrl);
     const newOffer = await db.promotion.create({
       data: {
         // name,

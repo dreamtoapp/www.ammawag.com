@@ -6,7 +6,6 @@ type Params = Promise<{ id: string }>;
 export default async function shipOrder({ params }: { params: Params }) {
   const { id } = await params;
 
-  console.log(id);
   const order = await getOrder(id);
   const drivers = await getDriver();
   if (!order) {

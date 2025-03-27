@@ -40,7 +40,6 @@ export default function DriverOrderCard({ order }: { order: Order }) {
   const UPDATE_INTERVAL = 300; // 5 minutes in seconds (configurable)
   const [isTracking, setIsTracking] = useState(false);
   const [countdown, setCountdown] = useState(UPDATE_INTERVAL);
-  console.log(order.orderNumber);
 
   const handleStartTrip = async () => {
     try {

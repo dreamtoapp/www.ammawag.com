@@ -81,16 +81,16 @@ export default function ProductCard({ product }: ProductCardProps) {
                 product.stockStatus === "in_stock"
                   ? "default"
                   : product.stockStatus === "low_stock"
-                  ? "secondary"
-                  : "destructive"
+                    ? "secondary"
+                    : "destructive"
               }
               className="w-fit"
             >
               {product.stockStatus === "in_stock"
                 ? UI_TEXT.inStock
                 : product.stockStatus === "low_stock"
-                ? UI_TEXT.lowStock
-                : UI_TEXT.outOfStock}
+                  ? UI_TEXT.lowStock
+                  : UI_TEXT.outOfStock}
             </Badge>
           )}
           <Badge
@@ -160,7 +160,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           href={`/dashboard/porductmangment/itemdetail/${product.id}`}
           className="flex bg-primary w-full items-center justify-center gap-2   hover:bg-primary/10 p-2 rounded-md text-primary-foreground transition-colors"
           aria-label={UI_TEXT.viewDetails}
-          onClick={() => console.log("View product details:", product.id)}
+
         >
           <Eye className="h-4 w-4" />
           <span className="truncate">{UI_TEXT.viewDetails}</span>

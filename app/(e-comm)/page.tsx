@@ -33,6 +33,7 @@ export default async function Page({
 }) {
   const resolvedSearchParams = await searchParams;
   const { sid } = resolvedSearchParams;
+  console.log(sid)
 
   // Fetch data in parallel
   const [products, supplierWithItems, promotions] = await Promise.all([
@@ -40,7 +41,6 @@ export default async function Page({
     getSuppliersWithProducts(),
     getPromotions(),
   ]);
-  console.log(promotions);
 
   return (
     <div className="container mx-auto bg-background text-foreground flex flex-col gap-4">

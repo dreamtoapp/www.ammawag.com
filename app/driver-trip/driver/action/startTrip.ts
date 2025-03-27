@@ -8,18 +8,14 @@ const isValidId = (id: string) => /^[0-9a-f]{24}$/.test(id);
 export const startTrip = async (
   orderId: string,
   driverId: string,
-  // orderNumber: string,
   latitude: number,
   longitude: number
 ): Promise<Result> => {
-  console.log("startTrip.ts loaded successfully");
   if (!isValidId(orderId) || !isValidId(driverId)) {
     return { success: false, error: "Invalid ID format" };
   }
-  // console.log(typeof orderNumber);
 
   try {
-    // Check for existing active trips
     const existingTrip = await db.orderInWay.findFirst({
       where: { driverId },
     });

@@ -23,7 +23,6 @@ const fetchWithRetry = async (
 
 export const fetchAddressFromCoordinates = async (lat: number, lng: number) => {
   try {
-    console.log("Fetching address for:", lat, lng); // Debugging
     const response = await fetchWithRetry(
       `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`,
       3, // Retry up to 3 times

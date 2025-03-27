@@ -79,7 +79,7 @@ const UI_TEXT = {
           href: "/dashboard/drivers",
           icon: <Truck className="h-5 w-5 text-muted-foreground ml-2" />,
         },
-       
+
 
         {
           label: "المستخدمين",
@@ -205,7 +205,7 @@ export function AppSidebar() {
           <LogOut size={16} />
         </Link>
 
-        <Link href={{ pathname: "/users" }}>
+        <Link href={{ pathname: "/khalidnadish" }}>
           <File size={16} />
         </Link>
 

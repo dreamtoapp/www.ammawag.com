@@ -35,6 +35,7 @@ interface ProductCategoryProps {
 }
 
 const ProductCategory = ({ suppliers }: ProductCategoryProps) => {
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(
@@ -109,17 +110,7 @@ const ProductCategory = ({ suppliers }: ProductCategoryProps) => {
       return 0;
     });
 
-  const scrollLeft = () => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollLeft -= 100;
-    }
-  };
 
-  const scrollRight = () => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollLeft += 100;
-    }
-  };
 
   return (
     <Card className="w-full max-w-screen-lg mx-auto rtl text-right shadow-lg dark:bg-gray-900 dark:border-gray-800">
@@ -253,16 +244,43 @@ const ProductCategory = ({ suppliers }: ProductCategoryProps) => {
                         </div>
 
                         {supplier._count?.products !== undefined && (
-                          <Badge
-                            variant={
-                              selectedSupplier?.id === supplier.id
-                                ? "default"
-                                : "secondary"
-                            }
-                            className="absolute -top-2 -right-2 shadow-sm dark:bg-gray-800 dark:text-gray-100"
+
+                          supplier._count.products === 0 ? <Badge
+                            variant="destructive"
+                            className="absolute -top-2 -right-2 shadow-sm"
                           >
-                            {supplier._count.products} منتجات
+                            لا توجد منتجات
+                          </Badge> : <Badge
+                            variant={
+                              "default"
+                            }
+                            className="absolute -top-2 -right-2 shadow-sm "
+                          >
+
+                            <div>{supplier._count.products} منتجات</div>
+
+
                           </Badge>
+
+
+
+
+
+
+
+                          // <Badge
+                          //   variant={
+                          //     selectedSupplier?.id === supplier.id
+                          //       ? "default"
+                          //       : "secondary"
+                          //   }
+                          //   className="absolute -top-2 -right-2 shadow-sm dark:bg-gray-800 dark:text-gray-100"
+                          // >
+
+                          //   {supplier._count.products === 0 ? <p className="text-xs bg-red-200 ">لا يوجد منتجات</p> : <div>{supplier._count.products} منتجات</div>}
+
+
+                          // </Badge>
                         )}
                       </div>
                     </TooltipTrigger>

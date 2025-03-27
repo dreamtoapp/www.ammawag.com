@@ -34,7 +34,6 @@ export async function createUser(
     user = await db.user.create({
       data: { phone, name, address, latitude: lat, longitude: lng },
     });
-    console.log("User created successfully. User ID:", user.id);
 
     // OTP logic (if needed)
     const otp = Math.floor(100000 + Math.random() * 900000).toString();

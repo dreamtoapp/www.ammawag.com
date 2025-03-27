@@ -100,3 +100,12 @@ export async function uploadImageToCloudinary(
 }
 
 export default cloudinary.v2;
+
+
+ 
+
+export interface CloudinaryUploadResult {
+  secure_url: string;
+  public_id: string;
+}
+

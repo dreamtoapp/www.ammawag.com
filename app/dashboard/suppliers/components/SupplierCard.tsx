@@ -44,16 +44,16 @@ const SupplierCard: React.FC<SupplierCardProps> = React.memo(({ supplier }) => {
     <Card className="rounded-lg border border-border bg-background shadow-sm h-full rtl hover:shadow-md transition-shadow duration-200">
       {/* Card Header */}
       <CardHeader className="flex flex-col justify-between items-start p-4 border-b border-border">
-        {supplier.type}
+        {supplier.type === "offer" ? <div className="font-semibold text-foreground bg-green-300 w-full rounded-md flex items-center justify-center p-2">عرض</div> : <div className="font-semibold text-foreground bg-blue-200 w-full rounded-md flex items-center justify-center p-2">شركة</div>}
+
         <div className="flex items-center justify-between w-full">
           {/* Product Count Badge */}
           <Badge
             variant={supplier.productCount > 0 ? "outline" : "secondary"}
-            className={`rounded-xl text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
-              supplier.productCount > 0
-                ? "bg-secondary text-secondary-foreground"
-                : "bg-destructive/70 text-white"
-            }`}
+            className={`rounded-xl text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${supplier.productCount > 0
+              ? "bg-secondary text-secondary-foreground"
+              : "bg-destructive/70 text-white"
+              }`}
             aria-label={UI_TEXT.ariaLabel.productCount(supplier.productCount)}
           >
             {UI_TEXT.products(supplier.productCount)}
@@ -91,11 +91,10 @@ const SupplierCard: React.FC<SupplierCardProps> = React.memo(({ supplier }) => {
         {supplier.type === "company" && (
           <Link
             href={`/dashboard/products?supplierId=${supplier.id}`}
-            className={`w-full flex items-center justify-center px-4 py-2 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${
-              supplier.productCount > 0
-                ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                : "bg-green-600 text-white hover:bg-green-700"
-            }`}
+            className={`w-full flex items-center justify-center px-4 py-2 rounded-md text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 ${supplier.productCount > 0
+              ? "bg-primary text-primary-foreground hover:bg-primary/90"
+              : "bg-green-600 text-white hover:bg-green-700"
+              }`}
             aria-label={
               supplier.productCount > 0
                 ? UI_TEXT.ariaLabel.manageProducts

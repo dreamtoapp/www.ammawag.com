@@ -35,7 +35,6 @@ function DeleverOrder({
       `/driver-trip/driver?driverId=${driverId}&status=InWay&name=${driverName}`
     );
     setOpen(false);
-    console.log("Order delivered!");
   };
 
   return (
